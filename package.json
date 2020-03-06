@@ -25,9 +25,7 @@
     "babel-register": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "chai": "4.2.0",
-    "openzeppelin-solidity": "^2.5.0",
-    "@openzeppelin/test-helpers": "^0.5.4",
-    "truffle-hdwallet-provider": "^1.0.17"
+    "@openzeppelin/test-helpers": "^0.5.4"
   },
   "author": "Ivan Solomichev",
   "license": "ISC",
