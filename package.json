@@ -1,0 +1,38 @@
+{
+  "name": "madoff_jeremie",
+  "version": "1.0.0",
+  "description": "Madoff game for Ethereum and Tron Blockchains",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VanijaDev/madoff_jeremie.git"
+  },
+  "keywords": [
+    "madoff",
+    "game",
+    "gambling",
+    "crypto",
+    "ethereum",
+    "eth",
+    "tron",
+    "trx"
+  ],
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "babel-register": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "chai": "4.2.0",
+    "openzeppelin-solidity": "^2.5.0",
+    "@openzeppelin/test-helpers": "^0.5.4",
+    "truffle-hdwallet-provider": "^1.0.17"
+  },
+  "author": "Ivan Solomichev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VanijaDev/madoff_jeremie/issues"
+  },
+  "homepage": "https://github.com/VanijaDev/madoff_jeremie#readme"
+}
