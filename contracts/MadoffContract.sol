@@ -29,7 +29,7 @@ contract MadoffContract {
 
 
   constructor(address _OWNER_ADDR) public {
-      OWNER_ADDR = _OWNER_ADDR;
+    OWNER_ADDR = _OWNER_ADDR;
   }
 
   /**
@@ -37,18 +37,17 @@ contract MadoffContract {
    * @param _websiteAddr Website address, that trx was sent from.
    */
   function purchase(address _websiteAddr) public payable {
-    uint256 sharesNumber = getSharesNumberAndUpdateOngoingStage(msg.value);
-    require(sharesNumber > 0, "Min 1 share");
+    // uint256 sharesNumber = getSharesNumberAndUpdateOngoingStage(msg.value);
+    // require(sharesNumber > 0, "Min 1 share");
 
     //  make calculations
-    uint256 partJackpot = msg.value.mul(uint256(PURCHASE_PERCENT_JACKPOT)).div(uint256(100));
+    uint256 partJackpot = msg.value.mul(uint256(SHARE_PURCHASE_PERCENT_JACKPOT)).div(uint256(100));
     ongoingJackpot = ongoingJackpot.add(partJackpot);
 
-    uint256 partPurchasedShares = msg.value.mul(uint256(PURCHASE_PERCENT_PURCHASED_SHARES)).div(uint256(100));
-    //  add to all shareholders
-
-    uint256 partBernardWebsiteFee = msg.value.mul(uint256(PURCHASE_PERCENT_BERNARD_WEBSITE)).div(uint256(100));
+    uint256 partBernardWebsiteFee = msg.value.mul(uint256(SHARE_PURCHASE_PERCENT_BERNARD_WEBSITE)).div(uint256(100));
     ongoingBernardFee = ongoingBernardFee.add(partBernardWebsiteFee);
+
+    //  add to all shareholders
 
     if (_websiteAddr == address(0)) {
       websiteFee[OWNER_ADDR] = websiteFee[OWNER_ADDR].add(partBernardWebsiteFee);
@@ -58,9 +57,9 @@ contract MadoffContract {
   }
 
   function getSharesNumberAndUpdateOngoingStage(uint256 _amount) private view returns(uint256) {
-    uint16 sharePrice = sharePriceForStage[ongoingStage];
-    uint256 sharesNumberForOngoingStage = msg.value.div(uint256(sharePrice));
-    sharesForAddr[msg.sender] = sharesForAddr[msg.sender].add(sharesNumber);
+    // uint16 sharePrice = sharePriceForStage[ongoingStage];
+    // uint256 sharesNumberForOngoingStage = msg.value.div(uint256(sharePrice));
+    // sharesForAddr[msg.sender] = sharesForAddr[msg.sender].add(sharesNumber);
 
   }
   
