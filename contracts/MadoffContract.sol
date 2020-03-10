@@ -5,9 +5,9 @@ import "./SafeMath.sol";
 contract MadoffContract {
   using SafeMath for uint256;
 
-  uint8 constant PURCHASE_PERCENT_JACKPOT = 40;
-  uint8 constant PURCHASE_PERCENT_PURCHASED_SHARES = 50;
-  uint8 constant PURCHASE_PERCENT_BERNARD_WEBSITE = 5;  //  both has 5%
+  uint8 constant SHARE_PURCHASE_PERCENT_JACKPOT = 40;
+  uint8 constant SHARE_PURCHASE_PERCENT_PURCHASED_SHARES = 50;
+  uint8 constant SHARE_PURCHASE_PERCENT_BERNARD_WEBSITE = 5;  //  both has 5%
 
   uint8 constant JACKPOT_PERCENT_WINNER = 80;
   uint8 constant JACKPOT_PERCENT_SHAREHOLDERS = 80;
