@@ -10,7 +10,6 @@ contract MadoffContract {
   uint8 constant SHARE_PURCHASE_PERCENT_BERNARD_WEBSITE = 5;  //  both has 5%
 
   uint8 constant JACKPOT_PERCENT_WINNER = 80;
-  uint8 constant JACKPOT_PERCENT_SHAREHOLDERS = 80;
 
   uint8 public ongoingStage;
   uint8 public maxStageNumber = 13;
@@ -24,7 +23,7 @@ contract MadoffContract {
   uint32[14] public sharesForStageToPurchase = [2500,     5000,     3125,     12500,    10000,     62500,     62500,     400000,    390625,    2000000,   562500,    10000000,   12500000,   25000000];
   uint256[14] public sharePriceForStage =      [10000000, 20000000, 40000000, 80000000, 125000000, 160000000, 200000000, 250000000, 320000000, 500000000, 800000000, 1000000000, 1000000000, 1000000000];
 
-    //  2500 * 10000000 -> 1, 0.000000025
+    //  2500 * 10 000 000 -> 1, 0.000000025
     //  5000 * 20000000 + 3125 * 40000000 -> 3, 0.000000225
     //  12500 * 80000000 + 10000 * 125000000 + 62500 * 160000000 -> 6, 0.00001225
     //  62500 * 200000000 + 400000 * 250000000 + 390625 * 320000000 -> 9, 0.0002375
@@ -39,23 +38,41 @@ contract MadoffContract {
   address public ongoingWinner;
   mapping(address => uint256) public websiteFee;
   mapping(address => uint256) public sharesForAddr;
-  mapping(address => uint256) public prizeForAddr;
+  mapping(address => uint256) public jackpotForAddr;
 
   event PrizeWithdrawn(address indexed to, uint256 indexed amount);
   event WebsiteFeeWithdrawn(address indexed to, uint256 indexed amount);
   event Purchase(address indexed from, uint256 indexed sharesNumber);
   event GameRestarted();
+
+
+
+
+
+
+  uint256 countdownResetNumber; //  number of times, when timer got to 0 (1. jackpot calculated; 2. no new shares for previous users)
+  struct CountdownSessionInfo { //  information about countdown session
+    mapping(address => uint256) sharesForAddr;
+    mapping(address => uint256) withdrawnProfitOnSessionIdx;
+  }
+  mapping (uint256 => CountdownSessionInfo) private infoForCountdownSession;
+  
+  
+  
+  
+  
+  
   
   constructor(address _OWNER_ADDR) public {
     OWNER_ADDR = _OWNER_ADDR;
   }
 
-  function withdrawPrize() public {
-    uint256 prizeTmp = prizeForAddr[msg.sender];
-    delete prizeForAddr[msg.sender];
-    msg.sender.transfer(prizeTmp);
+  function withdrawJackpot() public {
+    uint256 jptTmp = jackpotForAddr[msg.sender];
+    delete jackpotForAddr[msg.sender];
+    msg.sender.transfer(jptTmp);
 
-    emit PrizeWithdrawn(msg.sender, prizeTmp);
+    emit PrizeWithdrawn(msg.sender, jptTmp);
   }
 
   function withdrawWebsiteFee() public {
@@ -80,21 +97,26 @@ contract MadoffContract {
       ongoingStageDurationExceeded();
     }
 
-    //  make calculations
+    //  jackpot
     uint256 partJackpot = msg.value.mul(uint256(SHARE_PURCHASE_PERCENT_JACKPOT)).div(uint256(100));
     ongoingJackpot = ongoingJackpot.add(partJackpot);
+    
+    //  TODO: previous shares
+    uint256 partPreviousShares = msg.value.mul(uint256(SHARE_PURCHASE_PERCENT_PURCHASED_SHARES)).div(uint256(100));
+    // uint256 singleShareFee;
 
+    //  ongoingBernardFee
     uint256 partBernardWebsiteFee = msg.value.mul(uint256(SHARE_PURCHASE_PERCENT_BERNARD_WEBSITE)).div(uint256(100));
     ongoingBernardFee = ongoingBernardFee.add(partBernardWebsiteFee);
 
+    //  websiteFee
     if (_websiteAddr == address(0)) {
-      websiteFee[OWNER_ADDR] = websiteFee[OWNER_ADDR].add(partBernardWebsiteFee);
+      ongoingBernardFee = ongoingBernardFee.add(partBernardWebsiteFee);
     } else {
       websiteFee[_websiteAddr] = websiteFee[_websiteAddr].add(partBernardWebsiteFee);
     }
-    
-    //  TODO: add to all shareholders
 
+    //  shares
     uint256 shares = getSharesAndUpdateOngoingStageInfo(msg.value);
     require(shares > 0, "Min 1 share");
     
@@ -115,11 +137,18 @@ contract MadoffContract {
   function ongoingStageDurationExceeded() private {
     uint256 jptTmp = ongoingJackpot;
     delete ongoingJackpot;
-    prizeForAddr[ongoingWinner] = prizeForAddr[ongoingWinner].add(jptTmp);
+
+    //  winner - 80%
+    uint256 winnerJptPart = jptTmp.mul(uint256(JACKPOT_PERCENT_WINNER)).div(uint256(100));
+    jackpotForAddr[ongoingWinner] = jackpotForAddr[ongoingWinner].add(winnerJptPart);
+
+    //  previous shares - 20%
+    
+
+    //  TODO: ongoing shareholders - must not receive new shares. remove to history.
+
     delete ongoingWinner;
     delete ongoingStage;
-    
-    //  TODO: ongoing shareholders - must not receive new shares. remove to history.
   }
 
   function getSharesAndUpdateOngoingStageInfo(uint256 _amount) private returns(uint256) {
