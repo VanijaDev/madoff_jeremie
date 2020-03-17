@@ -1,9 +1,8 @@
 pragma solidity 0.4.25;
 
-import "./SafeMath.sol";
+import "./CountdownSessionManager.sol";
 
-contract MadoffContract {
-  using SafeMath for uint256;
+contract MadoffContract is CountdownSessionManager {
 
   uint8 constant SHARE_PURCHASE_PERCENT_JACKPOT = 40;
   uint8 constant SHARE_PURCHASE_PERCENT_PURCHASED_SHARES = 50;
@@ -37,31 +36,13 @@ contract MadoffContract {
   uint256 public ongoingBernardFee;
   address public ongoingWinner;
   mapping(address => uint256) public websiteFee;
-  mapping(address => uint256) public sharesForAddr;
   mapping(address => uint256) public jackpotForAddr;
 
   event PrizeWithdrawn(address indexed to, uint256 indexed amount);
   event WebsiteFeeWithdrawn(address indexed to, uint256 indexed amount);
   event Purchase(address indexed from, uint256 indexed sharesNumber);
   event GameRestarted();
-
-
-
-
-
-
-  uint256 countdownResetNumber; //  number of times, when timer got to 0 (1. jackpot calculated; 2. no new shares for previous users)
-  struct CountdownSessionInfo { //  information about countdown session
-    mapping(address => uint256) sharesForAddr;
-    mapping(address => uint256) withdrawnProfitOnSessionIdx;
-  }
-  mapping (uint256 => CountdownSessionInfo) private infoForCountdownSession;
-  
-  
-  
-  
-  
-  
+ 
   
   constructor(address _OWNER_ADDR) public {
     OWNER_ADDR = _OWNER_ADDR;
@@ -100,10 +81,6 @@ contract MadoffContract {
     //  jackpot
     uint256 partJackpot = msg.value.mul(uint256(SHARE_PURCHASE_PERCENT_JACKPOT)).div(uint256(100));
     ongoingJackpot = ongoingJackpot.add(partJackpot);
-    
-    //  TODO: previous shares
-    uint256 partPreviousShares = msg.value.mul(uint256(SHARE_PURCHASE_PERCENT_PURCHASED_SHARES)).div(uint256(100));
-    // uint256 singleShareFee;
 
     //  ongoingBernardFee
     uint256 partBernardWebsiteFee = msg.value.mul(uint256(SHARE_PURCHASE_PERCENT_BERNARD_WEBSITE)).div(uint256(100));
@@ -120,9 +97,12 @@ contract MadoffContract {
     uint256 shares = getSharesAndUpdateOngoingStageInfo(msg.value);
     require(shares > 0, "Min 1 share");
     
+    //  previous shares
+    uint256 partPreviousShares = msg.value.mul(uint256(SHARE_PURCHASE_PERCENT_PURCHASED_SHARES)).div(uint256(100));
+    sharesPurchased(shares, msg.sender, partPreviousShares);
+    
     latestPurchaseBlock = block.number;
     ongoingWinner = msg.sender;
-    sharesForAddr[ongoingWinner] = sharesForAddr[ongoingWinner].add(shares);
 
     emit Purchase(ongoingWinner, shares);
   }
