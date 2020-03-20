@@ -100,6 +100,9 @@ contract MadoffContract is CountdownSessionManager {
     
     //  previous shares
     uint256 partPreviousShares = msg.value.mul(uint256(SHARE_PURCHASE_PERCENT_PURCHASED_SHARES)).div(uint256(100));
+    if (sessionInfoForIdx[ongoingSessionIdx].purchaseNumberForOngoingSession == 0) {
+      ongoingBernardFee = ongoingBernardFee.add(partPreviousShares);
+    }
     sharesPurchased(shares, msg.sender, partPreviousShares);
     
     latestPurchaseBlock = block.number;
@@ -124,11 +127,8 @@ contract MadoffContract is CountdownSessionManager {
     jackpotForAddr[ongoingWinner] = jackpotForAddr[ongoingWinner].add(winnerJptPart);
 
     //  previous shares - 20%
-    
-
-    //  TODO: ongoing shareholders - must not receive new shares. remove to history.
-
-    countdownWasReset();
+    uint256 prevSharesPart = jptTmp.sub(winnerJptPart);
+    countdownWasReset(prevSharesPart);
     
     delete ongoingWinner;
     delete ongoingStage;
@@ -175,6 +175,23 @@ contract MadoffContract is CountdownSessionManager {
 
     uint256 sharePrice = sharePriceForStage[_stage];
     shares = _amount.div(uint256(sharePrice));
+  }
+
+  //  WITHDRAW
+  function withdrawWebsiteFee() public {
+    uint256 feeTmp = websiteFee[msg.sender];
+    require(feeTmp > 0, "No fee");
+
+    delete websiteFee[msg.sender];
+    msg.sender.transfer(feeTmp);
+  }
+
+  function withdrawJackpot() public {
+    uint256 jptTmp = jackpotForAddr[msg.sender];
+    require(jptTmp > 0, "No jackpot");
+
+    delete jackpotForAddr[msg.sender];
+    msg.sender.transfer(jptTmp);
   }
   
 }
