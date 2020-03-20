@@ -15,7 +15,7 @@ contract CountdownSessionManager {
   }
 
   struct ProfitWithdrawalInfo {
-    uint256 sharesProfitWithdrawnOnSessionIdx;
+    uint256 sharesProfitWithdrawnOnParticipatedSessionIdx;  //  sessionInfoIdxsForPurchaser array is used
     uint256 sharesProfitWithdrawnOnPurchaseIdx;
     uint256 jackpotProfitForSharesWithdrawnOnParticipatedSessionIdx;  //  sessionInfoIdxsForPurchaser array is used
   }
@@ -80,7 +80,7 @@ contract CountdownSessionManager {
   }
 
   //  1. jackpot for shares
-  function getJackpotRevenueForShares(address _address, uint256 _loopLimit) public view returns(uint256 profit) {
+  function getJackpotProfitForShares(address _address, uint256 _loopLimit) public view returns(uint256 profit) {
     uint256[] sessionsParticipated = sessionInfoIdxsForPurchaser[_address];
     require(sessionsParticipated.length > 0, "No sessions participated");
 
@@ -88,12 +88,16 @@ contract CountdownSessionManager {
     uint256 jackpotWithdrawnOnSessionIdx = info.jackpotProfitForSharesWithdrawnOnParticipatedSessionIdx;
     
     uint256 startIdx = (jackpotWithdrawnOnSessionIdx == 0) ? sessionsParticipated[0] : sessionsParticipated[jackpotWithdrawnOnSessionIdx + 1];
-    uint256 loopCount = sessionsParticipated.length.sub(startIdx).sub(1);
-    if (loopCount > _loopLimit) {
-      loopCount = _loopLimit;
-    }
+    uint256 loopCount = sessionsParticipated.length.sub(startIdx);
+    uint256 workingIdx;
 
     for (uint256 i  = startIdx; i < loopCount; i ++) {
+      if (i > _loopLimit) {
+        break;
+      }
+
+      workingIdx = i;
+
       uint256 sessionInfoIdx = sessionsParticipated[i];
       SessionInfo sessionInfo = sessionInfoForIdx[sessionInfoIdx];
       
@@ -103,23 +107,42 @@ contract CountdownSessionManager {
       profit = profit.add(profitTmp);
     }
 
-    info.jackpotProfitForSharesWithdrawnOnParticipatedSessionIdx = startIdx.add(loopCount).sub(1);
+    info.jackpotProfitForSharesWithdrawnOnParticipatedSessionIdx = workingIdx;
   }
 
   //  2. shares profit
-  function getSharesProfit(address _address, uint256 _loopLimit) public view returns(uint256 profit) {
+  function getSharesProfit(address _address, uint256 _loopLimitForSessions) public view returns(uint256 profit) {
     uint256[] sessionsParticipated = sessionInfoIdxsForPurchaser[_address];
     require(sessionsParticipated.length > 0, "No sessions participated");
 
     ProfitWithdrawalInfo storage info = addressWithdrawalProfitInfo[msg.sender];
-    uint256 withdrawnOnSessionIdx = info.sharesProfitWithdrawnOnSessionIdx;
+    uint256 withdrawnOnSessionIdx = info.sharesProfitWithdrawnOnParticipatedSessionIdx;
     uint256 withdrawnOnPurchaseIdx = info.sharesProfitWithdrawnOnPurchaseIdx;
 
-    uint256 loopCount;
-    uint256 sessionStartIdx = (withdrawnOnSessionIdx == 0) ? 0 : withdrawnOnSessionIdx.add(1);
+    uint256 sessionStartIdx = withdrawnOnSessionIdx;
+    uint256 loopCount = sessionsParticipated.length.sub(sessionStartIdx);
+    uint256 workingIdx;
+    
+    for (uint256 i  = sessionStartIdx; i < loopCount; i ++) {
+      if (i > _loopLimitForSessions) {
+        break;
+      }
+
+      workingIdx = i;
+
+      uint256 sessionInfoIdx = sessionsParticipated[i];
+      uint256 profitTmp = getSharesProfitForSession(_address, sessionInfoIdx);
+      profit = profit.add(profitTmp);
+    }
+
+
+
+
+
+    info.jackpotProfitForSharesWithdrawnOnParticipatedSessionIdx = workingIdx;
+
 
     
-
     // do {
     //   for(uint256 i  = sessionStartIdx; i < ongoingSessionIdx; i ++) {
     //     uint256 profitTmp = profitForPurchaserInSession(_address, i);
@@ -133,6 +156,17 @@ contract CountdownSessionManager {
     // addressWithdrawalProfitInfo[_address].sharesProfitWithdrawnOnPurchaseIdx = sessionInfo[lastSessionIdx].purchaseNumberForOngoingSession.sub(1);  //  TODO: sub(1) - ?
     // addressWithdrawalProfitInfo[_address].jackpotProfitForSharesWithdrawnOnParticipatedSessionIdx = lastSessionIdx;
   }
+
+  function getSharesProfitForSession(address _address, uint256 _sessionInfoIdx) private view returns (uint256 profit) {
+    
+  }
+
+
+
+
+
+
+
 
 
 
