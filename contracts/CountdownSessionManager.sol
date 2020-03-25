@@ -71,15 +71,6 @@ contract CountdownSessionManager {
 
   //  PROFIT
   
-  // function profitForSharesForPurchaseInSession(uint256 _purchase, uint256 _session) public view returns(uint256 profit) {
-
-  // }
-
-  // function withdrawProfitForSharesForPurchaseInSession(uint256 _purchase, uint256 _session) public view returns(uint256 profit) {
-
-  // }
-
-
   //  1. jackpot for purchased shares in Session
   function jackpotProfitForSharesInSession(uint256 _session) public view returns(uint256 profit) {
     require(_session < sessionsInfo.length, "No session");
