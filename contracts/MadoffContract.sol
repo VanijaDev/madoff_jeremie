@@ -39,7 +39,7 @@ contract MadoffContract is CountdownSessionManager {
   mapping(address => uint256) public websiteFee;
   mapping(address => uint256) public jackpotForAddr;
 
-  event PrizeWithdrawn(address indexed to, uint256 indexed amount);
+  event JackpotWithdrawn(address indexed to, uint256 indexed amount);
   event WebsiteFeeWithdrawn(address indexed to, uint256 indexed amount);
   event Purchase(address indexed from, uint256 indexed sharesNumber);
   event GameRestarted();
@@ -47,22 +47,6 @@ contract MadoffContract is CountdownSessionManager {
   
   constructor(address _OWNER_ADDR) public {
     OWNER_ADDR = _OWNER_ADDR;
-  }
-
-  function withdrawJackpot() public {
-    uint256 jptTmp = jackpotForAddr[msg.sender];
-    delete jackpotForAddr[msg.sender];
-    msg.sender.transfer(jptTmp);
-
-    emit PrizeWithdrawn(msg.sender, jptTmp);
-  }
-
-  function withdrawWebsiteFee() public {
-    uint256 feeTmp = websiteFee[msg.sender];
-    delete websiteFee[msg.sender];
-    msg.sender.transfer(feeTmp);
-
-    emit WebsiteFeeWithdrawn(msg.sender, feeTmp);
   }
 
   /**
@@ -100,7 +84,8 @@ contract MadoffContract is CountdownSessionManager {
     
     //  previous shares
     uint256 partPreviousShares = msg.value.mul(uint256(SHARE_PURCHASE_PERCENT_PURCHASED_SHARES)).div(uint256(100));
-    if (sessionsInfo[ongoingSessionIdx].purchaseNumberForOngoingSession == 0) {
+    uint256 ongoingSessionIdx = (sessionsInfo.length == 0) ? 0 : sessionsInfo.length.sub(1);
+    if (sessionsInfo[ongoingSessionIdx].purchasesInfo.length == 0) {
       ongoingBernardFee = ongoingBernardFee.add(partPreviousShares);
       delete partPreviousShares;
     }
@@ -179,20 +164,22 @@ contract MadoffContract is CountdownSessionManager {
   }
 
   //  WITHDRAW
+
   function withdrawWebsiteFee() public {
     uint256 feeTmp = websiteFee[msg.sender];
     require(feeTmp > 0, "No fee");
-
     delete websiteFee[msg.sender];
+    
     msg.sender.transfer(feeTmp);
+    emit WebsiteFeeWithdrawn(msg.sender, feeTmp);
   }
 
   function withdrawJackpot() public {
     uint256 jptTmp = jackpotForAddr[msg.sender];
     require(jptTmp > 0, "No jackpot");
-
     delete jackpotForAddr[msg.sender];
+    
     msg.sender.transfer(jptTmp);
+    emit JackpotWithdrawn(msg.sender, jptTmp);
   }
-  
 }
