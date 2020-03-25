@@ -38,6 +38,12 @@ contract CountdownSessionManager {
 
 
   //  SHARES PURCHASED
+  /**
+   * @dev Creates new Purchase and add in to list.
+   * @param _shareNumber Number of shares.
+   * @param _purchaser Purchaser address.
+   * @param _rewardForPreviousShares Reward amount for previously purchased shares.
+   */
   function sharesPurchased(uint256 _shareNumber, address _purchaser, uint256 _rewardForPreviousShares) internal {
     require(_shareNumber > 0, "Wrong _shareNumber");
     require(_purchaser != address(0), "Wrong _purchaser");
@@ -52,6 +58,11 @@ contract CountdownSessionManager {
     addSessionForPurchaser(ongoingSessionIdx, _purchaser);
   }
 
+  /**
+   * @dev Adds session idx for purchaser.
+   * @param _session Session idx.
+   * @param _purchaser Purchaser address.
+   */
   function addSessionForPurchaser(uint256 _session, address _purchaser) private {
     uint256[] storage sessionsForPurchaser = sessionsInfoForPurchaser[_purchaser];
     if (sessionsForPurchaser.length == 0) {
@@ -62,6 +73,10 @@ contract CountdownSessionManager {
   }
 
   //  SESSION COUNTDOWN RESET
+  /**
+   * @dev Creates new Session on countdown for previous Session reset.
+   * @param _prevSharesPart Funds amount, that should be used as reward for previously purchased shares.
+   */
   function countdownWasReset(uint256 _prevSharesPart) internal {
     SessionInfo storage session = sessionsInfo[ongoingSessionIdx];
     uint256 sharePrice = _prevSharesPart.div(session.sharesPurchased);
@@ -73,7 +88,11 @@ contract CountdownSessionManager {
   //  PROFIT
   
   //  1. jackpot for purchased shares in Session
-  function jackpotForSharesInSession(uint256 _session) public view returns(uint256 profit) {
+  /**
+   * @dev Calculates jackpot for purchased shares for Session for purchaser.
+   * @param _session Session idx.
+   */
+  function jackpotForSharesInSessionForUser(uint256 _session) public view returns(uint256 profit) {
     SessionInfo storage sessionInfo = sessionsInfo[_session];
 
     uint256 sharePrice = sessionInfo.jackpotSharePrice;
@@ -85,6 +104,10 @@ contract CountdownSessionManager {
     profit = sharePrice.mul(sharesPurchasedByPurchaser);
   }
 
+  /**
+   * @dev Withdraws jackpot for purchased shares for Session for purchaser.
+   * @param _session Session idx.
+   */
   function withdrawjackpotForSharesInSession(uint256 _session) public {
     SessionInfo storage session = sessionsInfo[_session];
     ProfitWithdrawalInfo storage profitWithdrawalInfo = session.profitWithdrawalInfoForPurchaser[msg.sender];
@@ -98,6 +121,14 @@ contract CountdownSessionManager {
   }
 
   //  2. shares profit for Purchase in Session
+  /**
+   * @dev Calculates profit for Purchase for Session.
+   * @param _purchase Purchase idx.
+   * @param _session Session idx.
+   * @param _fromPurchase Purchase idx to start on.
+   * @param _toPurchase Purchase idx to end on.
+   * @return Profit amount.
+   */
   function profitForPurchaseInSession(uint256 _purchase, uint256 _session, uint256 _fromPurchase, uint256 _toPurchase) public view returns(uint256 profit) {
     require(_fromPurchase > _purchase, "Wrong _fromPurchase");
 
@@ -115,6 +146,12 @@ contract CountdownSessionManager {
     }
   }
 
+  /**
+   * @dev Withdraws profit for Purchase for Session.
+   * @param _purchase Purchase idx.
+   * @param _session Session idx.
+   * @param _loopLimit Loop limit.
+   */
   function withdrawProfitForPurchaseInSession(uint256 _purchase, uint256 _session, uint256 _loopLimit) public {
     SessionInfo storage session = sessionsInfo[_session];
     PurchaseInfo storage purchaseInfo = session.purchasesInfo[_purchase];
@@ -141,39 +178,79 @@ contract CountdownSessionManager {
 
   //  VIEW
 
-  //  SessionInfo list, where user made purchase
+  /**
+   * @dev Gets session idxs, where user made purchase.
+   * @return Session idxs.
+   */
   function participatedSessionsForUser() public view returns(uint256[] sessions) {
     sessions = sessionsInfoForPurchaser[msg.sender];
   }
 
   //  SessionInfo
+  /**
+   * @dev Gets total shares purchased in Session.
+   * @param _session Session idx.
+   * @return Number of shares.
+   */
   function sharesPurchasedInSession(uint256 _session) public view returns(uint256 shares) {
     shares = sessionsInfo[_session].sharesPurchased;
   }
   
+  /**
+   * @dev Gets jackpot share price in Session.
+   * @param _session Session idx.
+   * @return Share price.
+   */
   function jackpotSharePriceInSession(uint256 _session) public view returns(uint256 price) {
     price = sessionsInfo[_session].jackpotSharePrice;
   }
 
+  /**
+   * @dev Gets number of purchases in Session.
+   * @param _session Session idx.
+   * @return Number of purchases.
+   */
   function purchaseCountInSession(uint256 _session) public view returns(uint256 purchases) {
     purchases = sessionsInfo[_session].purchasesInfo.length;
   }
 
+  /**
+   * @dev Gets purchase info in Session.
+   * @param _purchase Purchase idx.
+   * @param _session Session idx.
+   * @return Purchaser address, Number of purchased shares, share price for previously purchased shares.
+   */
   function purchaseInfoInSession(uint256 _purchase, uint256 _session) public view returns (address purchaser, uint256 shareNumber, uint256 previousSharePrice) {
     SessionInfo storage session = sessionsInfo[_session];
     PurchaseInfo storage purchase = session.purchasesInfo[_purchase];
     return (purchase.purchaser, purchase.shareNumber, purchase.previousSharePrice);
   }
 
+  /**
+   * @dev Gets purchase idx in Session for purchaser.
+   * @param _session Session idx.
+   * @return Purchase idxs.
+   */
   function purchasesInSessionForUser(uint256 _session) public view returns(uint256[] purchases) {
     purchases = sessionsInfo[_session].purchaseIdxsForPurchaser[msg.sender];
   }
 
   //  ProfitWithdrawalInfo
+  /**
+   * @dev Checks if purchaser withdrawn jackpot for purchased shares in Session.
+   * @param _session Session idx.
+   * @return Withdrawn or not.
+   */
   function jackpotForSharesInSessionWithdrawnForUser(uint256 _session) public view returns(bool withdrawn) {
     withdrawn = sessionsInfo[_session].profitWithdrawalInfoForPurchaser[msg.sender].jackpotForSharesWithdrawn;
   }
 
+  /**
+   * @dev Gets purchase idx, on which profit for Purchase was withdrawn.
+   * @param _purchase Purchase idx.
+   * @param _session Session idx.
+   * @return Purchase idx.
+   */
   function purchaseProfitInSessionWithdrawnOnPurchaseForUser(uint256 _purchase, uint256 _session) public view returns(uint256 purchase) {
     purchase = sessionsInfo[_session].profitWithdrawalInfoForPurchaser[msg.sender].purchaseProfitWithdrawnOnPurchase[_purchase];
   }
