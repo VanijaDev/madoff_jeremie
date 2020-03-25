@@ -1,8 +1,9 @@
 pragma solidity 0.4.25;
 
 import "./CountdownSessionManager.sol";
+import "./BernardCutEscrow.sol";
 
-contract MadoffContract is CountdownSessionManager {
+contract MadoffContract is CountdownSessionManager, BernardCutEscrow {
 
   uint8 constant SHARE_PURCHASE_PERCENT_JACKPOT = 40;
   uint8 constant SHARE_PURCHASE_PERCENT_PURCHASED_SHARES = 50;
