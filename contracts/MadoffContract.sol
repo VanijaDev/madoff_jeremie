@@ -1,9 +1,9 @@
 pragma solidity 0.4.25;
 
 import "./CountdownSessionManager.sol";
-import "./BernardCutEscrow.sol";
+import "./BernardEscrow.sol";
 
-contract MadoffContract is CountdownSessionManager, BernardCutEscrow {
+contract MadoffContract is CountdownSessionManager, BernardEscrow {
 
   uint8 constant SHARE_PURCHASE_PERCENT_JACKPOT = 40;
   uint8 constant SHARE_PURCHASE_PERCENT_PURCHASED_SHARES = 50;
@@ -35,7 +35,6 @@ contract MadoffContract is CountdownSessionManager, BernardCutEscrow {
     
   uint256 public latestPurchaseBlock;
   uint256 public ongoingJackpot;
-  uint256 public ongoingBernardFee;
   address public ongoingWinner;
   mapping(address => uint256) public websiteFee;
   mapping(address => uint256) public jackpotForAddr;
