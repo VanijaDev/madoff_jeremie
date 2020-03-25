@@ -44,7 +44,10 @@ contract MadoffContract is CountdownSessionManager {
   event Purchase(address indexed from, uint256 indexed sharesNumber);
   event GameRestarted();
  
-  
+  /**
+   * @dev Contract constructor.
+   * @param _OWNER_ADDR Address for owner.
+   */
   constructor(address _OWNER_ADDR) public {
     OWNER_ADDR = _OWNER_ADDR;
   }
@@ -97,6 +100,9 @@ contract MadoffContract is CountdownSessionManager {
     emit Purchase(ongoingWinner, shares);
   }
   
+  /**
+   * @dev Resets all game data after last share in last stage was reached and game has to reset.
+   */
   function resetGameDataToRestart() private {
     ongoingStage = 0;
     sharesForStageToPurchase = sharesForStageToPurchaseOriginal;
@@ -104,6 +110,9 @@ contract MadoffContract is CountdownSessionManager {
     emit GameRestarted();
   }
 
+  /**
+   * @dev Duration for ongoin stage exceeded.
+   */
   function ongoingStageDurationExceeded() private {
     uint256 jptTmp = ongoingJackpot;
     delete ongoingJackpot;
@@ -120,6 +129,11 @@ contract MadoffContract is CountdownSessionManager {
     delete ongoingStage;
   }
 
+  /**
+   * @dev Calculates share number and increase ongoing stage if needed.
+   * @param _amount Funds amount.
+   * @return Shares number.
+   */
   function getSharesAndUpdateOngoingStageInfo(uint256 _amount) private returns(uint256) {
     bool loop = true;
     uint256 resultShares;
@@ -156,6 +170,12 @@ contract MadoffContract is CountdownSessionManager {
     return resultShares;
   }
 
+  /**
+   * @dev Calculates share number.
+   * @param _stage Stage to be used.
+   * @param _amount Funds amount.
+   * @return Shares number.
+   */
   function getShares(uint8 _stage, uint256 _amount) private view returns(uint256 shares) {
     require(_stage <= maxStageNumber, "Stage overflow");
 
@@ -165,6 +185,9 @@ contract MadoffContract is CountdownSessionManager {
 
   //  WITHDRAW
 
+  /**
+   * @dev Withdraws website fee.
+   */
   function withdrawWebsiteFee() public {
     uint256 feeTmp = websiteFee[msg.sender];
     require(feeTmp > 0, "No fee");
@@ -174,6 +197,9 @@ contract MadoffContract is CountdownSessionManager {
     emit WebsiteFeeWithdrawn(msg.sender, feeTmp);
   }
 
+  /**
+   * @dev Withdraws jackpot.
+   */
   function withdrawJackpot() public {
     uint256 jptTmp = jackpotForAddr[msg.sender];
     require(jptTmp > 0, "No jackpot");
