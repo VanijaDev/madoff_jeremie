@@ -14,7 +14,7 @@ contract CountdownSessionManager {
 
   struct ProfitWithdrawalInfo {
     bool jackpotProfitForSharesWithdrawn;
-    mapping (uint256 => uint256) sharesPurchaseProfitWithdrawnOnPurchase; //  share profit, made in Purchase, withdrawn until including Purchase idx in Session, PurchaseMade => PurchaseWithdrawn
+    mapping (uint256 => uint256) purchaseProfitWithdrawnOnPurchase; //  share profit, made in Purchase, withdrawn until including Purchase idx in Session, PurchaseMade => PurchaseWithdrawn
   }
 
   //  starts from S1 first purchase
@@ -30,12 +30,13 @@ contract CountdownSessionManager {
 
   uint256 public ongoingSessionIdx;
 
-  mapping (uint256 => SessionInfo) sessionsInfo; //  Sessions info, new Session after countdown reset
+  mapping (uint256 => SessionInfo) internal sessionsInfo; //  Sessions info, new Session after countdown reset
   mapping (address => uint256[]) private sessionsInfoForPurchaser; //  sessions, where purchaser participated
   
   event SharesProfitWithdrawn(address _address, uint256 _amount, uint256 _session, uint256 _purchase);
   event JackpotForSharesProfitWithdrawn(address _address, uint256 _amount, uint256 _session);
-  
+
+
   //  SHARES PURCHASED
   function sharesPurchased(uint256 _shareNumber, address _purchaser, uint256 _rewardForPreviousShares) internal {
     require(_shareNumber > 0, "Wrong _shareNumber");
@@ -120,7 +121,7 @@ contract CountdownSessionManager {
     require(purchaseInfo.purchaser == msg.sender, "Not purchaser");
 
     ProfitWithdrawalInfo storage profitWithdrawalInfo = session.profitWithdrawalInfoForPurchaser[msg.sender];
-    uint256 purchaseIdxWithdrawnOn = profitWithdrawalInfo.sharesPurchaseProfitWithdrawnOnPurchase[_purchase];
+    uint256 purchaseIdxWithdrawnOn = profitWithdrawalInfo.purchaseProfitWithdrawnOnPurchase[_purchase];
     uint256 fromPurchaseIdx = purchaseIdxWithdrawnOn.add(1);
     uint256 toPurchaseIdx = session.purchasesInfo.length.sub(1);
     require(fromPurchaseIdx <= toPurchaseIdx, "No more profit");
@@ -145,27 +146,35 @@ contract CountdownSessionManager {
     sessions = sessionsInfoForPurchaser[msg.sender];
   }
 
-  //  Purchases for purchaser in Session
-  function participatedPurchasesForSession(uint256 _session) public view returns(uint256[] purchaseIdxs) {
-    SessionInfo storage session = sessionsInfo[_session];
-    purchaseIdxs = session.purchaseIdxsForPurchaser[msg.sender];
+  //  SessionInfo
+  function sessionInfoSharesPurchased(uint256 _session) public view returns(uint256 shares) {
+    shares = sessionsInfo[_session].sharesPurchased;
   }
   
-  function purchaseInfoInSession(uint256 _purchase, uint256 _session) public view returns (address purchaser, uint256 shareNumber, uint256 previousSharePrice) {
+  function sessionInfoJackpotSharePrice(uint256 _session) public view returns(uint256 price) {
+    price = sessionsInfo[_session].jackpotSharePrice;
+  }
+
+  function sessionInfoPurchaseNumber(uint256 _session) public view returns(uint256 purchases) {
+    purchases = sessionsInfo[_session].purchasesInfo.length;
+  }
+
+  function sessionInfoPurchaseInfo(uint256 _purchase, uint256 _session) public view returns (address purchaser, uint256 shareNumber, uint256 previousSharePrice) {
     SessionInfo storage session = sessionsInfo[_session];
     PurchaseInfo storage purchase = session.purchasesInfo[_purchase];
     return (purchase.purchaser, purchase.shareNumber, purchase.previousSharePrice);
   }
 
-
-  //  ProfitWithdrawalInfo
-  function jackpotProfitForSharesWithdrawn(uint256 _session) public view returns(bool) {
-    SessionInfo storage session = sessionsInfo[_session];
-    return session.profitWithdrawalInfoForPurchaser[msg.sender].jackpotProfitForSharesWithdrawn;
+  function sessionInfoPurchasesForSession(uint256 _session) public view returns(uint256[] purchases) {
+    purchases = sessionsInfo[_session].purchaseIdxsForPurchaser[msg.sender];
   }
 
-  function sharesPurchaseProfitWithdrawnOnPurchase(uint256 _purchase, uint256 _session) public view returns (uint256 purchase) {
-    SessionInfo storage session = sessionsInfo[_session];
-    purchase = session.profitWithdrawalInfoForPurchaser[msg.sender].sharesPurchaseProfitWithdrawnOnPurchase[_purchase];
+  //  ProfitWithdrawalInfo
+  function sessionInfoJackpotProfitForSharesWithdrawn(uint256 _session) public view returns(bool withdrawn) {
+    withdrawn = sessionsInfo[_session].profitWithdrawalInfoForPurchaser[msg.sender].jackpotProfitForSharesWithdrawn;
+  }
+
+  function sessionInfoPurchaseProfitWithdrawnOnPurchase(uint256 _purchase, uint256 _session) public view returns(uint256 purchase) {
+    purchase = sessionsInfo[_session].profitWithdrawalInfoForPurchaser[msg.sender].purchaseProfitWithdrawnOnPurchase[_purchase];
   }
 }
