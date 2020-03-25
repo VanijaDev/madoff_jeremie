@@ -84,12 +84,12 @@ contract MadoffContract is CountdownSessionManager {
     
     //  previous shares
     uint256 partPreviousShares = msg.value.mul(uint256(SHARE_PURCHASE_PERCENT_PURCHASED_SHARES)).div(uint256(100));
-    uint256 ongoingSessionIdx = (sessionsInfo.length == 0) ? 0 : sessionsInfo.length.sub(1);
-    if (sessionsInfo[ongoingSessionIdx].purchasesInfo.length == 0) {
+    
+    if (sessionsInfo[ongoingSessionIdx].sharesPurchased == 0) {
       ongoingBernardFee = ongoingBernardFee.add(partPreviousShares);
       delete partPreviousShares;
     }
-    sharesPurchased(shares, msg.sender, partPreviousShares);
+    // sharesPurchased(shares, msg.sender, partPreviousShares);
     
     latestPurchaseBlock = block.number;
     ongoingWinner = msg.sender;
