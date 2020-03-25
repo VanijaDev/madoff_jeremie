@@ -89,7 +89,7 @@ contract MadoffContract is CountdownSessionManager {
       ongoingBernardFee = ongoingBernardFee.add(partPreviousShares);
       delete partPreviousShares;
     }
-    // sharesPurchased(shares, msg.sender, partPreviousShares);
+    sharesPurchased(shares, msg.sender, partPreviousShares);
     
     latestPurchaseBlock = block.number;
     ongoingWinner = msg.sender;
