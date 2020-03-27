@@ -9,7 +9,8 @@ contract BernardEscrow {
 
   MadoffProfitToken public token;
 
-  uint256 public constant CALCULATION_DISABLED_BLOCKS = 21600;
+//   uint256 public constant CALCULATION_DISABLED_BLOCKS = 21600;   // TODO: test
+  uint256 public constant CALCULATION_DISABLED_BLOCKS = 2;
   
   uint256 public prevCalculationBlock;
   uint256 public tokenFractionProfitCalculatedTimes;
@@ -28,8 +29,6 @@ contract BernardEscrow {
 
   modifier onlyTokenOwner() {
     require(token.balanceOf(msg.sender) > 0, "Not token owner");
-
-    tokenFractionProfitCalculatedTimes = 1;  //  idx 0 can not be used
     _;
   }
 
@@ -41,40 +40,73 @@ contract BernardEscrow {
 
   constructor (address _token) public {
     token = MadoffProfitToken(_token);
+
+    tokenFractionProfitCalculatedTimes = 1;  //  idx 0 can not be used
   }
 
   function calculateTokenFractionProfit() public onlyTokenOwner onlyCalculationEnabled {
+    require(ongoingBernardFee >= 10 finney, "Not enough Bernardcut"); //  TODO: change from ether to TRX
     uint256 fractionProfit = ongoingBernardFee.div(10000);
-    require(fractionProfit > 0, "Wrong profit");
    
     tokenFractionProfitForCalculatedIdx[tokenFractionProfitCalculatedTimes] = fractionProfit;
     
     tokenFractionProfitCalculatedTimes = tokenFractionProfitCalculatedTimes.add(1);
     prevCalculationBlock = block.number;
+    delete ongoingBernardFee;
   }
-
-  function withdrawProfit(uint256 _loopLimit) public onlyTokenOwner {
-    _withdrawProfit(msg.sender, _loopLimit);
-  }
-
-  function withdrawProfitFromToken(address recipient, uint256 _loopLimit) public onlyToken {
-    _withdrawProfit(recipient, _loopLimit);
-  }
-
-  function _withdrawProfit(address recipient, uint256 _loopLimit) private {
-    uint256 startIdx = profitWithdrawnOnCalculationIdx[recipient].add(1);
-    require(startIdx < tokenFractionProfitCalculatedTimes, "No profit");
   
-    uint256 endIdx = (tokenFractionProfitCalculatedTimes.sub(startIdx) > _loopLimit) ? startIdx.add(_loopLimit).sub(1) : tokenFractionProfitCalculatedTimes.sub(startIdx);
+  function pendingProfit(uint256 _loopLimit) public view returns(uint256 profit) {
+    profit = _pendingProfit(msg.sender, _loopLimit);
+  }
+  
+  function _pendingProfit(address recipient, uint256 _loopLimit) private view returns(uint256 profit) {
+    uint256 startIdx = profitWithdrawnOnCalculationIdx[recipient].add(1);
+    
+    if(startIdx >= tokenFractionProfitCalculatedTimes) {
+        return;
+    }
+  
+    uint256 endIdx = (tokenFractionProfitCalculatedTimes.sub(startIdx) > _loopLimit) ? startIdx.add(_loopLimit).sub(1) : tokenFractionProfitCalculatedTimes.sub(1);
     uint256 priceSum;
 
     for (uint256 i = startIdx; i <= endIdx; i ++) {
       priceSum = priceSum.add(tokenFractionProfitForCalculatedIdx[i]);
     }
-    uint256 profit = priceSum.mul(token.balanceOf(recipient));
+    profit = priceSum.mul(token.balanceOf(msg.sender));
+  }
 
+  function withdrawProfit(uint256 _loopLimit) public onlyTokenOwner {
+    _withdrawProfit(msg.sender, _loopLimit, false);
+  }
+
+  function withdrawProfitFromToken(address recipient, uint256 _loopLimit) public onlyToken {
+    _withdrawProfit(recipient, _loopLimit, true);
+  }
+
+  function _withdrawProfit(address recipient, uint256 _loopLimit, bool _fromToken) private {
+    uint256 profit = _pendingProfit(recipient, _loopLimit);
+    
+    if (profit == 0) {
+        if (_fromToken) {
+          profitWithdrawnOnCalculationIdx[recipient] = tokenFractionProfitCalculatedTimes.sub(1);
+          return;
+        }
+        revert("Nothing to withdraw");
+    }
+
+    uint256 startIdx = profitWithdrawnOnCalculationIdx[recipient].add(1);
+    uint256 endIdx = (tokenFractionProfitCalculatedTimes.sub(startIdx) > _loopLimit) ? startIdx.add(_loopLimit).sub(1) : tokenFractionProfitCalculatedTimes.sub(startIdx);
+    
     profitWithdrawnOnCalculationIdx[recipient] = endIdx;
     recipient.transfer(profit);
     emit BernardFeeWithdrawn(recipient, profit);
+  }
+  
+  function TEST_addBernardFee() public payable {
+      ongoingBernardFee = ongoingBernardFee.add(msg.value);
+  }
+  
+  function TEST_balance() public view returns (uint256 balance) {
+      return address(this).balance;
   }
 }

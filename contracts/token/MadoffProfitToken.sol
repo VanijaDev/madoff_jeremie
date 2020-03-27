@@ -4,7 +4,7 @@ import "../SafeMath.sol";
 import "./ERC20Detailed.sol";
 import "../BernardEscrow.sol";
 
-contract MadoffProfitToken is ERC20Detailed("MadoffProfitToken", "MPT", 2) {
+contract MadoffProfitToken is ERC20Detailed("Bernardscut", "BCT", 0) {
 
   using SafeMath for uint256;
 
@@ -12,7 +12,7 @@ contract MadoffProfitToken is ERC20Detailed("MadoffProfitToken", "MPT", 2) {
 
   uint256 private _totalSupply;
 
-  BernardEscrow escrow;
+  BernardEscrow public escrow;
 
   event Transfer(address indexed from, address indexed to, uint256 value);
 
@@ -39,7 +39,7 @@ contract MadoffProfitToken is ERC20Detailed("MadoffProfitToken", "MPT", 2) {
     * @dev See {IERC20-balanceOf}.
     */
   function balanceOf(address account) public view returns (uint256) {
-      return _balances[account];
+    return _balances[account];
   }
 
   /**
