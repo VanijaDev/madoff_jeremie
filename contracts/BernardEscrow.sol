@@ -55,7 +55,7 @@ contract BernardEscrow {
     delete ongoingBernardFee;
   }
   
-  function pendingProfit(uint256 _loopLimit) public view returns(uint256 profit) {
+  function pendingProfitInBernardCut(uint256 _loopLimit) public view returns(uint256 profit) {
     profit = _pendingProfit(msg.sender, _loopLimit);
   }
   

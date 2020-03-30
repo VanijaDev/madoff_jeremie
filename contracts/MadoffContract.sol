@@ -19,7 +19,7 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
   address OWNER_ADDR;
 
 //   uint16[14] public blocksForStage = [21600, 18000, 14400, 10800, 7200, 3600, 1200, 600, 300, 100, 20, 10, 7, 4];
-  uint16[14] public blocksForStage = [4, 2, 14400, 10800, 7200, 3600, 1200, 600, 300, 100, 20, 10, 7, 4];
+  uint16[14] public blocksForStage = [4, 2, 5, 10800, 7200, 3600, 1200, 600, 300, 100, 20, 10, 7, 4];
   uint32[14] public sharesForStageToPurchaseOriginal = [2500, 5000, 3125, 12500, 10000, 62500, 62500, 400000, 390625, 2000000, 1562500, 10000000, 12500000, 25000000];
   uint32[14] public sharesForStageToPurchase = [2500,     5000,     3125,     12500,    10000,     62500,     62500,     400000,    390625,    2000000,   562500,    10000000,   12500000,   25000000];
   uint256[14] public sharePriceForStage =      [10000000, 20000000, 40000000, 80000000, 125000000, 160000000, 200000000, 250000000, 320000000, 500000000, 800000000, 1000000000, 1000000000, 1000000000];
@@ -48,7 +48,7 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
    * @dev Contract constructor.
    * @param _OWNER_ADDR Address for owner.
    */
-  constructor(address _OWNER_ADDR) public {
+  constructor(address _OWNER_ADDR, address _token) BernardEscrow(_token) public {
     OWNER_ADDR = _OWNER_ADDR;
   }
 
@@ -61,7 +61,7 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
         latestPurchaseBlock = block.number;
     } else if (ongoingStage > maxStageNumber) {
       ongoingStageDurationExceeded();
-      resetGameDataToRestart();
+      emit GameRestarted();
     } else if (block.number > latestPurchaseBlock.add(blocksForStage[ongoingStage])) {
       ongoingStageDurationExceeded();
     }
@@ -101,16 +101,6 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
   }
   
   /**
-   * @dev Resets all game data after last share in last stage was reached and game has to reset.
-   */
-  function resetGameDataToRestart() private {
-    ongoingStage = 0;
-    sharesForStageToPurchase = sharesForStageToPurchaseOriginal;
-    
-    emit GameRestarted();
-  }
-
-  /**
    * @dev Duration for ongoin stage exceeded.
    */
   function ongoingStageDurationExceeded() private {
@@ -125,6 +115,8 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
     uint256 prevSharesPart = jptTmp.sub(winnerJptPart);
     countdownWasReset(prevSharesPart);
     
+    sharesForStageToPurchase = sharesForStageToPurchaseOriginal;
+
     delete ongoingWinner;
     delete ongoingStage;
   }
