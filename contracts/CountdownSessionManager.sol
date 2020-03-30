@@ -114,7 +114,7 @@ contract CountdownSessionManager {
     require(profitWithdrawalInfo.jackpotForSharesWithdrawn == false, "Already withdrawn");
     
     profitWithdrawalInfo.jackpotForSharesWithdrawn == true;
-    uint256 profit = jackpotForSharesInSession(_session);
+    uint256 profit = jackpotForSharesInSessionForUser(_session);
 
     msg.sender.transfer(profit);
     emit JackpotForSharesProfitWithdrawn(msg.sender, profit, _session);
