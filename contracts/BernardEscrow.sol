@@ -9,7 +9,7 @@ contract BernardEscrow {
 
   MadoffProfitToken public token;
 
-//   uint256 public constant CALCULATION_DISABLED_BLOCKS = 21600;   // TODO: test
+//   uint256 public constant CALCULATION_DISABLED_BLOCKS = 21600; //  used to avoid spam   // TODO: test
   uint256 public constant CALCULATION_DISABLED_BLOCKS = 2;
   
   uint256 public prevCalculationBlock;
