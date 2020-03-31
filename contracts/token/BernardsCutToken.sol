@@ -4,7 +4,7 @@ import "../SafeMath.sol";
 import "./ERC20Detailed.sol";
 import "../BernardEscrow.sol";
 
-contract MadoffProfitToken is ERC20Detailed("Bernardscut", "BCT", 0) {
+contract BernardsCutToken is ERC20Detailed("BernardsCutToken", "BCT", 0) {
 
   using SafeMath for uint256;
 

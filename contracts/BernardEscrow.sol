@@ -1,16 +1,16 @@
 pragma solidity 0.4.25;
 
-import "./token/MadoffProfitToken.sol";
+import "./token/BernardsCutToken.sol";
 import "./SafeMath.sol";
 
 
 contract BernardEscrow {
   using SafeMath for uint256;
 
-  MadoffProfitToken public token;
+  BernardsCutToken public token;
 
-//   uint256 public constant CALCULATION_DISABLED_BLOCKS = 21600; //  used to avoid spam   // TODO: test
-  uint256 public constant CALCULATION_DISABLED_BLOCKS = 2;
+//   uint256 public constant CALCULATION_DISABLED_BLOCKS = 21600; //  used to avoid spam
+  uint256 public constant CALCULATION_DISABLED_BLOCKS = 2;   // TODO: testing
   
   uint256 public prevCalculationBlock;
   uint256 public tokenFractionProfitCalculatedTimes;
@@ -39,7 +39,7 @@ contract BernardEscrow {
 
 
   constructor (address _token) public {
-    token = MadoffProfitToken(_token);
+    token = BernardsCutToken(_token);
 
     tokenFractionProfitCalculatedTimes = 1;  //  idx 0 can not be used
   }
