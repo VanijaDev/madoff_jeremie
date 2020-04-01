@@ -39,7 +39,7 @@ contract("purchase", (accounts) => {
     madoffContract = await MadoffContract.new(OWNER, token.address);
   });
 
-  describe("Purchase", () => {
+  describe.only("Purchase", () => {
     it("should set latestPurchaseBlock to current block if first purchase", async() => {
       let latestPurchaseBlockBefore = await madoffContract.latestPurchaseBlock.call();
       assert.equal(0, (new BN(latestPurchaseBlockBefore.toString())).cmp(new BN("0")), "wrong latestPurchaseBlockBefore, should be 0 before first purchase");
@@ -211,6 +211,174 @@ contract("purchase", (accounts) => {
         value: value
       });
       assert.equal(0, (await madoffContract.ongoingStage.call()).cmp(new BN("0")), "should be S0 after reset");
+    });
+
+    it("should increase ongoingJackpot", async() => {
+      const JACKPOT_PERCENT_PART = 0.4;
+
+      //  1
+      assert.equal(0, (await madoffContract.ongoingJackpot.call()).cmp(new BN("0")), "should be 0 before");
+
+      let VALUE = SHARE_PRICE_FOR_STAGE[0];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      let jpt_0 = new BN((10000000 * JACKPOT_PERCENT_PART).toString());
+      assert.equal(0, (await madoffContract.ongoingJackpot.call()).cmp(jpt_0), "wrong jackpot after 0");
+
+      //  1
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 5;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      let jpt_1 = new BN((10000000 * 5 * JACKPOT_PERCENT_PART).toString());
+      assert.equal(0, (await madoffContract.ongoingJackpot.call()).cmp(jpt_0.add(jpt_1)), "wrong jackpot after 1");
+
+      //  2
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 11;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      let jpt_2 = new BN((10000000 * 11 * JACKPOT_PERCENT_PART).toString());
+      assert.equal(0, (await madoffContract.ongoingJackpot.call()).cmp(jpt_0.add(jpt_1).add(jpt_2)), "wrong jackpot after 2");
+    });
+
+    it("should increase ongoingBernardFee", async() => {
+      const BERNARD_FEE_PERCENT_PART = 0.05;
+      const SHARE_PURCHASE_PERCENT_PURCHASED_SHARES = 0.5;
+
+      //  1
+      assert.equal(0, (await madoffContract.ongoingBernardFee.call()).cmp(new BN("0")), "should be 0 before");
+
+      let VALUE = SHARE_PRICE_FOR_STAGE[0];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      let bernardFee_0 = new BN((10000000 * (parseFloat(BERNARD_FEE_PERCENT_PART) + parseFloat(SHARE_PURCHASE_PERCENT_PURCHASED_SHARES))));
+      assert.equal(0, (await madoffContract.ongoingBernardFee.call()).cmp(bernardFee_0), "wrong bernardFee after 0");
+
+      //  1
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 5;
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      let bernardFee_1 = new BN(10000000 * 5 * parseFloat(BERNARD_FEE_PERCENT_PART));
+      assert.equal(0, (await madoffContract.ongoingBernardFee.call()).cmp(bernardFee_0.add(bernardFee_1)), "wrong bernardFee after 1");
+
+      //  2
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 11;
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      let bernardFee_2 = new BN(10000000 * 11 * parseFloat(BERNARD_FEE_PERCENT_PART));
+      assert.equal(0, (await madoffContract.ongoingBernardFee.call()).cmp(bernardFee_0.add(bernardFee_1).add(bernardFee_2)), "wrong bernardFee after ");
+    });
+
+    it("should increase websiteFee if address != 0", async() => {
+      const WEBSITE_FEE_PERCENT_PART = 0.05;
+
+      //  1
+      assert.equal(0, (await madoffContract.websiteFee.call(WEBSITE_1)).cmp(new BN("0")), "should be 0 before");
+
+      let VALUE = SHARE_PRICE_FOR_STAGE[0];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      let websiteFee_0 = new BN((10000000 * parseFloat(WEBSITE_FEE_PERCENT_PART)));
+      assert.equal(0, (await madoffContract.websiteFee.call(WEBSITE_1)).cmp(websiteFee_0), "wrong websiteFee after 0");
+
+      //  1
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 5;
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      let websiteFee_1 = new BN((10000000 * 5 * parseFloat(WEBSITE_FEE_PERCENT_PART)));
+      assert.equal(0, (await madoffContract.websiteFee.call(WEBSITE_1)).cmp(websiteFee_0.add(websiteFee_1)), "wrong websiteFee after 1");
+
+      //  2
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 11;
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      let websiteFee_2 = new BN((10000000 * 11 * parseFloat(WEBSITE_FEE_PERCENT_PART)));
+      assert.equal(0, (await madoffContract.websiteFee.call(WEBSITE_1)).cmp(websiteFee_0.add(websiteFee_1).add(websiteFee_2)), "wrong websiteFee after 2");
+
+      //  3
+      assert.equal(0, (await madoffContract.websiteFee.call(WEBSITE_2)).cmp(new BN("0")), "should be 0 for WEBSITE_2 before");
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 6;
+      await madoffContract.purchase(WEBSITE_2, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      let websiteFee_3 = new BN((10000000 * 6 * parseFloat(WEBSITE_FEE_PERCENT_PART)));
+      assert.equal(0, (await madoffContract.websiteFee.call(WEBSITE_1)).cmp(websiteFee_0.add(websiteFee_1).add(websiteFee_2)), "wrong websiteFee after 3");
+      assert.equal(0, (await madoffContract.websiteFee.call(WEBSITE_2)).cmp(websiteFee_3), "wrong websiteFee after 3");
+    });
+
+    it("should increase ongoingBernardFee if website address == 0", async() => {
+      const BERNARD_FEE_PERCENT_PART = 0.05;
+      const WEBSITE_FEE_PERCENT_PART = 0.05;
+      const SHARE_PURCHASE_PERCENT_PURCHASED_SHARES = 0.5;
+
+      //  1
+      assert.equal(0, (await madoffContract.ongoingBernardFee.call()).cmp(new BN("0")), "should be 0 before");
+
+      let VALUE = SHARE_PRICE_FOR_STAGE[0];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      let bernardFee_0 = new BN((10000000 * (parseFloat(BERNARD_FEE_PERCENT_PART) + parseFloat(WEBSITE_FEE_PERCENT_PART) + parseFloat(SHARE_PURCHASE_PERCENT_PURCHASED_SHARES))));
+      assert.equal(0, (await madoffContract.ongoingBernardFee.call()).cmp(bernardFee_0), "wrong bernardFee after 0");
+
+      //  1
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 5;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      let bernardFee_1 = new BN(10000000 * 5 * (parseFloat(BERNARD_FEE_PERCENT_PART) + parseFloat(WEBSITE_FEE_PERCENT_PART)));
+      assert.equal(0, (await madoffContract.ongoingBernardFee.call()).cmp(bernardFee_0.add(bernardFee_1)), "wrong bernardFee after 1");
+
+      //  2
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 11;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      let bernardFee_2 = new BN(10000000 * 11 * (parseFloat(BERNARD_FEE_PERCENT_PART) + parseFloat(WEBSITE_FEE_PERCENT_PART)));
+      assert.equal(0, (await madoffContract.ongoingBernardFee.call()).cmp(bernardFee_0.add(bernardFee_1).add(bernardFee_2)), "wrong bernardFee after ");
+    });
+
+    it("should fail if 0 shares", async() => {
+      //  1
+      await expectRevert(madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: 0
+      }), "Min 1 share");
     });
   });
 

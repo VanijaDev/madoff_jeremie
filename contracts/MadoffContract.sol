@@ -90,7 +90,7 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
     
     //  previous shares
     uint256 partPreviousShares = msg.value.mul(uint256(SHARE_PURCHASE_PERCENT_PURCHASED_SHARES)).div(uint256(100));
-    
+    //  TODO: start here
     if (sessionsInfo[ongoingSessionIdx].sharesPurchased == 0) {
       ongoingBernardFee = ongoingBernardFee.add(partPreviousShares);
       delete partPreviousShares;
@@ -105,7 +105,6 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
   
   /**
    * @dev Duration for ongoin stage exceeded.
-   * TODO: test loop through all stages and test exceed for each
    */
   function ongoingStageDurationExceeded() private {
     uint256 jptTmp = ongoingJackpot;
