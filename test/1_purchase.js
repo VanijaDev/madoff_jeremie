@@ -23,10 +23,10 @@ contract("purchase", (accounts) => {
   const PURCHASER_0 = accounts[4];
   const PURCHASER_1 = accounts[5];
 
-  const BLOCKS_FOR_STAGE =                      [21600,     18000,    14400,    10800,    7200,     3600,       1200,       600,        300,        100,        20,         10,         7,          4];
-  const SHARES_FOR_STAGE_TO_PURCHASE =          [2500,      5000,     3125,     12500,    10000,    62500,      62500,      400000,     390625,     2000000,    562500,     10000000,   12500000,   25000000];
-  const SHARES_FOR_STAGE_TO_PURCHASE_ORIGINAL = [2500,      5000,     3125,     12500,    10000,     62500,     62500,      400000,     390625,     2000000,    562500,     10000000,   12500000,   25000000];
-  const SHARE_PRICE_FOR_STAGE =                 [10000000,  20000000, 40000000, 80000000, 125000000, 160000000, 200000000,  250000000,  320000000,  500000000,  800000000,  1000000000, 1000000000, 1000000000];
+  const BLOCKS_FOR_STAGE =                      [100,       90,       80,       70,       60,         50,         45,         40,         35,         30,         25,         20,         10,         5];
+  const SHARES_FOR_STAGE_TO_PURCHASE =          [2500,      5000,     3125,     12500,    10000,      62500,      62500,      400000,     390625,     2000000,    562500,     10000000,   12500000,   25000000];
+  const SHARES_FOR_STAGE_TO_PURCHASE_ORIGINAL = [2500,      5000,     3125,     12500,    10000,      62500,      62500,      400000,     390625,     2000000,    562500,     10000000,   12500000,   25000000];
+  const SHARE_PRICE_FOR_STAGE =                 [10000000,  20000000, 40000000, 80000000, 125000000,  160000000,  200000000,  250000000,  320000000,  500000000,  800000000,  1000000000, 1000000000, 1000000000];
 
 
   let token;
@@ -39,7 +39,7 @@ contract("purchase", (accounts) => {
     madoffContract = await MadoffContract.new(OWNER, token.address);
   });
 
-  describe.only("Purchase", () => {
+  describe("Purchase", () => {
     it("should set latestPurchaseBlock to current block if first purchase", async() => {
       let latestPurchaseBlockBefore = await madoffContract.latestPurchaseBlock.call();
       assert.equal(0, (new BN(latestPurchaseBlockBefore.toString())).cmp(new BN("0")), "wrong latestPurchaseBlockBefore, should be 0 before first purchase");
@@ -54,7 +54,7 @@ contract("purchase", (accounts) => {
       assert.equal(0, (new BN(latestPurchaseBlockAfter.toString())).cmp(await time.latestBlock()), "wrong latestPurchaseBlockAfter, should be current block number");
     });
 
-    it.only("should call ongoingStageDurationExceeded & emit GameRestarted event if ongoingStage > maxStageNumber", async() => {
+    it("should call ongoingStageDurationExceeded & emit GameRestarted event if ongoingStage > maxStageNumber", async() => {
       //  1 - buy all shares in all stages
 
       //  buy out S0
@@ -179,6 +179,37 @@ contract("purchase", (accounts) => {
       assert.equal(2, logs.length, "should be 2 events");
       await expectEvent.inLogs(logs, 'GameRestarted');
 
+      assert.equal(0, (await madoffContract.ongoingStage.call()).cmp(new BN("0")), "should be S0 after reset");
+    });
+
+    it("should call ongoingStageDurationExceeded blocks for stage exceeded", async() => {
+      //  buy out S0
+      let value = SHARE_PRICE_FOR_STAGE[0] * SHARES_FOR_STAGE_TO_PURCHASE[0];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: value
+      });
+      assert.equal(0, (await madoffContract.ongoingStage.call()).cmp(new BN("1")), "should be S1");
+
+      //  buy out S1
+      value = SHARE_PRICE_FOR_STAGE[1] * SHARES_FOR_STAGE_TO_PURCHASE[1];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: value
+      });
+      assert.equal(0, (await madoffContract.ongoingStage.call()).cmp(new BN("2")), "should be S2");
+
+      //  exseed blocks for S2
+      let exceedBlocks = BLOCKS_FOR_STAGE[2] + 1;
+      for(let i = 0; i < exceedBlocks; i ++) {
+        await time.advanceBlock();
+      }
+
+      value = SHARE_PRICE_FOR_STAGE[0];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: value
+      });
       assert.equal(0, (await madoffContract.ongoingStage.call()).cmp(new BN("0")), "should be S0 after reset");
     });
   });
