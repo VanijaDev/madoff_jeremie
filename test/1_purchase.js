@@ -39,7 +39,7 @@ contract("purchase", (accounts) => {
     madoffContract = await MadoffContract.new(OWNER, token.address);
   });
 
-  describe.only("Purchase", () => {
+  describe("Purchase", () => {
     it("should set latestPurchaseBlock to current block if first purchase", async() => {
       let latestPurchaseBlockBefore = await madoffContract.latestPurchaseBlock.call();
       assert.equal(0, (new BN(latestPurchaseBlockBefore.toString())).cmp(new BN("0")), "wrong latestPurchaseBlockBefore, should be 0 before first purchase");
@@ -379,6 +379,117 @@ contract("purchase", (accounts) => {
         from: PURCHASER_0,
         value: 0
       }), "Min 1 share");
+    });
+
+    it("should add partPreviousShares to ongoingBernardFee if first purchase in Session", async() => {
+      const BERNARD_FEE_PERCENT_PART = 0.05;
+      const WEBSITE_FEE_PERCENT_PART = 0.05;
+      const SHARE_PURCHASE_PERCENT_PURCHASED_SHARES = 0.5;
+
+      //  1 - S0
+      assert.equal(0, (await madoffContract.ongoingBernardFee.call()).cmp(new BN("0")), "should be 0 before");
+
+      let VALUE = SHARE_PRICE_FOR_STAGE[0];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      let bernardFee_correct = new BN((10000000 * (parseFloat(BERNARD_FEE_PERCENT_PART) + parseFloat(SHARE_PURCHASE_PERCENT_PURCHASED_SHARES))));
+      assert.equal(0, (await madoffContract.ongoingBernardFee.call()).cmp(bernardFee_correct), "wrong bernardFee after 0");
+
+      //  buy out S0
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 2499;
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  2 - S1
+      VALUE = SHARE_PRICE_FOR_STAGE[1];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      //  exseed blocks
+      for(let i = 0; i < 100; i ++) {
+        await time.advanceBlock();
+      }
+
+      //  3 - S0
+      let bernardFeeBeforeS1 = await madoffContract.ongoingBernardFee.call();
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      assert.equal(0, (await madoffContract.ongoingBernardFee.call()).sub(bernardFeeBeforeS1).cmp(bernardFee_correct), "wrong bernardFee after 1");
+
+    });
+
+    it("should call sharesPurchased", async() => {
+      let purchasesBefore = await madoffContract.purchaseCountInSession.call(0);
+
+      let VALUE = SHARE_PRICE_FOR_STAGE[0];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      let purchasesAfter = await madoffContract.purchaseCountInSession.call(0);
+      assert.equal(0, purchasesAfter.sub(purchasesBefore).cmp(new BN("1")), "should be 1 purchase");
+    });
+
+    it("should update latestPurchaseBlock", async() => {
+      let blockBefore = await madoffContract.latestPurchaseBlock.call();
+
+      let VALUE = SHARE_PRICE_FOR_STAGE[0];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      let blockAfter = await madoffContract.latestPurchaseBlock.call();
+      assert.equal(1, blockAfter.cmp(blockBefore), "should be increased");
+    });
+
+    it("should update ongoingWinner", async() => {
+      let winner = await madoffContract.ongoingWinner.call();
+
+      //  0
+      let VALUE = SHARE_PRICE_FOR_STAGE[0];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      winner = await madoffContract.ongoingWinner.call();
+      assert.equal(winner, PURCHASER_0, "wrong winner after 0");
+
+      //  1
+      VALUE = SHARE_PRICE_FOR_STAGE[0];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      winner = await madoffContract.ongoingWinner.call();
+      assert.equal(winner, PURCHASER_1, "wrong winner after 1");
+    });
+
+    it("should update Purchase event", async() => {
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 11;
+      const {logs} = await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      await expectEvent.inLogs(logs, 'Purchase', {
+        from: PURCHASER_0,
+        sharesNumber: new BN("11")
+      });
     });
   });
 

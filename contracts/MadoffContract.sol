@@ -57,7 +57,7 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
   /**
    * @dev Purchase share(s).
    * @param _websiteAddr Website address, that trx was sent from.
-   * TESTING
+   * TESTED
    */
   function purchase(address _websiteAddr) public payable returns(uint256) {
     if (latestPurchaseBlock == 0) {
@@ -90,7 +90,6 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
     
     //  previous shares
     uint256 partPreviousShares = msg.value.mul(uint256(SHARE_PURCHASE_PERCENT_PURCHASED_SHARES)).div(uint256(100));
-    //  TODO: start here
     if (sessionsInfo[ongoingSessionIdx].sharesPurchased == 0) {
       ongoingBernardFee = ongoingBernardFee.add(partPreviousShares);
       delete partPreviousShares;
