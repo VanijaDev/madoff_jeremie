@@ -128,6 +128,7 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
    * @dev Calculates share number and increase ongoing stage if needed.
    * @param _amount Funds amount.
    * @return Shares number.
+   * TESTED
    */
   function getSharesAndUpdateOngoingStageInfo(uint256 _amount) private returns(uint256) {
     bool loop = true;
@@ -170,6 +171,7 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
    * @param _stage Stage to be used.
    * @param _amount Funds amount.
    * @return Shares number.
+   * TESTED
    */
   function getShares(uint8 _stage, uint256 _amount) private view returns(uint256 shares) {
     require(_stage <= maxStageNumber, "Stage overflow");
