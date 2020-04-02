@@ -184,7 +184,7 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
 
   /**
    * @dev Withdraws website fee.
-   * TESTING
+   * TESTED
    */
   function withdrawWebsiteFee() public {
     uint256 feeTmp = websiteFee[msg.sender];
@@ -197,6 +197,7 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
 
   /**
    * @dev Withdraws jackpot.
+   * TESTED
    */
   function withdrawJackpot() public {
     uint256 jptTmp = jackpotForAddr[msg.sender];
