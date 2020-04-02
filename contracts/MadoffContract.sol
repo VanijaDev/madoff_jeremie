@@ -104,6 +104,7 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
   
   /**
    * @dev Duration for ongoin stage exceeded.
+   * TESTED
    */
   function ongoingStageDurationExceeded() private {
     uint256 jptTmp = ongoingJackpot;
