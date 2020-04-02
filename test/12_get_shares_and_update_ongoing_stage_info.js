@@ -14,7 +14,7 @@ const {
   expect
 } = require('chai');
 
-contract("ongoingStageDurationExceeded", (accounts) => {
+contract("getSharesAndUpdateOngoingStageInfo", (accounts) => {
   const OWNER = accounts[0];
   const DEPLOYER = accounts[1];
   const WEBSITE_0 = "0x0000000000000000000000000000000000000000";
@@ -38,7 +38,7 @@ contract("ongoingStageDurationExceeded", (accounts) => {
   let token;
   let madoffContract;
 
-  beforeEach("getSharesAndUpdateOngoingStageInfo", async () => {
+  beforeEach("setup", async () => {
     await time.advanceBlock();
 
     token = await BernardsCutToken.new(OWNER);
@@ -413,7 +413,7 @@ contract("ongoingStageDurationExceeded", (accounts) => {
     });
   });
 
-  describe.only("ERROR: Wrong value sent", () => {
+  describe("ERROR: Wrong value sent", () => {
     it("should revert on S0", async() => {
       let VALUE = SHARE_PRICE_FOR_STAGE[0] * 10 + 1;
       await expectRevert(madoffContract.purchase(WEBSITE_0, {
