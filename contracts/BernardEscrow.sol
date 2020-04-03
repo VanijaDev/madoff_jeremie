@@ -33,7 +33,7 @@ contract BernardEscrow {
   }
 
   modifier onlyToken() {
-    require(msg.sender == address(token), "Not MPT");
+    require(msg.sender == address(token), "Not BCT");
     _;
   }
 
@@ -45,7 +45,7 @@ contract BernardEscrow {
   }
 
   function calculateTokenFractionProfit() public onlyTokenOwner onlyCalculationEnabled {
-    require(ongoingBernardFee >= 10 finney, "Not enough Bernardcut"); //  TODO: change from ether to TRX
+    require(ongoingBernardFee >= 0.1 szabo, "Not enough Bernardcut"); //  TODO: change from ether to TRX
     uint256 fractionProfit = ongoingBernardFee.div(10000);
    
     tokenFractionProfitForCalculatedIdx[tokenFractionProfitCalculatedTimes] = fractionProfit;

@@ -16,12 +16,21 @@ contract BernardsCutToken is ERC20Detailed("BernardsCutToken", "BCT", 0) {
 
   event Transfer(address indexed from, address indexed to, uint256 value);
 
-
+  /**
+   * @dev Constructor.
+   * @param _owner Owner's address.
+   * TESTED
+   */
   constructor (address _owner) public {
     _mint(_owner, 7000);
     _mint(msg.sender, 3000);
   }
 
+  /**
+   * @dev Updates escrow address.
+   * @notice Can be called once.
+   * TESTED
+   */
   function updateBernardEscrow(address _address) public {
     require(address(escrow) == 0, "Already set");
     escrow = BernardEscrow(_address);
@@ -47,6 +56,7 @@ contract BernardsCutToken is ERC20Detailed("BernardsCutToken", "BCT", 0) {
     * @param recipient Recipient address.
     * @param amount Token amount.
     * @param _loopLimit Limit for loop iteractions.
+    * TESTED
     */
   function transfer(address recipient, uint256 amount, uint256 _loopLimit) public returns (bool) {
     escrow.withdrawProfitFromToken(msg.sender, _loopLimit);
