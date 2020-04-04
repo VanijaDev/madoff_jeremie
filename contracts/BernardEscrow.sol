@@ -50,7 +50,7 @@ contract BernardEscrow {
 
   /**
    * @dev Calculates token fraction profit.
-   * TESTING
+   * TESTED
    */
   function calculateTokenFractionProfit() public onlyTokenOwner onlyCalculationEnabled {
     require(ongoingBernardFee >= 0.1 szabo, "Not enough Bernardcut"); //  TODO: change from ether to TRX
@@ -63,10 +63,23 @@ contract BernardEscrow {
     delete ongoingBernardFee;
   }
   
+  /**
+   * @dev Gets pending profit in BernardCut for sender.
+   * @param _loopLimit  Limit of loops.
+   * @return Profit amount.
+   * TESTED
+   */
   function pendingProfitInBernardCut(uint256 _loopLimit) public view returns(uint256 profit) {
     profit = _pendingProfit(msg.sender, _loopLimit);
   }
   
+  /**
+   * @dev Gets pending profit in BernardCut for address.
+   * @param recipient  Recipient address.
+   * @param _loopLimit  Limit of loops.
+   * @return Profit amount.
+   * TESTED
+   */
   function _pendingProfit(address recipient, uint256 _loopLimit) private view returns(uint256 profit) {
     uint256 startIdx = profitWithdrawnOnCalculationIdx[recipient].add(1);
     

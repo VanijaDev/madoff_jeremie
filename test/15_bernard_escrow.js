@@ -27,8 +27,7 @@ contract("BernardEscrow", (accounts) => {
   const SHARES_FOR_STAGE_TO_PURCHASE =          [2500,      5000,     3125,     12500,    10000,      62500,      62500,      400000,     390625,     2000000,    562500,     10000000,   12500000,   25000000];
   const SHARES_FOR_STAGE_TO_PURCHASE_ORIGINAL = [2500,      5000,     3125,     12500,    10000,      62500,      62500,      400000,     390625,     2000000,    562500,     10000000,   12500000,   25000000];
   const SHARE_PRICE_FOR_STAGE =                 [10000000,  20000000, 40000000, 80000000, 125000000,  160000000,  200000000,  250000000,  320000000,  500000000,  800000000,  1000000000, 1000000000, 1000000000];
-  const EXCEED_BLOCKS =                         111;
-
+  
   const SHARE_PURCHASE_PERCENT_JACKPOT = 40;
   const SHARE_PURCHASE_PERCENT_PURCHASED_SHARES = 50;
   const SHARE_PURCHASE_PERCENT_BERNARD_WEBSITE = 5;  //  both has 5%
@@ -287,6 +286,519 @@ contract("BernardEscrow", (accounts) => {
       });
 
       assert.equal(0, (await madoffContract.ongoingBernardFee.call()).cmp(new BN("0")), "ongoingBernardFee should be == 0 on 1");
+    });
+  });
+
+  describe("pendingProfitInBernardCut", () => {
+    it("should return correct sum after single tokenFractionProfitCalculatedTimes", async() => {
+      //  0
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * SHARES_FOR_STAGE_TO_PURCHASE[0] + SHARE_PRICE_FOR_STAGE[1] * SHARES_FOR_STAGE_TO_PURCHASE[1] + SHARE_PRICE_FOR_STAGE[2] * SHARES_FOR_STAGE_TO_PURCHASE[2];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      let ongoingBernardFee = await madoffContract.ongoingBernardFee.call();
+      assert.equal(1, ongoingBernardFee.cmp(new BN("0")), "ongoingBernardFee should be > 0");
+      // console.log(ongoingBernardFee.toString());
+
+      const CORRECT_SUM = ongoingBernardFee.mul(await token.balanceOf(OWNER)).div(new BN("10000"));
+      // console.log(CORRECT_SUM.toString());
+
+      //  1
+      await madoffContract.calculateTokenFractionProfit({
+        from: OWNER
+      });
+      let profit = await madoffContract.pendingProfitInBernardCut.call(10, {
+        from: OWNER
+      });
+      assert.equal(0, profit.cmp(CORRECT_SUM), "wrong profit");
+      
+    });
+    
+    it("should return correct sum after 3 tokenFractionProfitCalculatedTimes", async() => {
+      //  0 - 2500 * 10000000 + 5000 * 20000000 + 3125 * 40000000 = 250 000 000 000 * 0.55 = 137500000000
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * SHARES_FOR_STAGE_TO_PURCHASE[0] + SHARE_PRICE_FOR_STAGE[1] * SHARES_FOR_STAGE_TO_PURCHASE[1] + SHARE_PRICE_FOR_STAGE[2] * SHARES_FOR_STAGE_TO_PURCHASE[2];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      let ongoingBernardFee_0 = await madoffContract.ongoingBernardFee.call();
+      // console.log(ongoingBernardFee_0.toString());
+      assert.equal(0, ongoingBernardFee_0.cmp(new BN("137500000000")), "wrong ongoingBernardFee_0");
+
+      for(let i = 0; i < 5; i ++) {
+        await time.advanceBlock();
+      }
+      await madoffContract.calculateTokenFractionProfit({
+        from: OWNER
+      });
+
+      //  1
+      //  12500 * 80000000 * 0.05 = 50000000000
+      VALUE = SHARE_PRICE_FOR_STAGE[3] * SHARES_FOR_STAGE_TO_PURCHASE[3];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  10000 * 125000000 * 0.05 = 62500000000
+      //  Total: 50000000000 + 62500000000 = 112500000000
+      VALUE = SHARE_PRICE_FOR_STAGE[4] * SHARES_FOR_STAGE_TO_PURCHASE[4];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+      let ongoingBernardFee_1 = await madoffContract.ongoingBernardFee.call();
+      // console.log(ongoingBernardFee_1.toString());
+      assert.equal(0, ongoingBernardFee_1.cmp(new BN("112500000000")), "wrong ongoingBernardFee_1");
+
+      for(let i = 0; i < 5; i ++) {
+        await time.advanceBlock();
+      }
+      await madoffContract.calculateTokenFractionProfit({
+        from: OWNER
+      });
+
+      //  2
+      //  62500 * 160000000 * 0.05 = 500000000000
+      VALUE = SHARE_PRICE_FOR_STAGE[5] * SHARES_FOR_STAGE_TO_PURCHASE[5];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  62500 * 200000000 * 0.05 = 625000000000
+      //  Total: 500000000000 + 625000000000 = 1125000000000
+      VALUE = SHARE_PRICE_FOR_STAGE[6] * SHARES_FOR_STAGE_TO_PURCHASE[6];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+      let ongoingBernardFee_2 = await madoffContract.ongoingBernardFee.call();
+      // console.log(ongoingBernardFee_2.toString());
+      assert.equal(0, ongoingBernardFee_2.cmp(new BN("1125000000000")), "wrong ongoingBernardFee_2");
+
+      for(let i = 0; i < 5; i ++) {
+        await time.advanceBlock();
+      }
+      await madoffContract.calculateTokenFractionProfit({
+        from: OWNER
+      });
+
+      //  3
+      //  137500000000 + 112500000000 + 1125000000000 = 1375000000000 * 7000 / 10000 = 962500000000
+      const CORRECT_SUM = ongoingBernardFee_0.add(ongoingBernardFee_1).add(ongoingBernardFee_2).mul(await token.balanceOf(OWNER)).div(new BN("10000"));
+      // console.log(CORRECT_SUM.toString());
+      assert.equal(0, CORRECT_SUM.cmp(new BN("962500000000")), "wrong CORRECT_SUM");
+
+      //  4
+      let profit = await madoffContract.pendingProfitInBernardCut.call(10, {
+        from: OWNER
+      });
+      assert.equal(0, profit.cmp(CORRECT_SUM), "wrong profit");
+    });
+    
+    it("should return correct sum if loopLimit is less, than tokenFractionProfitCalculatedTimes number", async() => {
+      //  0 - 2500 * 10000000 + 5000 * 20000000 + 3125 * 40000000 = 250 000 000 000 * 0.55 = 137500000000
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * SHARES_FOR_STAGE_TO_PURCHASE[0] + SHARE_PRICE_FOR_STAGE[1] * SHARES_FOR_STAGE_TO_PURCHASE[1] + SHARE_PRICE_FOR_STAGE[2] * SHARES_FOR_STAGE_TO_PURCHASE[2];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      let ongoingBernardFee_0 = await madoffContract.ongoingBernardFee.call();
+      // console.log(ongoingBernardFee_0.toString());
+      assert.equal(0, ongoingBernardFee_0.cmp(new BN("137500000000")), "wrong ongoingBernardFee_0");
+
+      for(let i = 0; i < 5; i ++) {
+        await time.advanceBlock();
+      }
+      await madoffContract.calculateTokenFractionProfit({
+        from: OWNER
+      });
+
+      //  1
+      //  12500 * 80000000 * 0.05 = 50000000000
+      VALUE = SHARE_PRICE_FOR_STAGE[3] * SHARES_FOR_STAGE_TO_PURCHASE[3];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  10000 * 125000000 * 0.05 = 62500000000
+      //  Total: 50000000000 + 62500000000 = 112500000000
+      VALUE = SHARE_PRICE_FOR_STAGE[4] * SHARES_FOR_STAGE_TO_PURCHASE[4];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+      let ongoingBernardFee_1 = await madoffContract.ongoingBernardFee.call();
+      // console.log(ongoingBernardFee_1.toString());
+      assert.equal(0, ongoingBernardFee_1.cmp(new BN("112500000000")), "wrong ongoingBernardFee_1");
+
+      for(let i = 0; i < 5; i ++) {
+        await time.advanceBlock();
+      }
+      await madoffContract.calculateTokenFractionProfit({
+        from: OWNER
+      });
+
+      //  2
+      //  62500 * 160000000 * 0.05 = 500000000000
+      VALUE = SHARE_PRICE_FOR_STAGE[5] * SHARES_FOR_STAGE_TO_PURCHASE[5];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  62500 * 200000000 * 0.05 = 625000000000
+      //  Total: 500000000000 + 625000000000 = 1125000000000
+      VALUE = SHARE_PRICE_FOR_STAGE[6] * SHARES_FOR_STAGE_TO_PURCHASE[6];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+      let ongoingBernardFee_2 = await madoffContract.ongoingBernardFee.call();
+      // console.log(ongoingBernardFee_2.toString());
+      assert.equal(0, ongoingBernardFee_2.cmp(new BN("1125000000000")), "wrong ongoingBernardFee_2");
+
+      for(let i = 0; i < 5; i ++) {
+        await time.advanceBlock();
+      }
+      await madoffContract.calculateTokenFractionProfit({
+        from: OWNER
+      });
+
+      //  3
+      //  137500000000 * 7000 / 10000 = 96250000000
+      let CORRECT_SUM = ongoingBernardFee_0.mul(await token.balanceOf(OWNER)).div(new BN("10000"));
+      // console.log(CORRECT_SUM.toString());
+      assert.equal(0, CORRECT_SUM.cmp(new BN("96250000000")), "wrong CORRECT_SUM on 3");
+
+      let profit = await madoffContract.pendingProfitInBernardCut.call(1, {
+        from: OWNER
+      });
+      assert.equal(0, profit.cmp(CORRECT_SUM), "wrong profit");
+
+      //  4
+      //  137500000000 + 112500000000 = 250000000000 * 7000 / 10000 = 175000000000
+      CORRECT_SUM = ongoingBernardFee_0.add(ongoingBernardFee_1).mul(await token.balanceOf(OWNER)).div(new BN("10000"));
+      // console.log(CORRECT_SUM.toString());
+      assert.equal(0, CORRECT_SUM.cmp(new BN("175000000000")), "wrong CORRECT_SUM on 4");
+
+      profit = await madoffContract.pendingProfitInBernardCut.call(2, {
+        from: OWNER
+      });
+      assert.equal(0, profit.cmp(CORRECT_SUM), "wrong profit");
+    });
+
+    it("should return correct sum after single tokenFractionProfitCalculatedTimes after withdrawal", async() => {
+      //  0 - 2500 * 10000000 + 5000 * 20000000 + 3125 * 40000000 = 250 000 000 000 * 0.55 = 137500000000
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * SHARES_FOR_STAGE_TO_PURCHASE[0] + SHARE_PRICE_FOR_STAGE[1] * SHARES_FOR_STAGE_TO_PURCHASE[1] + SHARE_PRICE_FOR_STAGE[2] * SHARES_FOR_STAGE_TO_PURCHASE[2];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      let ongoingBernardFee_0 = await madoffContract.ongoingBernardFee.call();
+      // console.log(ongoingBernardFee_0.toString());
+      assert.equal(0, ongoingBernardFee_0.cmp(new BN("137500000000")), "wrong ongoingBernardFee_0");
+
+      for(let i = 0; i < 5; i ++) {
+        await time.advanceBlock();
+      }
+      await madoffContract.calculateTokenFractionProfit({
+        from: OWNER
+      });
+
+      await madoffContract.withdrawProfit(10, {
+        from: OWNER
+      })
+
+      //  1
+      //  12500 * 80000000 * 0.05 = 50000000000
+      VALUE = SHARE_PRICE_FOR_STAGE[3] * SHARES_FOR_STAGE_TO_PURCHASE[3];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  10000 * 125000000 * 0.05 = 62500000000
+      //  Total: 50000000000 + 62500000000 = 112500000000
+      VALUE = SHARE_PRICE_FOR_STAGE[4] * SHARES_FOR_STAGE_TO_PURCHASE[4];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+      let ongoingBernardFee_1 = await madoffContract.ongoingBernardFee.call();
+      // console.log(ongoingBernardFee_1.toString());
+      assert.equal(0, ongoingBernardFee_1.cmp(new BN("112500000000")), "wrong ongoingBernardFee_1");
+
+      for(let i = 0; i < 5; i ++) {
+        await time.advanceBlock();
+      }
+      await madoffContract.calculateTokenFractionProfit({
+        from: OWNER
+      });
+
+      //  112500000000 * 7000 / 10000 = 78750000000
+      let CORRECT_SUM = ongoingBernardFee_1.mul(await token.balanceOf(OWNER)).div(new BN("10000"));
+      // console.log(CORRECT_SUM.toString());
+      assert.equal(0, CORRECT_SUM.cmp(new BN("78750000000")), "wrong CORRECT_SUM");
+
+      let profit = await madoffContract.pendingProfitInBernardCut.call(1, {
+        from: OWNER
+      });
+      assert.equal(0, profit.cmp(CORRECT_SUM), "wrong profit");
+    });
+    
+    it("should return correct sum after 3 tokenFractionProfitCalculatedTimes after withdrawal", async() => {
+      //  0 - 2500 * 10000000 + 5000 * 20000000 + 3125 * 40000000 = 250 000 000 000 * 0.55 = 137500000000
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * SHARES_FOR_STAGE_TO_PURCHASE[0] + SHARE_PRICE_FOR_STAGE[1] * SHARES_FOR_STAGE_TO_PURCHASE[1] + SHARE_PRICE_FOR_STAGE[2] * SHARES_FOR_STAGE_TO_PURCHASE[2];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      let ongoingBernardFee_0 = await madoffContract.ongoingBernardFee.call();
+      // console.log(ongoingBernardFee_0.toString());
+      assert.equal(0, ongoingBernardFee_0.cmp(new BN("137500000000")), "wrong ongoingBernardFee_0");
+
+      for(let i = 0; i < 5; i ++) {
+        await time.advanceBlock();
+      }
+      await madoffContract.calculateTokenFractionProfit({
+        from: OWNER
+      });
+
+      await madoffContract.withdrawProfit(10, {
+        from: OWNER
+      })
+
+
+
+      //  1
+      //  12500 * 80000000 * 0.05 = 50000000000
+      VALUE = SHARE_PRICE_FOR_STAGE[3] * SHARES_FOR_STAGE_TO_PURCHASE[3];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  10000 * 125000000 * 0.05 = 62500000000
+      //  Total: 50000000000 + 62500000000 = 112500000000
+      VALUE = SHARE_PRICE_FOR_STAGE[4] * SHARES_FOR_STAGE_TO_PURCHASE[4];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+      let ongoingBernardFee_1 = await madoffContract.ongoingBernardFee.call();
+      // console.log(ongoingBernardFee_1.toString());
+      assert.equal(0, ongoingBernardFee_1.cmp(new BN("112500000000")), "wrong ongoingBernardFee_1");
+
+      for(let i = 0; i < 5; i ++) {
+        await time.advanceBlock();
+      }
+      await madoffContract.calculateTokenFractionProfit({
+        from: OWNER
+      });
+
+      //  2
+      //  62500 * 160000000 * 0.05 = 500000000000
+      VALUE = SHARE_PRICE_FOR_STAGE[5] * SHARES_FOR_STAGE_TO_PURCHASE[5];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  62500 * 200000000 * 0.05 = 625000000000
+      //  Total: 500000000000 + 625000000000 = 1125000000000
+      VALUE = SHARE_PRICE_FOR_STAGE[6] * SHARES_FOR_STAGE_TO_PURCHASE[6];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+      let ongoingBernardFee_2 = await madoffContract.ongoingBernardFee.call();
+      // console.log(ongoingBernardFee_2.toString());
+      assert.equal(0, ongoingBernardFee_2.cmp(new BN("1125000000000")), "wrong ongoingBernardFee_2");
+
+      for(let i = 0; i < 5; i ++) {
+        await time.advanceBlock();
+      }
+      await madoffContract.calculateTokenFractionProfit({
+        from: OWNER
+      });
+
+      //  3
+      //  400000 * 250000000 * 0.05 = 5000000000000
+      VALUE = SHARE_PRICE_FOR_STAGE[7] * SHARES_FOR_STAGE_TO_PURCHASE[7];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  390625 * 320000000 * 0.05 = 6250000000000
+      //  Total: 5000000000000 + 6250000000000 = 11250000000000
+      VALUE = SHARE_PRICE_FOR_STAGE[8] * SHARES_FOR_STAGE_TO_PURCHASE[8];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+      let ongoingBernardFee_3 = await madoffContract.ongoingBernardFee.call();
+      // console.log(ongoingBernardFee_3.toString());
+      assert.equal(0, ongoingBernardFee_3.cmp(new BN("11250000000000")), "wrong ongoingBernardFee_3");
+
+      for(let i = 0; i < 5; i ++) {
+        await time.advanceBlock();
+      }
+      await madoffContract.calculateTokenFractionProfit({
+        from: OWNER
+      });
+
+      //  4
+      //  112500000000 + 1125000000000 + 11250000000000 = 12487500000000 * 7000 / 10000 = 8741250000000
+      let CORRECT_SUM = ongoingBernardFee_1.add(ongoingBernardFee_2).add(ongoingBernardFee_3).mul(await token.balanceOf(OWNER)).div(new BN("10000"));
+      // console.log(CORRECT_SUM.toString());
+      assert.equal(0, CORRECT_SUM.cmp(new BN("8741250000000")), "wrong CORRECT_SUM");
+
+      let profit = await madoffContract.pendingProfitInBernardCut.call(10, {
+        from: OWNER
+      });
+      assert.equal(0, profit.cmp(CORRECT_SUM), "wrong profit");
+    });
+    
+    it("should return correct sum if loopLimit is less, than tokenFractionProfitCalculatedTimes number after withdrawal", async() => {
+      //  0 - 2500 * 10000000 + 5000 * 20000000 + 3125 * 40000000 = 250 000 000 000 * 0.55 = 137500000000
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * SHARES_FOR_STAGE_TO_PURCHASE[0] + SHARE_PRICE_FOR_STAGE[1] * SHARES_FOR_STAGE_TO_PURCHASE[1] + SHARE_PRICE_FOR_STAGE[2] * SHARES_FOR_STAGE_TO_PURCHASE[2];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      let ongoingBernardFee_0 = await madoffContract.ongoingBernardFee.call();
+      // console.log(ongoingBernardFee_0.toString());
+      assert.equal(0, ongoingBernardFee_0.cmp(new BN("137500000000")), "wrong ongoingBernardFee_0");
+
+      for(let i = 0; i < 5; i ++) {
+        await time.advanceBlock();
+      }
+      await madoffContract.calculateTokenFractionProfit({
+        from: OWNER
+      });
+
+      await madoffContract.withdrawProfit(10, {
+        from: OWNER
+      })
+
+
+
+      //  1
+      //  12500 * 80000000 * 0.05 = 50000000000
+      VALUE = SHARE_PRICE_FOR_STAGE[3] * SHARES_FOR_STAGE_TO_PURCHASE[3];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  10000 * 125000000 * 0.05 = 62500000000
+      //  Total: 50000000000 + 62500000000 = 112500000000
+      VALUE = SHARE_PRICE_FOR_STAGE[4] * SHARES_FOR_STAGE_TO_PURCHASE[4];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+      let ongoingBernardFee_1 = await madoffContract.ongoingBernardFee.call();
+      // console.log(ongoingBernardFee_1.toString());
+      assert.equal(0, ongoingBernardFee_1.cmp(new BN("112500000000")), "wrong ongoingBernardFee_1");
+
+      for(let i = 0; i < 5; i ++) {
+        await time.advanceBlock();
+      }
+      await madoffContract.calculateTokenFractionProfit({
+        from: OWNER
+      });
+
+      //  2
+      //  62500 * 160000000 * 0.05 = 500000000000
+      VALUE = SHARE_PRICE_FOR_STAGE[5] * SHARES_FOR_STAGE_TO_PURCHASE[5];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  62500 * 200000000 * 0.05 = 625000000000
+      //  Total: 500000000000 + 625000000000 = 1125000000000
+      VALUE = SHARE_PRICE_FOR_STAGE[6] * SHARES_FOR_STAGE_TO_PURCHASE[6];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+      let ongoingBernardFee_2 = await madoffContract.ongoingBernardFee.call();
+      // console.log(ongoingBernardFee_2.toString());
+      assert.equal(0, ongoingBernardFee_2.cmp(new BN("1125000000000")), "wrong ongoingBernardFee_2");
+
+      for(let i = 0; i < 5; i ++) {
+        await time.advanceBlock();
+      }
+      await madoffContract.calculateTokenFractionProfit({
+        from: OWNER
+      });
+
+      //  3
+      //  400000 * 250000000 * 0.05 = 5000000000000
+      VALUE = SHARE_PRICE_FOR_STAGE[7] * SHARES_FOR_STAGE_TO_PURCHASE[7];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  390625 * 320000000 * 0.05 = 6250000000000
+      //  Total: 5000000000000 + 6250000000000 = 11250000000000
+      VALUE = SHARE_PRICE_FOR_STAGE[8] * SHARES_FOR_STAGE_TO_PURCHASE[8];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+      let ongoingBernardFee_3 = await madoffContract.ongoingBernardFee.call();
+      // console.log(ongoingBernardFee_3.toString());
+      assert.equal(0, ongoingBernardFee_3.cmp(new BN("11250000000000")), "wrong ongoingBernardFee_3");
+
+      for(let i = 0; i < 5; i ++) {
+        await time.advanceBlock();
+      }
+      await madoffContract.calculateTokenFractionProfit({
+        from: OWNER
+      });
+
+      //  4
+      //  112500000000 + 1125000000000 = 1237500000000 * 7000 / 10000 = 866250000000
+      let CORRECT_SUM = ongoingBernardFee_1.add(ongoingBernardFee_2).mul(await token.balanceOf(OWNER)).div(new BN("10000"));
+      // console.log(CORRECT_SUM.toString());
+      assert.equal(0, CORRECT_SUM.cmp(new BN("866250000000")), "wrong CORRECT_SUM");
+
+      let profit = await madoffContract.pendingProfitInBernardCut.call(2, {
+        from: OWNER
+      });
+      assert.equal(0, profit.cmp(CORRECT_SUM), "wrong profit");
+    });
+    
+    it("should return 0 if no tokens for address", async() => {
+      //  0
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * SHARES_FOR_STAGE_TO_PURCHASE[0] + SHARE_PRICE_FOR_STAGE[1] * SHARES_FOR_STAGE_TO_PURCHASE[1] + SHARE_PRICE_FOR_STAGE[2] * SHARES_FOR_STAGE_TO_PURCHASE[2];
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      let ongoingBernardFee = await madoffContract.ongoingBernardFee.call();
+      assert.equal(1, ongoingBernardFee.cmp(new BN("0")), "ongoingBernardFee should be > 0");
+      // console.log(ongoingBernardFee.toString());
+
+      //  1
+      await madoffContract.calculateTokenFractionProfit({
+        from: OWNER
+      });
+      let profit = await madoffContract.pendingProfitInBernardCut.call(10, {
+        from: PURCHASER_0
+      });
+      assert.equal(0, profit.cmp(new BN("0")), "wrong profit");
     });
   });
 
