@@ -10,7 +10,7 @@ contract BernardEscrow {
   BernardsCutToken public token;
 
 //   uint256 public constant CALCULATION_DISABLED_BLOCKS = 21600; //  used to avoid spam
-  uint256 public constant CALCULATION_DISABLED_BLOCKS = 2;   // TODO: testing
+  uint256 public constant CALCULATION_DISABLED_BLOCKS = 5;   // TODO: testing
   
   uint256 public prevCalculationBlock;
   uint256 public tokenFractionProfitCalculatedTimes;
@@ -37,13 +37,21 @@ contract BernardEscrow {
     _;
   }
 
-
+  /**
+   * @dev Constructor.
+   * @param _token Token address.
+   * TESTED
+   */
   constructor (address _token) public {
     token = BernardsCutToken(_token);
 
     tokenFractionProfitCalculatedTimes = 1;  //  idx 0 can not be used
   }
 
+  /**
+   * @dev Calculates token fraction profit.
+   * TESTING
+   */
   function calculateTokenFractionProfit() public onlyTokenOwner onlyCalculationEnabled {
     require(ongoingBernardFee >= 0.1 szabo, "Not enough Bernardcut"); //  TODO: change from ether to TRX
     uint256 fractionProfit = ongoingBernardFee.div(10000);
