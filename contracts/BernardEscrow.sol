@@ -52,7 +52,7 @@ contract BernardEscrow {
    * @dev Calculates token fraction profit.
    * TESTED
    */
-  function calculateTokenFractionProfit() public onlyTokenOwner onlyCalculationEnabled {
+  function calculateTokenFractionProfit() public onlyTokenHolder onlyCalculationEnabled {
     require(ongoingBernardFee >= 0.1 szabo, "Not enough Bernardcut"); //  TODO: change from ether to TRX
     uint256 fractionProfit = ongoingBernardFee.div(10000);
    
@@ -70,61 +70,72 @@ contract BernardEscrow {
    * TESTED
    */
   function pendingProfitInBernardCut(uint256 _loopLimit) public view returns(uint256 profit) {
-    profit = _pendingProfit(msg.sender, _loopLimit);
+    uint256 startIdx = profitWithdrawnOnCalculationIdx[msg.sender].add(1);
+    
+    if (startIdx < tokenFractionProfitCalculatedTimes) {
+      uint256 endIdx = (tokenFractionProfitCalculatedTimes.sub(startIdx) > _loopLimit) ? startIdx.add(_loopLimit).sub(1) : tokenFractionProfitCalculatedTimes.sub(1);
+      profit = _pendingProfit(msg.sender, startIdx, endIdx);
+    }
   }
   
   /**
    * @dev Gets pending profit in BernardCut for address.
    * @param recipient  Recipient address.
-   * @param _loopLimit  Limit of loops.
+   * @param _fromIdx  Index in tokenFractionProfitForCalculatedIdx to start on.
+   * @param _toIdx  Index in tokenFractionProfitForCalculatedIdx to finish on.
    * @return Profit amount.
    * TESTED
    */
-  function _pendingProfit(address recipient, uint256 _loopLimit) private view returns(uint256 profit) {
-    uint256 startIdx = profitWithdrawnOnCalculationIdx[recipient].add(1);
-    
-    if(startIdx >= tokenFractionProfitCalculatedTimes) {
-        return;
-    }
-  
-    uint256 endIdx = (tokenFractionProfitCalculatedTimes.sub(startIdx) > _loopLimit) ? startIdx.add(_loopLimit).sub(1) : tokenFractionProfitCalculatedTimes.sub(1);
+  function _pendingProfit(address recipient, uint256 _fromIdx, uint256 _toIdx) private view returns(uint256 profit) {
     uint256 priceSum;
 
-    for (uint256 i = startIdx; i <= endIdx; i ++) {
+    for (uint256 i = _fromIdx; i <= _toIdx; i ++) {
       priceSum = priceSum.add(tokenFractionProfitForCalculatedIdx[i]);
     }
-    profit = priceSum.mul(token.balanceOf(msg.sender));
+    profit = priceSum.mul(token.balanceOf(recipient));
   }
 
-  function withdrawProfit(uint256 _loopLimit) public onlyTokenOwner {
+  /**
+   * @dev Withdraws profit for sender.
+   * @param _loopLimit  Limit of loops.
+   * TESTED
+   */
+  function withdrawProfit(uint256 _loopLimit) public onlyTokenHolder {
     _withdrawProfit(msg.sender, _loopLimit, false);
   }
 
+  /**
+   * @dev Withdraws profit for sender.
+   * @param recipient  Recipient address.
+   * @param _loopLimit  Limit of loops.
+   * TESTING
+   */
   function withdrawProfitFromToken(address recipient, uint256 _loopLimit) public onlyToken {
     _withdrawProfit(recipient, _loopLimit, true);
   }
 
+  /**
+   * @dev Withdraws profit for sender.
+   * @param recipient  Recipient address.
+   * @param _loopLimit  Limit of loops.
+   * @param _fromToken  If sent from token, but EOA.
+   * TESTING
+   */
   function _withdrawProfit(address recipient, uint256 _loopLimit, bool _fromToken) private {
-    uint256 profit = _pendingProfit(recipient, _loopLimit);
-    
-    if (profit == 0) {
-        if (_fromToken) {
-          profitWithdrawnOnCalculationIdx[recipient] = tokenFractionProfitCalculatedTimes.sub(1);
-          return;
-        }
-        revert("Nothing to withdraw");
-    }
-
     uint256 startIdx = profitWithdrawnOnCalculationIdx[recipient].add(1);
-    uint256 endIdx = (tokenFractionProfitCalculatedTimes.sub(startIdx) > _loopLimit) ? startIdx.add(_loopLimit).sub(1) : tokenFractionProfitCalculatedTimes.sub(startIdx);
+    if (startIdx == tokenFractionProfitCalculatedTimes) {
+      if (_fromToken) {
+        profitWithdrawnOnCalculationIdx[recipient] = tokenFractionProfitCalculatedTimes.sub(1);
+        return;
+      }
+      revert("Nothing to withdraw");
+    }
+    uint256 endIdx = (tokenFractionProfitCalculatedTimes.sub(startIdx) > _loopLimit) ? startIdx.add(_loopLimit).sub(1) : tokenFractionProfitCalculatedTimes.sub(1);
+    uint256 profit = _pendingProfit(recipient, startIdx, endIdx);
     
     profitWithdrawnOnCalculationIdx[recipient] = endIdx;
     recipient.transfer(profit);
     emit BernardFeeWithdrawn(recipient, profit);
-  }
-  
-  function TEST_addBernardFee() public payable {
-      ongoingBernardFee = ongoingBernardFee.add(msg.value);
   }
   
   function TEST_balance() public view returns (uint256 balance) {
