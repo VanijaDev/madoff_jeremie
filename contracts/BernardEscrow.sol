@@ -27,8 +27,8 @@ contract BernardEscrow {
     _;
   }
 
-  modifier onlyTokenOwner() {
-    require(token.balanceOf(msg.sender) > 0, "Not token owner");
+  modifier onlyTokenHolder() {
+    require(token.balanceOf(msg.sender) > 0, "Not token holder");
     _;
   }
 
