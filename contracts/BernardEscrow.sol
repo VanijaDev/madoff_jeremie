@@ -108,7 +108,7 @@ contract BernardEscrow {
    * @dev Withdraws profit for sender.
    * @param recipient  Recipient address.
    * @param _loopLimit  Limit of loops.
-   * TESTING
+   * TESTED
    */
   function withdrawProfitFromToken(address recipient, uint256 _loopLimit) public onlyToken {
     _withdrawProfit(recipient, _loopLimit, true);
@@ -119,7 +119,7 @@ contract BernardEscrow {
    * @param recipient  Recipient address.
    * @param _loopLimit  Limit of loops.
    * @param _fromToken  If sent from token, but EOA.
-   * TESTING
+   * TESTED
    */
   function _withdrawProfit(address recipient, uint256 _loopLimit, bool _fromToken) private {
     uint256 startIdx = profitWithdrawnOnCalculationIdx[recipient].add(1);

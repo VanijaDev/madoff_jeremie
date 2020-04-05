@@ -1292,14 +1292,10 @@ contract("BernardEscrow", (accounts) => {
       // console.log(tx_3);
       // console.log(logs_3);
 
-      assert.equal(logs_3.event, "BernardFeeWithdrawn", "wrong event name in 2");
+      assert.equal(logs_3.event, "BernardFeeWithdrawn", "wrong event name in 3");
       assert.equal(logs_3.args.by, OWNER, "wrong by arg in 2");
-      assert.equal(0, logs_3.args.amount.cmp(OWNER_profit_3), "wrong amount arg in 2");
+      assert.equal(0, logs_3.args.amount.cmp(OWNER_profit_3), "wrong amount arg in 3");
     });
-  });
-
-  describe.only("withdrawProfitFromToken", () => {
-
   });
 
 });
