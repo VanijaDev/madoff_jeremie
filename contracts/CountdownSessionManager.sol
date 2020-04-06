@@ -215,6 +215,7 @@ contract CountdownSessionManager {
    * @dev Gets number of purchases in Session.
    * @param _session Session idx.
    * @return Number of purchases.
+   * TESTED
    */
   function purchaseCountInSession(uint256 _session) public view returns(uint256 purchases) {
     purchases = sessionsInfo[_session].purchasesInfo.length;
