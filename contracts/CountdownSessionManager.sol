@@ -78,7 +78,7 @@ contract CountdownSessionManager {
   /**
    * @dev Creates new Session on countdown for previous Session reset.
    * @param _prevSharesPart Funds amount, that should be used as reward for previously purchased shares.
-   * TESTING
+   * TESTED
    */
   function countdownWasReset(uint256 _prevSharesPart) internal {
     SessionInfo storage session = sessionsInfo[ongoingSessionIdx];
@@ -205,6 +205,7 @@ contract CountdownSessionManager {
    * @dev Gets jackpot share price in Session.
    * @param _session Session idx.
    * @return Share price.
+   * TESTED
    */
   function jackpotSharePriceInSession(uint256 _session) public view returns(uint256 price) {
     price = sessionsInfo[_session].jackpotSharePrice;
