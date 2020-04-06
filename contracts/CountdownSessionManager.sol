@@ -43,6 +43,7 @@ contract CountdownSessionManager {
    * @param _shareNumber Number of shares.
    * @param _purchaser Purchaser address.
    * @param _rewardForPreviousShares Reward amount for previously purchased shares.
+   * TESTED
    */
   function sharesPurchased(uint256 _shareNumber, address _purchaser, uint256 _rewardForPreviousShares) internal {
     require(_shareNumber > 0, "Wrong _shareNumber");
@@ -62,6 +63,7 @@ contract CountdownSessionManager {
    * @dev Adds session idx for purchaser.
    * @param _session Session idx.
    * @param _purchaser Purchaser address.
+   * TESTED
    */
   function addSessionForPurchaser(uint256 _session, address _purchaser) private {
     uint256[] storage sessionsForPurchaser = sessionsInfoForPurchaser[_purchaser];
@@ -76,6 +78,7 @@ contract CountdownSessionManager {
   /**
    * @dev Creates new Session on countdown for previous Session reset.
    * @param _prevSharesPart Funds amount, that should be used as reward for previously purchased shares.
+   * TESTING
    */
   function countdownWasReset(uint256 _prevSharesPart) internal {
     SessionInfo storage session = sessionsInfo[ongoingSessionIdx];
@@ -181,6 +184,7 @@ contract CountdownSessionManager {
   /**
    * @dev Gets session idxs, where user made purchase.
    * @return Session idxs.
+   * TESTED
    */
   function participatedSessionsForUser() public view returns(uint256[] sessions) {
     sessions = sessionsInfoForPurchaser[msg.sender];
@@ -191,6 +195,7 @@ contract CountdownSessionManager {
    * @dev Gets total shares purchased in Session.
    * @param _session Session idx.
    * @return Number of shares.
+   * TESTED
    */
   function sharesPurchasedInSession(uint256 _session) public view returns(uint256 shares) {
     shares = sessionsInfo[_session].sharesPurchased;
@@ -219,6 +224,7 @@ contract CountdownSessionManager {
    * @param _purchase Purchase idx.
    * @param _session Session idx.
    * @return Purchaser address, Number of purchased shares, share price for previously purchased shares.
+   * TESTED
    */
   function purchaseInfoInSession(uint256 _purchase, uint256 _session) public view returns (address purchaser, uint256 shareNumber, uint256 previousSharePrice) {
     SessionInfo storage session = sessionsInfo[_session];
@@ -230,9 +236,20 @@ contract CountdownSessionManager {
    * @dev Gets purchase idx in Session for purchaser.
    * @param _session Session idx.
    * @return Purchase idxs.
+   * TESTED
    */
   function purchasesInSessionForUser(uint256 _session) public view returns(uint256[] purchases) {
     purchases = sessionsInfo[_session].purchaseIdxsForPurchaser[msg.sender];
+  }
+  
+  /**
+   * @dev Gets number of shares purchased in Session for purchaser.
+   * @param _session Session idx.
+   * @return Shares number.
+   * TESTED
+   */
+  function sharesPurchasedInSessionByPurchaser(uint256 _session) public view returns(uint256 shares) {
+    shares = sessionsInfo[_session].sharesPurchasedByPurchaser[msg.sender];
   }
 
   //  ProfitWithdrawalInfo
