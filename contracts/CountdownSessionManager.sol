@@ -94,6 +94,7 @@ contract CountdownSessionManager {
   /**
    * @dev Calculates jackpot for purchased shares for Session for purchaser.
    * @param _session Session idx.
+   * TESTED
    */
   function jackpotForSharesInSessionForUser(uint256 _session) public view returns(uint256 profit) {
     SessionInfo storage sessionInfo = sessionsInfo[_session];
@@ -260,7 +261,7 @@ contract CountdownSessionManager {
    * @param _session Session idx.
    * @return Withdrawn or not.
    */
-  function jackpotForSharesInSessionWithdrawnForUser(uint256 _session) public view returns(bool withdrawn) {
+  function isJackpotForSharesInSessionWithdrawnForUser(uint256 _session) public view returns(bool withdrawn) {
     withdrawn = sessionsInfo[_session].profitWithdrawalInfoForPurchaser[msg.sender].jackpotForSharesWithdrawn;
   }
 
