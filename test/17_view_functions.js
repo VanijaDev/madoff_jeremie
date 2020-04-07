@@ -166,7 +166,7 @@ contract("sharesPurchased", (accounts) => {
       await expectRevert(madoffContract.jackpotForSharesInSessionForUser.call(0, {from: PURCHASER_1}), "No shares");
     });
     
-    it("should return correct profit after multiple purchases in single Stage", async() => {
+    it("should return correct profit after multiple purchases in multiple Sessions in single Stage", async() => {
       //  0
       //  purchase
       let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
@@ -280,7 +280,7 @@ contract("sharesPurchased", (accounts) => {
       await expectRevert(madoffContract.jackpotForSharesInSessionForUser.call(0, {from: PURCHASER_2}), "No shares");
     });
 
-    it("should return correct profit after multiple purchases in multiple Stages", async() => {
+    it("should return correct profit after multiple purchases in multiple Sessions in multiple Stages", async() => {
       //  0
       //  purchase
       let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;

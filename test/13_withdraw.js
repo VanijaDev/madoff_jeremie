@@ -250,4 +250,187 @@ contract("withdraw", (accounts) => {
       });
     });
   });
+
+  describe("withdrawjackpotForSharesInSession", () => {
+    it("should fail if Already withdrawn for Session", async() => {
+      //  purchase
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  exceed S0
+      for(let i = 0; i < 100; i ++) {
+        await time.advanceBlock();
+      }
+
+      //  purchase to start new Session
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * SHARES_FOR_STAGE_TO_PURCHASE[0];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      await madoffContract.withdrawjackpotForSharesInSession(0, {
+        from: PURCHASER_0
+      });
+
+      await expectRevert(madoffContract.withdrawjackpotForSharesInSession(0, {
+        from: PURCHASER_0
+      }), "Already withdrawn");
+    });
+    
+    it("should set jackpotForSharesWithdrawn == true in ProfitWithdrawalInfo", async() => {
+      //  purchase
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  exceed S0
+      for(let i = 0; i < 100; i ++) {
+        await time.advanceBlock();
+      }
+
+      //  purchase to start new Session
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * SHARES_FOR_STAGE_TO_PURCHASE[0];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      assert.isFalse(await madoffContract.isJackpotForSharesInSessionWithdrawnForUser.call(0, {
+        from: PURCHASER_0
+      }), "should be false before");
+      await madoffContract.withdrawjackpotForSharesInSession(0, {
+        from: PURCHASER_0
+      });
+      assert.isTrue(await madoffContract.isJackpotForSharesInSessionWithdrawnForUser.call(0, {
+        from: PURCHASER_0
+      }), "should be true after");
+    });
+    
+    it("should transfer correct profit after single purchase", async() => {
+      //  purchase
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  exceed S0
+      for(let i = 0; i < 100; i ++) {
+        await time.advanceBlock();
+      }
+
+      //  purchase to start new Session
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * SHARES_FOR_STAGE_TO_PURCHASE[0];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      const BALANCE_BEFORE = new BN(await web3.eth.getBalance(PURCHASER_0));
+      const PROFIT_CORRECT = await madoffContract.jackpotForSharesInSessionForUser.call(0, {from: PURCHASER_0});
+
+      let tx = await madoffContract.withdrawjackpotForSharesInSession(0, {
+        from: PURCHASER_0
+      });
+      let gasUsed = new BN(tx.receipt.gasUsed);
+      let txInfo = await web3.eth.getTransaction(tx.tx);
+      let gasPrice = new BN(txInfo.gasPrice);
+      let gasSpent = gasUsed.mul(gasPrice);
+
+      const BALANCE_AFTER = new BN(await web3.eth.getBalance(PURCHASER_0));
+      assert.equal(0, BALANCE_BEFORE.sub(gasSpent).add(PROFIT_CORRECT).cmp(BALANCE_AFTER), "wrong balance after withdraw");
+    });
+    
+    it("should transfer correct profit after multiple purchases", async() => {
+      //  purchase
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  exceed S0
+      for(let i = 0; i < 100; i ++) {
+        await time.advanceBlock();
+      }
+
+      //  purchase to start new Session
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * SHARES_FOR_STAGE_TO_PURCHASE[0];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[1] * 2;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+      
+      //  exceed S0
+      for(let i = 0; i < 100; i ++) {
+        await time.advanceBlock();
+      }
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * SHARES_FOR_STAGE_TO_PURCHASE[0] + SHARE_PRICE_FOR_STAGE[0] * 44;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  check
+      const BALANCE_BEFORE = new BN(await web3.eth.getBalance(PURCHASER_0));
+      const PROFIT_CORRECT = await madoffContract.jackpotForSharesInSessionForUser.call(0, {from: PURCHASER_0});
+
+      let tx = await madoffContract.withdrawjackpotForSharesInSession(0, {
+        from: PURCHASER_0
+      });
+      let gasUsed = new BN(tx.receipt.gasUsed);
+      let txInfo = await web3.eth.getTransaction(tx.tx);
+      let gasPrice = new BN(txInfo.gasPrice);
+      let gasSpent = gasUsed.mul(gasPrice);
+
+      const BALANCE_AFTER = new BN(await web3.eth.getBalance(PURCHASER_0));
+      assert.equal(0, BALANCE_BEFORE.sub(gasSpent).add(PROFIT_CORRECT).cmp(BALANCE_AFTER), "wrong balance after withdraw");
+    });
+    
+    it("should emit JackpotForSharesProfitWithdrawn", async() => {
+      //  purchase
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  exceed S0
+      for(let i = 0; i < 100; i ++) {
+        await time.advanceBlock();
+      }
+
+      //  purchase to start new Session
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * SHARES_FOR_STAGE_TO_PURCHASE[0];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      const PROFIT_CORRECT = await madoffContract.jackpotForSharesInSessionForUser.call(0, {from: PURCHASER_0});
+
+      const {logs} = await madoffContract.withdrawjackpotForSharesInSession(0, {
+        from: PURCHASER_0
+      });
+
+      await expectEvent.inLogs(logs, 'JackpotForSharesProfitWithdrawn', {
+        _address: PURCHASER_0,
+        _amount: PROFIT_CORRECT,
+        _session: new BN("0")
+      });
+    });
+  });
 });

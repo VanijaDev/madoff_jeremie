@@ -111,13 +111,14 @@ contract CountdownSessionManager {
   /**
    * @dev Withdraws jackpot for purchased shares for Session for purchaser.
    * @param _session Session idx.
+   * TESTED
    */
   function withdrawjackpotForSharesInSession(uint256 _session) public {
     SessionInfo storage session = sessionsInfo[_session];
     ProfitWithdrawalInfo storage profitWithdrawalInfo = session.profitWithdrawalInfoForPurchaser[msg.sender];
     require(profitWithdrawalInfo.jackpotForSharesWithdrawn == false, "Already withdrawn");
     
-    profitWithdrawalInfo.jackpotForSharesWithdrawn == true;
+    profitWithdrawalInfo.jackpotForSharesWithdrawn = true;
     uint256 profit = jackpotForSharesInSessionForUser(_session);
 
     msg.sender.transfer(profit);
@@ -260,6 +261,7 @@ contract CountdownSessionManager {
    * @dev Checks if purchaser withdrawn jackpot for purchased shares in Session.
    * @param _session Session idx.
    * @return Withdrawn or not.
+   * TESTED
    */
   function isJackpotForSharesInSessionWithdrawnForUser(uint256 _session) public view returns(bool withdrawn) {
     withdrawn = sessionsInfo[_session].profitWithdrawalInfoForPurchaser[msg.sender].jackpotForSharesWithdrawn;
