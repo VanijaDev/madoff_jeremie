@@ -392,4 +392,896 @@ contract("sharesPurchased", (accounts) => {
       await expectRevert(madoffContract.jackpotForSharesInSessionForUser.call(0, {from: PURCHASER_2}), "No shares");
     });
   });
+
+  describe("profitForPurchaseInSession", () => {
+    it("should fail if not _fromPurchase > _purchase", async() => {
+      //  purchases
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  exceed S0
+      for(let i = 0; i < 100; i ++) {
+        await time.advanceBlock();
+      }
+
+      //  purchase to start new Session
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * SHARES_FOR_STAGE_TO_PURCHASE[0];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  test
+      //  should pass
+      await madoffContract.profitForPurchaseInSession.call(0, 0, 1, 2, {
+        from: PURCHASER_0
+      });
+      await expectRevert(madoffContract.profitForPurchaseInSession.call(3, 0, 1, 2, {
+        from: PURCHASER_0
+      }), "Wrong _fromPurchase");
+    });
+    
+    it("should fail if not _toPurchase >= _fromPurchase", async() => {
+      //  purchases
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  exceed S0
+      for(let i = 0; i < 100; i ++) {
+        await time.advanceBlock();
+      }
+
+      //  purchase to start new Session
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * SHARES_FOR_STAGE_TO_PURCHASE[0];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  test
+      //  should pass
+      await madoffContract.profitForPurchaseInSession.call(0, 0, 1, 2, {
+        from: PURCHASER_0
+      });
+      await expectRevert(madoffContract.profitForPurchaseInSession.call(0, 0, 11, 2, {
+        from: PURCHASER_0
+      }), "Wrong _toPurchase");
+    });
+
+    it("should fail if _toPurchase exceeds", async() => {
+      //  purchases
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  exceed S0
+      for(let i = 0; i < 100; i ++) {
+        await time.advanceBlock();
+      }
+
+      //  purchase to start new Session
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * SHARES_FOR_STAGE_TO_PURCHASE[0];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  test
+      //  should pass
+      await madoffContract.profitForPurchaseInSession.call(0, 0, 1, 2, {
+        from: PURCHASER_0
+      });
+      await expectRevert(madoffContract.profitForPurchaseInSession.call(0, 0, 1, 12, {
+        from: PURCHASER_0
+      }), "_toPurchase exceeds");
+    });
+    
+    it("should return correct profit if _purchase == 0, purchases number == 2, _fromPurchase == 1, _toPurchase 1", async() => {
+      //  purchases
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  exceed S0
+      for(let i = 0; i < 100; i ++) {
+        await time.advanceBlock();
+      }
+
+      //  purchase to start new Session
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * SHARES_FOR_STAGE_TO_PURCHASE[0];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  test
+      let purchaseSum = new BN((SHARE_PRICE_FOR_STAGE[0] * 20).toString());
+      let prevSharesPart = purchaseSum.mul(new BN("50")).div(new BN("100"));
+      let sharePrice = prevSharesPart.div(new BN("12"));
+      const PROFIT_CORRECT_AFTER_P1 = sharePrice.mul(new BN("12"));
+      // console.log("PROFIT_CORRECT_AFTER_P1: ", PROFIT_CORRECT_AFTER_P1.toString());
+      
+      let profit = await madoffContract.profitForPurchaseInSession.call(0, 0, 1, 1, {
+        from: PURCHASER_0
+      });
+      // console.log("profit:                  ", profit.toString());
+
+      assert.equal(0, profit.cmp(PROFIT_CORRECT_AFTER_P1), "wrong profit");
+    });
+    
+    it("should return correct profit if _purchase == 2, _fromPurchase == 3, _toPurchase == last available", async() => {
+      //  purchases
+      //  0
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  1
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  2
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 22;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  3
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  4
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  5
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  6
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  7
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 2;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  8
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 10;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  exceed S0
+      for(let i = 0; i < 100; i ++) {
+        await time.advanceBlock();
+      }
+
+      //  purchase to start new Session
+      VALUE = SHARE_PRICE_FOR_STAGE[0];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  purchaseSum
+      let purchaseSum_3 = new BN((SHARE_PRICE_FOR_STAGE[0] * 12).toString()); //  10000000 * 12 = 120000000
+      assert.equal(0, purchaseSum_3.cmp(new BN("120000000")), "wrong purchaseSum_3");
+      
+      let purchaseSum_4 = new BN((SHARE_PRICE_FOR_STAGE[0] * 20).toString()); //  10000000 * 20 = 200000000
+      assert.equal(0, purchaseSum_4.cmp(new BN("200000000")), "wrong purchaseSum_4");
+      
+      let purchaseSum_5 = new BN((SHARE_PRICE_FOR_STAGE[0] * 12).toString()); //  10000000 * 12 = 120000000
+      assert.equal(0, purchaseSum_5.cmp(new BN("120000000")), "wrong purchaseSum_5");
+      
+      let purchaseSum_6 = new BN((SHARE_PRICE_FOR_STAGE[0] * 20).toString()); //  10000000 * 20 = 200000000
+      assert.equal(0, purchaseSum_6.cmp(new BN("200000000")), "wrong purchaseSum_6");
+      
+      let purchaseSum_7 = new BN((SHARE_PRICE_FOR_STAGE[0] * 2).toString()); //  10000000 * 2 = 20000000
+      assert.equal(0, purchaseSum_7.cmp(new BN("20000000")), "wrong purchaseSum_7");
+      
+      let purchaseSum_8 = new BN((SHARE_PRICE_FOR_STAGE[0] * 10).toString()); //  10000000 * 10 = 100000000
+      assert.equal(0, purchaseSum_8.cmp(new BN("100000000")), "wrong purchaseSum_8");
+      
+      //  prevSharesPart
+      let prevSharesPart_3 = purchaseSum_3.mul(new BN("50")).div(new BN("100"));  //  120000000 * 0.5 = 60000000
+      assert.equal(0, prevSharesPart_3.cmp(new BN("60000000")), "wrong prevSharesPart_3");
+
+      let prevSharesPart_4 = purchaseSum_4.mul(new BN("50")).div(new BN("100"));  //  200000000 * 0.5 = 100000000
+      assert.equal(0, prevSharesPart_4.cmp(new BN("100000000")), "wrong prevSharesPart_4");
+
+      let prevSharesPart_5 = purchaseSum_5.mul(new BN("50")).div(new BN("100"));  //  120000000 * 0.5 = 60000000
+      assert.equal(0, prevSharesPart_5.cmp(new BN("60000000")), "wrong prevSharesPart_5");
+
+      let prevSharesPart_6 = purchaseSum_6.mul(new BN("50")).div(new BN("100"));  //  200000000 * 0.5 = 100000000
+      assert.equal(0, prevSharesPart_6.cmp(new BN("100000000")), "wrong prevSharesPart_6");
+
+      let prevSharesPart_7 = purchaseSum_7.mul(new BN("50")).div(new BN("100"));  //  20000000 * 0.5 = 10000000
+      assert.equal(0, prevSharesPart_7.cmp(new BN("10000000")), "wrong prevSharesPart_7");
+
+      let prevSharesPart_8 = purchaseSum_8.mul(new BN("50")).div(new BN("100"));  //  100000000 * 0.5 = 50000000
+      assert.equal(0, prevSharesPart_8.cmp(new BN("50000000")), "wrong prevSharesPart_8");
+      
+      //  sharePrice
+      let sharePrice_3 = prevSharesPart_3.div(new BN("54"));  //  60000000 / (12 + 20 + 22) = 1111111
+      assert.equal(0, sharePrice_3.cmp(new BN("1111111")), "wrong sharePrice_3");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(3, 0))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(3, 0))[2]).cmp(sharePrice_3), "wrong sharePrice_3 1");
+      
+      let sharePrice_4 = prevSharesPart_4.div(new BN("66"));  //  100000000 / (12 + 20 + 22 + 12) = 1515151
+      assert.equal(0, sharePrice_4.cmp(new BN("1515151")), "wrong sharePrice_4");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(4, 0))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(4, 0))[2]).cmp(sharePrice_4), "wrong sharePrice_4 1");
+      
+      let sharePrice_5 = prevSharesPart_5.div(new BN("86"));  //  60000000 / (12 + 20 + 22 + 12 + 20) = 697674
+      assert.equal(0, sharePrice_5.cmp(new BN("697674")), "wrong sharePrice_5");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(5, 0))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(5, 0))[2]).cmp(sharePrice_5), "wrong sharePrice_5 1");
+      
+      let sharePrice_6 = prevSharesPart_6.div(new BN("98"));  //  100000000 / (12 + 20 + 22 + 12 + 20 + 12) = 1020408
+      assert.equal(0, sharePrice_6.cmp(new BN("1020408")), "wrong sharePrice_6");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(6, 0))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(6, 0))[2]).cmp(sharePrice_6), "wrong sharePrice_6 1");
+      
+      let sharePrice_7 = prevSharesPart_7.div(new BN("118"));  //  10000000 / (12 + 20 + 22 + 12 + 20 + 12 + 20) = 84745
+      assert.equal(0, sharePrice_7.cmp(new BN("84745")), "wrong sharePrice_7");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(7, 0))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(7, 0))[2]).cmp(sharePrice_7), "wrong sharePrice_7 1");
+      
+      let sharePrice_8 = prevSharesPart_8.div(new BN("120"));  //  50000000 / (12 + 20 + 22 + 12 + 20 + 12 + 20 + 2) = 416666
+      assert.equal(0, sharePrice_8.cmp(new BN("416666")), "wrong sharePrice_8");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(8, 0))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(8, 0))[2]).cmp(sharePrice_8), "wrong sharePrice_8 1");
+      
+      
+      const PROFIT_CORRECT = sharePrice_3.add(sharePrice_4).add(sharePrice_5).add(sharePrice_6).add(sharePrice_7).add(sharePrice_8).mul(new BN("22"));
+      // console.log("PROFIT_CORRECT:          ", PROFIT_CORRECT.toString());
+      
+      let profit = await madoffContract.profitForPurchaseInSession.call(2, 0, 3, 8, {
+        from: PURCHASER_0
+      });
+      // console.log("profit:                  ", profit.toString());
+
+      assert.equal(0, profit.cmp(PROFIT_CORRECT), "wrong profit");
+    });
+
+    it("should return correct profit if _purchase == 2, _fromPurchase == 5, _toPurchase == last available", async() => {
+      //  purchases
+      //  0
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  1
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  2
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 22;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  3
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  4
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  5
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  6
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  7
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 2;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  8
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 10;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  exceed S0
+      for(let i = 0; i < 100; i ++) {
+        await time.advanceBlock();
+      }
+
+      //  purchase to start new Session
+      VALUE = SHARE_PRICE_FOR_STAGE[0];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  purchaseSum
+      let purchaseSum_5 = new BN((SHARE_PRICE_FOR_STAGE[0] * 12).toString()); //  10000000 * 12 = 120000000
+      assert.equal(0, purchaseSum_5.cmp(new BN("120000000")), "wrong purchaseSum_5");
+      
+      let purchaseSum_6 = new BN((SHARE_PRICE_FOR_STAGE[0] * 20).toString()); //  10000000 * 20 = 200000000
+      assert.equal(0, purchaseSum_6.cmp(new BN("200000000")), "wrong purchaseSum_6");
+      
+      let purchaseSum_7 = new BN((SHARE_PRICE_FOR_STAGE[0] * 2).toString()); //  10000000 * 2 = 20000000
+      assert.equal(0, purchaseSum_7.cmp(new BN("20000000")), "wrong purchaseSum_7");
+      
+      let purchaseSum_8 = new BN((SHARE_PRICE_FOR_STAGE[0] * 10).toString()); //  10000000 * 10 = 100000000
+      assert.equal(0, purchaseSum_8.cmp(new BN("100000000")), "wrong purchaseSum_8");
+      
+      //  prevSharesPart
+      let prevSharesPart_5 = purchaseSum_5.mul(new BN("50")).div(new BN("100"));  //  120000000 * 0.5 = 60000000
+      assert.equal(0, prevSharesPart_5.cmp(new BN("60000000")), "wrong prevSharesPart_5");
+
+      let prevSharesPart_6 = purchaseSum_6.mul(new BN("50")).div(new BN("100"));  //  200000000 * 0.5 = 100000000
+      assert.equal(0, prevSharesPart_6.cmp(new BN("100000000")), "wrong prevSharesPart_6");
+
+      let prevSharesPart_7 = purchaseSum_7.mul(new BN("50")).div(new BN("100"));  //  20000000 * 0.5 = 10000000
+      assert.equal(0, prevSharesPart_7.cmp(new BN("10000000")), "wrong prevSharesPart_7");
+
+      let prevSharesPart_8 = purchaseSum_8.mul(new BN("50")).div(new BN("100"));  //  100000000 * 0.5 = 50000000
+      assert.equal(0, prevSharesPart_8.cmp(new BN("50000000")), "wrong prevSharesPart_8");
+      
+      //  sharePrice
+      let sharePrice_5 = prevSharesPart_5.div(new BN("86"));  //  60000000 / (12 + 20 + 22 + 12 + 20) = 697674
+      assert.equal(0, sharePrice_5.cmp(new BN("697674")), "wrong sharePrice_5");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(5, 0))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(5, 0))[2]).cmp(sharePrice_5), "wrong sharePrice_5 1");
+      
+      let sharePrice_6 = prevSharesPart_6.div(new BN("98"));  //  100000000 / (12 + 20 + 22 + 12 + 20 + 12) = 1020408
+      assert.equal(0, sharePrice_6.cmp(new BN("1020408")), "wrong sharePrice_6");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(6, 0))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(6, 0))[2]).cmp(sharePrice_6), "wrong sharePrice_6 1");
+      
+      let sharePrice_7 = prevSharesPart_7.div(new BN("118"));  //  10000000 / (12 + 20 + 22 + 12 + 20 + 12 + 20) = 84745
+      assert.equal(0, sharePrice_7.cmp(new BN("84745")), "wrong sharePrice_7");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(7, 0))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(7, 0))[2]).cmp(sharePrice_7), "wrong sharePrice_7 1");
+      
+      let sharePrice_8 = prevSharesPart_8.div(new BN("120"));  //  50000000 / (12 + 20 + 22 + 12 + 20 + 12 + 20 + 2) = 416666
+      assert.equal(0, sharePrice_8.cmp(new BN("416666")), "wrong sharePrice_8");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(8, 0))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(8, 0))[2]).cmp(sharePrice_8), "wrong sharePrice_8 1");
+      
+      
+      const PROFIT_CORRECT = sharePrice_5.add(sharePrice_6).add(sharePrice_7).add(sharePrice_8).mul(new BN("22"));
+      // console.log("PROFIT_CORRECT:          ", PROFIT_CORRECT.toString());
+      
+      let profit = await madoffContract.profitForPurchaseInSession.call(2, 0, 5, 8, {
+        from: PURCHASER_0
+      });
+      // console.log("profit:                  ", profit.toString());
+
+      assert.equal(0, profit.cmp(PROFIT_CORRECT), "wrong profit");
+    });
+
+    it("should return correct profit if _purchase == 2, _fromPurchase == 3, _toPurchase == 7", async() => {
+      //  purchases
+      //  0
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  1
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  2
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 22;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  3
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  4
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  5
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  6
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  7
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 2;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  8
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 10;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  exceed S0
+      for(let i = 0; i < 100; i ++) {
+        await time.advanceBlock();
+      }
+
+      //  purchase to start new Session
+      VALUE = SHARE_PRICE_FOR_STAGE[0];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  purchaseSum
+      let purchaseSum_3 = new BN((SHARE_PRICE_FOR_STAGE[0] * 12).toString()); //  10000000 * 12 = 120000000
+      assert.equal(0, purchaseSum_3.cmp(new BN("120000000")), "wrong purchaseSum_3");
+      
+      let purchaseSum_4 = new BN((SHARE_PRICE_FOR_STAGE[0] * 20).toString()); //  10000000 * 20 = 200000000
+      assert.equal(0, purchaseSum_4.cmp(new BN("200000000")), "wrong purchaseSum_4");
+      
+      let purchaseSum_5 = new BN((SHARE_PRICE_FOR_STAGE[0] * 12).toString()); //  10000000 * 12 = 120000000
+      assert.equal(0, purchaseSum_5.cmp(new BN("120000000")), "wrong purchaseSum_5");
+      
+      let purchaseSum_6 = new BN((SHARE_PRICE_FOR_STAGE[0] * 20).toString()); //  10000000 * 20 = 200000000
+      assert.equal(0, purchaseSum_6.cmp(new BN("200000000")), "wrong purchaseSum_6");
+      
+      let purchaseSum_7 = new BN((SHARE_PRICE_FOR_STAGE[0] * 2).toString()); //  10000000 * 2 = 20000000
+      assert.equal(0, purchaseSum_7.cmp(new BN("20000000")), "wrong purchaseSum_7");
+      
+      
+      //  prevSharesPart
+      let prevSharesPart_3 = purchaseSum_3.mul(new BN("50")).div(new BN("100"));  //  120000000 * 0.5 = 60000000
+      assert.equal(0, prevSharesPart_3.cmp(new BN("60000000")), "wrong prevSharesPart_3");
+
+      let prevSharesPart_4 = purchaseSum_4.mul(new BN("50")).div(new BN("100"));  //  200000000 * 0.5 = 100000000
+      assert.equal(0, prevSharesPart_4.cmp(new BN("100000000")), "wrong prevSharesPart_4");
+
+      let prevSharesPart_5 = purchaseSum_5.mul(new BN("50")).div(new BN("100"));  //  120000000 * 0.5 = 60000000
+      assert.equal(0, prevSharesPart_5.cmp(new BN("60000000")), "wrong prevSharesPart_5");
+
+      let prevSharesPart_6 = purchaseSum_6.mul(new BN("50")).div(new BN("100"));  //  200000000 * 0.5 = 100000000
+      assert.equal(0, prevSharesPart_6.cmp(new BN("100000000")), "wrong prevSharesPart_6");
+
+      let prevSharesPart_7 = purchaseSum_7.mul(new BN("50")).div(new BN("100"));  //  20000000 * 0.5 = 10000000
+      assert.equal(0, prevSharesPart_7.cmp(new BN("10000000")), "wrong prevSharesPart_7");
+
+      
+      //  sharePrice
+      let sharePrice_3 = prevSharesPart_3.div(new BN("54"));  //  60000000 / (12 + 20 + 22) = 1111111
+      assert.equal(0, sharePrice_3.cmp(new BN("1111111")), "wrong sharePrice_3");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(3, 0))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(3, 0))[2]).cmp(sharePrice_3), "wrong sharePrice_3 1");
+      
+      let sharePrice_4 = prevSharesPart_4.div(new BN("66"));  //  100000000 / (12 + 20 + 22 + 12) = 1515151
+      assert.equal(0, sharePrice_4.cmp(new BN("1515151")), "wrong sharePrice_4");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(4, 0))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(4, 0))[2]).cmp(sharePrice_4), "wrong sharePrice_4 1");
+      
+      let sharePrice_5 = prevSharesPart_5.div(new BN("86"));  //  60000000 / (12 + 20 + 22 + 12 + 20) = 697674
+      assert.equal(0, sharePrice_5.cmp(new BN("697674")), "wrong sharePrice_5");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(5, 0))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(5, 0))[2]).cmp(sharePrice_5), "wrong sharePrice_5 1");
+      
+      let sharePrice_6 = prevSharesPart_6.div(new BN("98"));  //  100000000 / (12 + 20 + 22 + 12 + 20 + 12) = 1020408
+      assert.equal(0, sharePrice_6.cmp(new BN("1020408")), "wrong sharePrice_6");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(6, 0))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(6, 0))[2]).cmp(sharePrice_6), "wrong sharePrice_6 1");
+      
+      let sharePrice_7 = prevSharesPart_7.div(new BN("118"));  //  10000000 / (12 + 20 + 22 + 12 + 20 + 12 + 20) = 84745
+      assert.equal(0, sharePrice_7.cmp(new BN("84745")), "wrong sharePrice_7");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(7, 0))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(7, 0))[2]).cmp(sharePrice_7), "wrong sharePrice_7 1");
+      
+      
+      const PROFIT_CORRECT = sharePrice_3.add(sharePrice_4).add(sharePrice_5).add(sharePrice_6).add(sharePrice_7).mul(new BN("22"));
+      // console.log("PROFIT_CORRECT:          ", PROFIT_CORRECT.toString());
+      
+      let profit = await madoffContract.profitForPurchaseInSession.call(2, 0, 3, 7, {
+        from: PURCHASER_0
+      });
+      // console.log("profit:                  ", profit.toString());
+
+      assert.equal(0, profit.cmp(PROFIT_CORRECT), "wrong profit");
+    });
+
+    it("should return correct profit if _purchase == 2, _fromPurchase == 5, _toPurchase == 6", async() => {
+      //  purchases
+      //  0
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  1
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  2
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 22;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  3
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  4
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  5
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  6
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  7
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 2;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  8
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 10;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  exceed S0
+      for(let i = 0; i < 100; i ++) {
+        await time.advanceBlock();
+      }
+
+      //  purchase to start new Session
+      VALUE = SHARE_PRICE_FOR_STAGE[0];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  purchaseSum
+      let purchaseSum_5 = new BN((SHARE_PRICE_FOR_STAGE[0] * 12).toString()); //  10000000 * 12 = 120000000
+      assert.equal(0, purchaseSum_5.cmp(new BN("120000000")), "wrong purchaseSum_5");
+      
+      let purchaseSum_6 = new BN((SHARE_PRICE_FOR_STAGE[0] * 20).toString()); //  10000000 * 20 = 200000000
+      assert.equal(0, purchaseSum_6.cmp(new BN("200000000")), "wrong purchaseSum_6");
+      
+      
+      //  prevSharesPart
+      let prevSharesPart_5 = purchaseSum_5.mul(new BN("50")).div(new BN("100"));  //  120000000 * 0.5 = 60000000
+      assert.equal(0, prevSharesPart_5.cmp(new BN("60000000")), "wrong prevSharesPart_5");
+
+      let prevSharesPart_6 = purchaseSum_6.mul(new BN("50")).div(new BN("100"));  //  200000000 * 0.5 = 100000000
+      assert.equal(0, prevSharesPart_6.cmp(new BN("100000000")), "wrong prevSharesPart_6");
+
+
+      //  sharePrice
+      let sharePrice_5 = prevSharesPart_5.div(new BN("86"));  //  60000000 / (12 + 20 + 22 + 12 + 20) = 697674
+      assert.equal(0, sharePrice_5.cmp(new BN("697674")), "wrong sharePrice_5");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(5, 0))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(5, 0))[2]).cmp(sharePrice_5), "wrong sharePrice_5 1");
+      
+      let sharePrice_6 = prevSharesPart_6.div(new BN("98"));  //  100000000 / (12 + 20 + 22 + 12 + 20 + 12) = 1020408
+      assert.equal(0, sharePrice_6.cmp(new BN("1020408")), "wrong sharePrice_6");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(6, 0))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(6, 0))[2]).cmp(sharePrice_6), "wrong sharePrice_6 1");
+      
+      
+      const PROFIT_CORRECT = sharePrice_5.add(sharePrice_6).mul(new BN("22"));
+      // console.log("PROFIT_CORRECT:          ", PROFIT_CORRECT.toString());
+      
+      let profit = await madoffContract.profitForPurchaseInSession.call(2, 0, 5, 6, {
+        from: PURCHASER_0
+      });
+      // console.log("profit:                  ", profit.toString());
+
+      assert.equal(0, profit.cmp(PROFIT_CORRECT), "wrong profit");
+    });
+
+    it("should return correct profit if _purchase == 2, _fromPurchase == 3, _toPurchase == last available in Session 1", async() => {
+      //  purchases
+      //  S0
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 2;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+      //  exceed S0
+      for(let i = 0; i < 100; i ++) {
+        await time.advanceBlock();
+      }
+      
+      //  S1
+      //  0
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  1
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  2
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 22;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  3
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  4
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  5
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  6
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  7
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 2;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  8
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 10;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  exceed S0
+      for(let i = 0; i < 100; i ++) {
+        await time.advanceBlock();
+      }
+
+      //  purchase to start new Session
+      VALUE = SHARE_PRICE_FOR_STAGE[0];
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      //  purchaseSum
+      let purchaseSum_3 = new BN((SHARE_PRICE_FOR_STAGE[0] * 12).toString()); //  10000000 * 12 = 120000000
+      assert.equal(0, purchaseSum_3.cmp(new BN("120000000")), "wrong purchaseSum_3");
+      
+      let purchaseSum_4 = new BN((SHARE_PRICE_FOR_STAGE[0] * 20).toString()); //  10000000 * 20 = 200000000
+      assert.equal(0, purchaseSum_4.cmp(new BN("200000000")), "wrong purchaseSum_4");
+      
+      let purchaseSum_5 = new BN((SHARE_PRICE_FOR_STAGE[0] * 12).toString()); //  10000000 * 12 = 120000000
+      assert.equal(0, purchaseSum_5.cmp(new BN("120000000")), "wrong purchaseSum_5");
+      
+      let purchaseSum_6 = new BN((SHARE_PRICE_FOR_STAGE[0] * 20).toString()); //  10000000 * 20 = 200000000
+      assert.equal(0, purchaseSum_6.cmp(new BN("200000000")), "wrong purchaseSum_6");
+      
+      let purchaseSum_7 = new BN((SHARE_PRICE_FOR_STAGE[0] * 2).toString()); //  10000000 * 2 = 20000000
+      assert.equal(0, purchaseSum_7.cmp(new BN("20000000")), "wrong purchaseSum_7");
+      
+      let purchaseSum_8 = new BN((SHARE_PRICE_FOR_STAGE[0] * 10).toString()); //  10000000 * 10 = 100000000
+      assert.equal(0, purchaseSum_8.cmp(new BN("100000000")), "wrong purchaseSum_8");
+      
+      //  prevSharesPart
+      let prevSharesPart_3 = purchaseSum_3.mul(new BN("50")).div(new BN("100"));  //  120000000 * 0.5 = 60000000
+      assert.equal(0, prevSharesPart_3.cmp(new BN("60000000")), "wrong prevSharesPart_3");
+
+      let prevSharesPart_4 = purchaseSum_4.mul(new BN("50")).div(new BN("100"));  //  200000000 * 0.5 = 100000000
+      assert.equal(0, prevSharesPart_4.cmp(new BN("100000000")), "wrong prevSharesPart_4");
+
+      let prevSharesPart_5 = purchaseSum_5.mul(new BN("50")).div(new BN("100"));  //  120000000 * 0.5 = 60000000
+      assert.equal(0, prevSharesPart_5.cmp(new BN("60000000")), "wrong prevSharesPart_5");
+
+      let prevSharesPart_6 = purchaseSum_6.mul(new BN("50")).div(new BN("100"));  //  200000000 * 0.5 = 100000000
+      assert.equal(0, prevSharesPart_6.cmp(new BN("100000000")), "wrong prevSharesPart_6");
+
+      let prevSharesPart_7 = purchaseSum_7.mul(new BN("50")).div(new BN("100"));  //  20000000 * 0.5 = 10000000
+      assert.equal(0, prevSharesPart_7.cmp(new BN("10000000")), "wrong prevSharesPart_7");
+
+      let prevSharesPart_8 = purchaseSum_8.mul(new BN("50")).div(new BN("100"));  //  100000000 * 0.5 = 50000000
+      assert.equal(0, prevSharesPart_8.cmp(new BN("50000000")), "wrong prevSharesPart_8");
+      
+      //  sharePrice
+      let sharePrice_3 = prevSharesPart_3.div(new BN("54"));  //  60000000 / (12 + 20 + 22) = 1111111
+      assert.equal(0, sharePrice_3.cmp(new BN("1111111")), "wrong sharePrice_3");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(3, 1))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(3, 1))[2]).cmp(sharePrice_3), "wrong sharePrice_3 1");
+      
+      let sharePrice_4 = prevSharesPart_4.div(new BN("66"));  //  100000000 / (12 + 20 + 22 + 12) = 1515151
+      assert.equal(0, sharePrice_4.cmp(new BN("1515151")), "wrong sharePrice_4");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(4, 1))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(4, 1))[2]).cmp(sharePrice_4), "wrong sharePrice_4 1");
+      
+      let sharePrice_5 = prevSharesPart_5.div(new BN("86"));  //  60000000 / (12 + 20 + 22 + 12 + 20) = 697674
+      assert.equal(0, sharePrice_5.cmp(new BN("697674")), "wrong sharePrice_5");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(5, 1))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(5, 1))[2]).cmp(sharePrice_5), "wrong sharePrice_5 1");
+      
+      let sharePrice_6 = prevSharesPart_6.div(new BN("98"));  //  100000000 / (12 + 20 + 22 + 12 + 20 + 12) = 1020408
+      assert.equal(0, sharePrice_6.cmp(new BN("1020408")), "wrong sharePrice_6");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(6, 1))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(6, 1))[2]).cmp(sharePrice_6), "wrong sharePrice_6 1");
+      
+      let sharePrice_7 = prevSharesPart_7.div(new BN("118"));  //  10000000 / (12 + 20 + 22 + 12 + 20 + 12 + 20) = 84745
+      assert.equal(0, sharePrice_7.cmp(new BN("84745")), "wrong sharePrice_7");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(7, 1))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(7, 1))[2]).cmp(sharePrice_7), "wrong sharePrice_7 1");
+      
+      let sharePrice_8 = prevSharesPart_8.div(new BN("120"));  //  50000000 / (12 + 20 + 22 + 12 + 20 + 12 + 20 + 2) = 416666
+      assert.equal(0, sharePrice_8.cmp(new BN("416666")), "wrong sharePrice_8");
+      // console.log(((await madoffContract.purchaseInfoInSession.call(8, 1))[2]).toString());
+      assert.equal(0, ((await madoffContract.purchaseInfoInSession.call(8, 1))[2]).cmp(sharePrice_8), "wrong sharePrice_8 1");
+      
+      
+      const PROFIT_CORRECT = sharePrice_3.add(sharePrice_4).add(sharePrice_5).add(sharePrice_6).add(sharePrice_7).add(sharePrice_8).mul(new BN("22"));
+      // console.log("PROFIT_CORRECT:          ", PROFIT_CORRECT.toString());
+      
+      let profit = await madoffContract.profitForPurchaseInSession.call(2, 1, 3, 8, {
+        from: PURCHASER_0
+      });
+      // console.log("profit:                  ", profit.toString());
+
+      assert.equal(0, profit.cmp(PROFIT_CORRECT), "wrong profit");
+    });
+  });
 });

@@ -133,14 +133,16 @@ contract CountdownSessionManager {
    * @param _fromPurchase Purchase idx to start on.
    * @param _toPurchase Purchase idx to end on.
    * @return Profit amount.
+   * TESTED
    */
   function profitForPurchaseInSession(uint256 _purchase, uint256 _session, uint256 _fromPurchase, uint256 _toPurchase) public view returns(uint256 profit) {
     require(_fromPurchase > _purchase, "Wrong _fromPurchase");
+    require(_toPurchase >= _fromPurchase, "Wrong _toPurchase");
 
     SessionInfo storage session = sessionsInfo[_session];
     PurchaseInfo storage purchaseInfo = session.purchasesInfo[_purchase];
 
-    require(_purchase < session.purchasesInfo.length.sub(1), "Last purchase");
+    require(_toPurchase <= session.purchasesInfo.length.sub(1), "_toPurchase exceeds");
 
     uint256 shares = purchaseInfo.shareNumber;
 

@@ -451,8 +451,8 @@ contract("token", (accounts) => {
       let DEPLOYER_profit_after_2 = await madoffContract.pendingProfitInBernardCut(11, {
         from: DEPLOYER
       });
-      console.log("OWNER_profit_after_2:    ", OWNER_profit_after_2.toString());
-      console.log("DEPLOYER_profit_after_2:  ", DEPLOYER_profit_after_2.toString());
+      // console.log("OWNER_profit_after_2:    ", OWNER_profit_after_2.toString());
+      // console.log("DEPLOYER_profit_after_2:  ", DEPLOYER_profit_after_2.toString());
 
       assert.equal(0, OWNER_profit_after_2.cmp(new BN("0")), "should be 0 for OWNER after 2");
       assert.equal(0, DEPLOYER_profit_after_2.cmp(new BN("0")), "should be 0 for DEPLOYER after 2");
@@ -519,8 +519,8 @@ contract("token", (accounts) => {
       let DEPLOYER_profit_after_3 = await madoffContract.pendingProfitInBernardCut(11, {
         from: DEPLOYER
       });
-      console.log("OWNER_profit_after_3:    ", OWNER_profit_after_3.toString());
-      console.log("DEPLOYER_profit_after_3:  ", DEPLOYER_profit_after_3.toString());
+      // console.log("OWNER_profit_after_3:    ", OWNER_profit_after_3.toString());
+      // console.log("DEPLOYER_profit_after_3:  ", DEPLOYER_profit_after_3.toString());
 
       assert.equal(0, OWNER_profit_after_3.cmp(new BN("0")), "should be 0 for OWNER after 3");
       assert.equal(0, DEPLOYER_profit_after_3.cmp(new BN("0")), "should be 0 for DEPLOYER after 3");
