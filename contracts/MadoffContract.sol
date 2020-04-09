@@ -48,6 +48,7 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
   /**
    * @dev Contract constructor.
    * @param _OWNER_ADDR Address for owner.
+   * @param _token Token address.
    * TESTED
    */
   constructor(address _OWNER_ADDR, address _token) BernardEscrow(_token) public {
@@ -55,7 +56,7 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
   }
 
   /**
-   * @dev Purchase share(s).
+   * @dev Purchases share(s).
    * @param _websiteAddr Website address, that trx was sent from.
    * TESTED
    */
@@ -103,7 +104,7 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
   }
   
   /**
-   * @dev Duration for ongoin stage exceeded.
+   * @dev Duration for ongoing stage exceeded.
    * TESTED
    */
   function ongoingStageDurationExceeded() private {

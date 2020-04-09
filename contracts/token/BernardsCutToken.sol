@@ -52,7 +52,7 @@ contract BernardsCutToken is ERC20Detailed("BernardsCutToken", "BCT", 0) {
   }
 
   /**
-    * @dev Transfers token amount.
+    * @dev Transfers token amount. Withdraws pending profit before transfer.
     * @param recipient Recipient address.
     * @param amount Token amount.
     * @param _loopLimit Limit for loop iteractions.

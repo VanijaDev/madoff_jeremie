@@ -158,25 +158,30 @@ contract CountdownSessionManager {
    * @param _purchase Purchase idx.
    * @param _session Session idx.
    * @param _loopLimit Loop limit.
+   * TESTED
    */
   function withdrawProfitForPurchaseInSession(uint256 _purchase, uint256 _session, uint256 _loopLimit) public {
+    require(_loopLimit > 0, "Wrong _loopLimit");
+
     SessionInfo storage session = sessionsInfo[_session];
+    require(_purchase < session.purchasesInfo.length, "_purchase exceeds");
+
     PurchaseInfo storage purchaseInfo = session.purchasesInfo[_purchase];
     require(purchaseInfo.purchaser == msg.sender, "Not purchaser");
 
-    ProfitWithdrawalInfo storage profitWithdrawalInfo = session.profitWithdrawalInfoForPurchaser[msg.sender];
-    uint256 purchaseIdxWithdrawnOn = profitWithdrawalInfo.purchaseProfitWithdrawnOnPurchase[_purchase];
-    uint256 fromPurchaseIdx = purchaseIdxWithdrawnOn.add(1);
+    uint256 purchaseIdxWithdrawnOn = purchaseProfitInSessionWithdrawnOnPurchaseForUser(_purchase, _session);
+    uint256 fromPurchaseIdx = (purchaseIdxWithdrawnOn == 0) ? _purchase.add(1) : purchaseIdxWithdrawnOn.add(1);
+    
     uint256 toPurchaseIdx = session.purchasesInfo.length.sub(1);
     require(fromPurchaseIdx <= toPurchaseIdx, "No more profit");
 
-    if (toPurchaseIdx.sub(fromPurchaseIdx) > _loopLimit) {
-      toPurchaseIdx = fromPurchaseIdx.add(_loopLimit);
+    if (toPurchaseIdx.sub(fromPurchaseIdx).add(1) > _loopLimit) {
+      toPurchaseIdx = fromPurchaseIdx.add(_loopLimit).sub(1);
     }
 
     uint256 profit = profitForPurchaseInSession(_purchase, _session, fromPurchaseIdx, toPurchaseIdx);
 
-    purchaseIdxWithdrawnOn = toPurchaseIdx;
+    sessionsInfo[_session].profitWithdrawalInfoForPurchaser[msg.sender].purchaseProfitWithdrawnOnPurchase[_purchase] = toPurchaseIdx;
     
     msg.sender.transfer(profit);
     emit SharesProfitWithdrawn(msg.sender, profit, _session, _purchase);
@@ -274,6 +279,7 @@ contract CountdownSessionManager {
    * @param _purchase Purchase idx.
    * @param _session Session idx.
    * @return Purchase idx.
+   * TESTED
    */
   function purchaseProfitInSessionWithdrawnOnPurchaseForUser(uint256 _purchase, uint256 _session) public view returns(uint256 purchase) {
     purchase = sessionsInfo[_session].profitWithdrawalInfoForPurchaser[msg.sender].purchaseProfitWithdrawnOnPurchase[_purchase];
