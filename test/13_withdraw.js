@@ -22,6 +22,7 @@ contract("withdraw", (accounts) => {
   const WEBSITE_2 = accounts[3];
   const PURCHASER_0 = accounts[4];
   const PURCHASER_1 = accounts[5];
+  const PURCHASER_2 = accounts[6];
 
   const BLOCKS_FOR_STAGE =                      [99,        90,       80,       70,       60,         50,         45,         40,         35,         30,         25,         20,         10,         5];
   const SHARES_FOR_STAGE_TO_PURCHASE =          [2500,      5000,     3125,     12500,    10000,      62500,      62500,      400000,     390625,     2000000,    562500,     10000000,   12500000,   25000000];
@@ -428,6 +429,885 @@ contract("withdraw", (accounts) => {
 
       await expectEvent.inLogs(logs, 'JackpotForSharesProfitWithdrawn', {
         _address: PURCHASER_0,
+        _amount: PROFIT_CORRECT,
+        _session: new BN("0")
+      });
+    });
+  });
+
+  describe("withdrawProfitForPurchaseInSession", () => {
+    it("should fail if _loopLimit == 0", async() => {
+      //  purchase
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await expectRevert(madoffContract.withdrawProfitForPurchaseInSession(1, 0, 0, {from: PURCHASER_1}), "Wrong _loopLimit");
+    });
+
+    it("should fail if _purchase exceeds purchase count", async() => {
+      //  purchase
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await expectRevert(madoffContract.withdrawProfitForPurchaseInSession(11, 0, 10, {from: PURCHASER_1}), "_purchase exceeds");
+    });
+
+    it("should fail in Not purchaser", async() => {
+      //  purchase
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await expectRevert(madoffContract.withdrawProfitForPurchaseInSession(1, 0, 10, {from: PURCHASER_2}), "Not purchaser");
+    });
+
+    it("should fail if From idx exceeds Session purchases count", async() => {
+      //  purchase
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await madoffContract.withdrawProfitForPurchaseInSession(1, 0, 10, {
+        from: PURCHASER_1
+      });
+
+      await expectRevert(madoffContract.withdrawProfitForPurchaseInSession(1, 0, 10, {
+        from: PURCHASER_1
+      }), "No more profit");
+    });
+
+    it("should fail if profit was withdrawn on last purchase, No more profit", async() => {
+      //  purchase
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 13;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 14;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 15;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      //  8 purchases
+
+      //  FROM_2_TO_5
+      const PROFIT_CORRECT_FROM_2_TO_5 = await madoffContract.profitForPurchaseInSession.call(1, 0, 2, 5);  //  87 662 601
+      // console.log(PROFIT_CORRECT.toString());
+      //  share prices
+      //  10000000 * 14 * 0.5 / (12 + 13) = 2 800 000
+      //  10000000 * 15 * 0.5 / (12 + 13 + 14) = 1 923 076
+      //  10000000 * 12 * 0.5 / (12 + 13 + 14 + 15) = 1 111 111
+      //  10000000 * 12 * 0.5 / (12 + 13 + 14 + 15 + 12) = 909 090
+      //  (2 800 000 + 1 923 076 + 1 111 111 + 909 090) * 13 = 87 662 601
+      assert.equal(0, PROFIT_CORRECT_FROM_2_TO_5.cmp(new BN("87662601")), "wrong PROFIT_CORRECT_FROM_2_TO_5");
+
+      let BALANCE_BEFORE = new BN(await web3.eth.getBalance(PURCHASER_1));
+      
+      let tx = await madoffContract.withdrawProfitForPurchaseInSession(1, 0, 4, { 
+        from: PURCHASER_1
+      });
+      let gasUsed = new BN(tx.receipt.gasUsed);
+      let txInfo = await web3.eth.getTransaction(tx.tx);
+      let gasPrice = new BN(txInfo.gasPrice);
+      let gasSpent = gasUsed.mul(gasPrice);
+
+      let BALANCE_AFTER = new BN(await web3.eth.getBalance(PURCHASER_1));
+
+      assert.equal(0, BALANCE_BEFORE.sub(gasSpent).add(PROFIT_CORRECT_FROM_2_TO_5).cmp(BALANCE_AFTER), "wrong balanceAfter _FROM_2_TO_5");
+
+
+      //  FROM_6_TO_7
+      const PROFIT_CORRECT_FROM_6_TO_7 = await madoffContract.profitForPurchaseInSession.call(1, 0, 6, 7);  //  29 931 967
+      // console.log(PROFIT_CORRECT.toString());
+      //  share prices
+      //  10000000 * 20 * 0.5 / (12 + 13 + 14 + 15 + 12 + 12) = 1 282 051
+      //  10000000 * 20 * 0.5 / (12 + 13 + 14 + 15 + 12 + 12 + 20) = 1 020 408
+      //  (1 282 051 + 1 020 408) * 13 = 29 931 967
+      assert.equal(0, PROFIT_CORRECT_FROM_6_TO_7.cmp(new BN("29931967")), "wrong PROFIT_CORRECT_FROM_6_TO_7");
+
+      BALANCE_BEFORE = new BN(await web3.eth.getBalance(PURCHASER_1));
+      
+      tx = await madoffContract.withdrawProfitForPurchaseInSession(1, 0, 4, { 
+        from: PURCHASER_1
+      });
+      gasUsed = new BN(tx.receipt.gasUsed);
+      txInfo = await web3.eth.getTransaction(tx.tx);
+      gasPrice = new BN(txInfo.gasPrice);
+      gasSpent = gasUsed.mul(gasPrice);
+
+      BALANCE_AFTER = new BN(await web3.eth.getBalance(PURCHASER_1));
+
+      assert.equal(0, BALANCE_BEFORE.sub(gasSpent).add(PROFIT_CORRECT_FROM_6_TO_7).cmp(BALANCE_AFTER), "wrong balanceAfter _FROM_6_TO_7");
+
+      //  should fail
+      await expectRevert(madoffContract.withdrawProfitForPurchaseInSession(1, 0, 4, { 
+        from: PURCHASER_1
+      }), "No more profit");
+    });
+
+    it("should update purchaseIdxWithdrawnOn if _loopLimit > purchase amount", async() => {
+      //  purchase
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+      //  8 purchases
+
+      let purchaseIdxWithdrawnOnBefore = await madoffContract.purchaseProfitInSessionWithdrawnOnPurchaseForUser(1, 0, { from: PURCHASER_1 });
+      assert.equal(0, purchaseIdxWithdrawnOnBefore.cmp(new BN("0")), "wrong purchaseIdxWithdrawnOnBefore")
+      
+      await madoffContract.withdrawProfitForPurchaseInSession(1, 0, 12, { from: PURCHASER_1 });
+      
+      let purchaseIdxWithdrawnOnAfter = await madoffContract.purchaseProfitInSessionWithdrawnOnPurchaseForUser(1, 0, { from: PURCHASER_1 });
+      // console.log(purchaseIdxWithdrawnOnAfter.toString());
+      assert.equal(0, purchaseIdxWithdrawnOnAfter.cmp(new BN("7")), "wrong purchaseIdxWithdrawnOnAfter");
+    });
+
+    it("should update purchaseIdxWithdrawnOn if _loopLimit < purchase amount", async() => {
+      //  purchase
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+      //  8 purchases
+
+      let purchaseIdxWithdrawnOnBefore = await madoffContract.purchaseProfitInSessionWithdrawnOnPurchaseForUser(1, 0, { from: PURCHASER_1 });
+      assert.equal(0, purchaseIdxWithdrawnOnBefore.cmp(new BN("0")), "wrong purchaseIdxWithdrawnOnBefore")
+      
+      await madoffContract.withdrawProfitForPurchaseInSession(1, 0, 2, { from: PURCHASER_1 });
+      
+      let purchaseIdxWithdrawnOnAfter = await madoffContract.purchaseProfitInSessionWithdrawnOnPurchaseForUser(1, 0, { from: PURCHASER_1 });
+      // console.log(purchaseIdxWithdrawnOnAfter.toString());
+      assert.equal(0, purchaseIdxWithdrawnOnAfter.cmp(new BN("3")), "wrong purchaseIdxWithdrawnOnAfter");
+    });
+
+    it("should transfer correct amount if Purchase 1 & _loopLimit > purchase amount", async() => {
+      //  purchase
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 13;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 14;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 15;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      //  8 purchases
+
+      //  0
+      const PROFIT_CORRECT = await madoffContract.profitForPurchaseInSession.call(1, 0, 2, 7);  //  117 594 568
+      // console.log(PROFIT_CORRECT.toString());
+      //  share prices
+      //  10000000 * 14 * 0.5 / (12 + 13) = 2 800 000
+      //  10000000 * 15 * 0.5 / (12 + 13 + 14) = 1 923 076
+      //  10000000 * 12 * 0.5 / (12 + 13 + 14 + 15) = 1 111 111
+      //  10000000 * 12 * 0.5 / (12 + 13 + 14 + 15 + 12) = 909 090
+      //  10000000 * 20 * 0.5 / (12 + 13 + 14 + 15 + 12 + 12) = 1 282 051
+      //  10000000 * 20 * 0.5 / (12 + 13 + 14 + 15 + 12 + 12 + 20) = 1 020 408
+      //  (2 800 000 + 1 923 076 + 1 111 111 + 909 090 + 1 282 051 + 1 020 408) * 13 = 117 594 568
+      assert.equal(0, PROFIT_CORRECT.cmp(new BN("117594568")), "wrong PROFIT_CORRECT");
+
+      const BALANCE_BEFORE = new BN(await web3.eth.getBalance(PURCHASER_1));
+      
+      let tx = await madoffContract.withdrawProfitForPurchaseInSession(1, 0, 12, { 
+        from: PURCHASER_1
+      });
+      let gasUsed = new BN(tx.receipt.gasUsed);
+      let txInfo = await web3.eth.getTransaction(tx.tx);
+      let gasPrice = new BN(txInfo.gasPrice);
+      let gasSpent = gasUsed.mul(gasPrice);
+
+      const BALANCE_AFTER = new BN(await web3.eth.getBalance(PURCHASER_1));
+
+      assert.equal(0, BALANCE_BEFORE.sub(gasSpent).add(PROFIT_CORRECT).cmp(BALANCE_AFTER), "wrong balanceAfter");
+    });
+
+    it("should transfer correct amount if Purchase 4 & _loopLimit > purchase amount", async() => {
+      //  purchase
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 13;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 14;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 15;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      //  8 purchases
+
+      //  0
+      const PROFIT_CORRECT = await madoffContract.profitForPurchaseInSession.call(4, 0, 5, 7);  //  38 538 588
+      // console.log(PROFIT_CORRECT.toString());
+      //  share prices
+      //  10000000 * 12 * 0.5 / (12 + 13 + 14 + 15 + 12) = 909 090
+      //  10000000 * 20 * 0.5 / (12 + 13 + 14 + 15 + 12 + 12) = 1 282 051
+      //  10000000 * 20 * 0.5 / (12 + 13 + 14 + 15 + 12 + 12 + 20) = 1 020 408
+      //  (909 090 + 1 282 051 + 1 020 408) * 12 = 38 538 588
+      assert.equal(0, PROFIT_CORRECT.cmp(new BN("38538588")), "wrong PROFIT_CORRECT");
+
+      const BALANCE_BEFORE = new BN(await web3.eth.getBalance(PURCHASER_1));
+      
+      let tx = await madoffContract.withdrawProfitForPurchaseInSession(4, 0, 12, { 
+        from: PURCHASER_1
+      });
+      let gasUsed = new BN(tx.receipt.gasUsed);
+      let txInfo = await web3.eth.getTransaction(tx.tx);
+      let gasPrice = new BN(txInfo.gasPrice);
+      let gasSpent = gasUsed.mul(gasPrice);
+
+      const BALANCE_AFTER = new BN(await web3.eth.getBalance(PURCHASER_1));
+
+      assert.equal(0, BALANCE_BEFORE.sub(gasSpent).add(PROFIT_CORRECT).cmp(BALANCE_AFTER), "wrong balanceAfter");
+    });
+
+    it("should transfer correct amount if Purchase 4 & _loopLimit > purchase amount after 2 Sessions", async() => {
+      //  purchase
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 13;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 14;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 15;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      //  8 purchases
+
+      //  0
+      const PROFIT_CORRECT = await madoffContract.profitForPurchaseInSession.call(4, 0, 5, 7);  //  38 538 588
+      // console.log(PROFIT_CORRECT.toString());
+      //  share prices
+      //  10000000 * 12 * 0.5 / (12 + 13 + 14 + 15 + 12) = 909 090
+      //  10000000 * 20 * 0.5 / (12 + 13 + 14 + 15 + 12 + 12) = 1 282 051
+      //  10000000 * 20 * 0.5 / (12 + 13 + 14 + 15 + 12 + 12 + 20) = 1 020 408
+      //  (909 090 + 1 282 051 + 1 020 408) * 12 = 38 538 588
+      assert.equal(0, PROFIT_CORRECT.cmp(new BN("38538588")), "wrong PROFIT_CORRECT");
+
+
+      //  exseed blocks
+      for(let i = 0; i < EXCEED_BLOCKS; i ++) {
+        await time.advanceBlock();
+      }
+      await time.increase(2);
+
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+
+      //  exseed blocks
+      for(let i = 0; i < EXCEED_BLOCKS; i ++) {
+        await time.advanceBlock();
+      }
+      await time.increase(2);
+
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+
+      //  withdraw
+      const BALANCE_BEFORE = new BN(await web3.eth.getBalance(PURCHASER_1));
+      
+      let tx = await madoffContract.withdrawProfitForPurchaseInSession(4, 0, 12, { 
+        from: PURCHASER_1
+      });
+      let gasUsed = new BN(tx.receipt.gasUsed);
+      let txInfo = await web3.eth.getTransaction(tx.tx);
+      let gasPrice = new BN(txInfo.gasPrice);
+      let gasSpent = gasUsed.mul(gasPrice);
+
+      const BALANCE_AFTER = new BN(await web3.eth.getBalance(PURCHASER_1));
+
+      assert.equal(0, BALANCE_BEFORE.sub(gasSpent).add(PROFIT_CORRECT).cmp(BALANCE_AFTER), "wrong balanceAfter");
+    });
+
+    it("should transfer correct amount in two withdrawals for Purchase 1: 1) P2-P5; 2) P6-P7", async() => {
+      //  purchase
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 13;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 14;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 15;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      //  8 purchases
+
+      //  FROM_2_TO_5
+      const PROFIT_CORRECT_FROM_2_TO_5 = await madoffContract.profitForPurchaseInSession.call(1, 0, 2, 5);  //  87 662 601
+      // console.log(PROFIT_CORRECT.toString());
+      //  share prices
+      //  10000000 * 14 * 0.5 / (12 + 13) = 2 800 000
+      //  10000000 * 15 * 0.5 / (12 + 13 + 14) = 1 923 076
+      //  10000000 * 12 * 0.5 / (12 + 13 + 14 + 15) = 1 111 111
+      //  10000000 * 12 * 0.5 / (12 + 13 + 14 + 15 + 12) = 909 090
+      //  (2 800 000 + 1 923 076 + 1 111 111 + 909 090) * 13 = 87 662 601
+      assert.equal(0, PROFIT_CORRECT_FROM_2_TO_5.cmp(new BN("87662601")), "wrong PROFIT_CORRECT_FROM_2_TO_5");
+
+      let BALANCE_BEFORE = new BN(await web3.eth.getBalance(PURCHASER_1));
+      
+      let tx = await madoffContract.withdrawProfitForPurchaseInSession(1, 0, 4, { 
+        from: PURCHASER_1
+      });
+      let gasUsed = new BN(tx.receipt.gasUsed);
+      let txInfo = await web3.eth.getTransaction(tx.tx);
+      let gasPrice = new BN(txInfo.gasPrice);
+      let gasSpent = gasUsed.mul(gasPrice);
+
+      let BALANCE_AFTER = new BN(await web3.eth.getBalance(PURCHASER_1));
+
+      assert.equal(0, BALANCE_BEFORE.sub(gasSpent).add(PROFIT_CORRECT_FROM_2_TO_5).cmp(BALANCE_AFTER), "wrong balanceAfter _FROM_2_TO_5");
+
+
+      //  FROM_6_TO_7
+      const PROFIT_CORRECT_FROM_6_TO_7 = await madoffContract.profitForPurchaseInSession.call(1, 0, 6, 7);  //  29 931 967
+      // console.log(PROFIT_CORRECT.toString());
+      //  share prices
+      //  10000000 * 20 * 0.5 / (12 + 13 + 14 + 15 + 12 + 12) = 1 282 051
+      //  10000000 * 20 * 0.5 / (12 + 13 + 14 + 15 + 12 + 12 + 20) = 1 020 408
+      //  (1 282 051 + 1 020 408) * 13 = 29 931 967
+      assert.equal(0, PROFIT_CORRECT_FROM_6_TO_7.cmp(new BN("29931967")), "wrong PROFIT_CORRECT_FROM_6_TO_7");
+
+      BALANCE_BEFORE = new BN(await web3.eth.getBalance(PURCHASER_1));
+      
+      tx = await madoffContract.withdrawProfitForPurchaseInSession(1, 0, 4, { 
+        from: PURCHASER_1
+      });
+      gasUsed = new BN(tx.receipt.gasUsed);
+      txInfo = await web3.eth.getTransaction(tx.tx);
+      gasPrice = new BN(txInfo.gasPrice);
+      gasSpent = gasUsed.mul(gasPrice);
+
+      BALANCE_AFTER = new BN(await web3.eth.getBalance(PURCHASER_1));
+
+      assert.equal(0, BALANCE_BEFORE.sub(gasSpent).add(PROFIT_CORRECT_FROM_6_TO_7).cmp(BALANCE_AFTER), "wrong balanceAfter _FROM_6_TO_7");
+    });
+
+    it("should emit SharesProfitWithdrawn", async() => {
+      //  purchase
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 13;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 14;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 15;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      //  8 purchases
+
+      //  0
+      const PROFIT_CORRECT = await madoffContract.profitForPurchaseInSession.call(1, 0, 2, 7);  //  117 594 568
+      // console.log(PROFIT_CORRECT.toString());
+      //  share prices
+      //  10000000 * 14 * 0.5 / (12 + 13) = 2 800 000
+      //  10000000 * 15 * 0.5 / (12 + 13 + 14) = 1 923 076
+      //  10000000 * 12 * 0.5 / (12 + 13 + 14 + 15) = 1 111 111
+      //  10000000 * 12 * 0.5 / (12 + 13 + 14 + 15 + 12) = 909 090
+      //  10000000 * 20 * 0.5 / (12 + 13 + 14 + 15 + 12 + 12) = 1 282 051
+      //  10000000 * 20 * 0.5 / (12 + 13 + 14 + 15 + 12 + 12 + 20) = 1 020 408
+      //  (2 800 000 + 1 923 076 + 1 111 111 + 909 090 + 1 282 051 + 1 020 408) * 13 = 117 594 568
+      assert.equal(0, PROFIT_CORRECT.cmp(new BN("117594568")), "wrong PROFIT_CORRECT");
+      
+      const {logs} = await madoffContract.withdrawProfitForPurchaseInSession(1, 0, 12, { 
+        from: PURCHASER_1
+      });
+      
+      await expectEvent.inLogs(logs, 'SharesProfitWithdrawn', {
+        _address: PURCHASER_1,
+        _amount: PROFIT_CORRECT,
+        _session: new BN("0")
+      });
+    });
+
+    it("should emit SharesProfitWithdrawn after 2 Sessions", async() => {
+      //  purchase
+      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 13;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 14;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 15;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 12;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      VALUE = SHARE_PRICE_FOR_STAGE[0] * 20;
+      await madoffContract.purchase(WEBSITE_0, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      //  8 purchases
+      
+
+      //  0
+      const PROFIT_CORRECT = await madoffContract.profitForPurchaseInSession.call(1, 0, 2, 7);  //  117 594 568
+      // console.log(PROFIT_CORRECT.toString());
+      //  share prices
+      //  10000000 * 14 * 0.5 / (12 + 13) = 2 800 000
+      //  10000000 * 15 * 0.5 / (12 + 13 + 14) = 1 923 076
+      //  10000000 * 12 * 0.5 / (12 + 13 + 14 + 15) = 1 111 111
+      //  10000000 * 12 * 0.5 / (12 + 13 + 14 + 15 + 12) = 909 090
+      //  10000000 * 20 * 0.5 / (12 + 13 + 14 + 15 + 12 + 12) = 1 282 051
+      //  10000000 * 20 * 0.5 / (12 + 13 + 14 + 15 + 12 + 12 + 20) = 1 020 408
+      //  (2 800 000 + 1 923 076 + 1 111 111 + 909 090 + 1 282 051 + 1 020 408) * 13 = 117 594 568
+      assert.equal(0, PROFIT_CORRECT.cmp(new BN("117594568")), "wrong PROFIT_CORRECT");
+
+
+      //  exseed blocks
+      for(let i = 0; i < EXCEED_BLOCKS; i ++) {
+        await time.advanceBlock();
+      }
+      await time.increase(2);
+
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_2,
+        value: VALUE
+      });
+
+
+      //  exseed blocks
+      for(let i = 0; i < EXCEED_BLOCKS; i ++) {
+        await time.advanceBlock();
+      }
+      await time.increase(2);
+
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_1,
+        value: VALUE
+      });
+
+      await madoffContract.purchase(WEBSITE_1, {
+        from: PURCHASER_0,
+        value: VALUE
+      });
+      
+      //  withdraw
+      const {logs} = await madoffContract.withdrawProfitForPurchaseInSession(1, 0, 12, { 
+        from: PURCHASER_1
+      });
+      
+      await expectEvent.inLogs(logs, 'SharesProfitWithdrawn', {
+        _address: PURCHASER_1,
         _amount: PROFIT_CORRECT,
         _session: new BN("0")
       });
