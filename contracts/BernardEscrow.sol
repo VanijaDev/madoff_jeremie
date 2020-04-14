@@ -53,7 +53,7 @@ contract BernardEscrow {
    * TESTED
    */
   function calculateTokenFractionProfit() public onlyTokenHolder onlyCalculationEnabled {
-    require(ongoingBernardFee >= 0.1 szabo, "Not enough Bernardcut"); //  TODO: change from ether to TRX
+    require(ongoingBernardFee >= 0.1 trx, "Not enough Bernardcut");
     uint256 fractionProfit = ongoingBernardFee.div(10000);
    
     tokenFractionProfitForCalculatedIdx[tokenFractionProfitCalculatedTimes] = fractionProfit;
