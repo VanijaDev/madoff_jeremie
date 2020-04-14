@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5.8;
 
 import "./SafeMath.sol";
 
@@ -195,7 +195,7 @@ contract CountdownSessionManager {
    * @return Session idxs.
    * TESTED
    */
-  function participatedSessionsForUser() public view returns(uint256[] sessions) {
+  function participatedSessionsForUser() public view returns(uint256[] memory sessions) {
     sessions = sessionsInfoForPurchaser[msg.sender];
   }
 
@@ -249,7 +249,7 @@ contract CountdownSessionManager {
    * @return Purchase idxs.
    * TESTED
    */
-  function purchasesInSessionForUser(uint256 _session) public view returns(uint256[] purchases) {
+  function purchasesInSessionForUser(uint256 _session) public view returns(uint256[] memory purchases) {
     purchases = sessionsInfo[_session].purchaseIdxsForPurchaser[msg.sender];
   }
   

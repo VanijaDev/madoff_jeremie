@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5.8;
 
 import "./token/BernardsCutToken.sol";
 import "./SafeMath.sol";
@@ -110,7 +110,7 @@ contract BernardEscrow {
    * @param _loopLimit  Limit of loops.
    * TESTED
    */
-  function withdrawProfitFromToken(address recipient, uint256 _loopLimit) public onlyToken {
+  function withdrawProfitFromToken(address payable recipient, uint256 _loopLimit) public onlyToken {
     _withdrawProfit(recipient, _loopLimit, true);
   }
 
@@ -121,7 +121,7 @@ contract BernardEscrow {
    * @param _fromToken  If sent from token, but EOA.
    * TESTED
    */
-  function _withdrawProfit(address recipient, uint256 _loopLimit, bool _fromToken) private {
+  function _withdrawProfit(address payable recipient, uint256 _loopLimit, bool _fromToken) private {
     uint256 startIdx = profitWithdrawnOnCalculationIdx[recipient].add(1);
     if (startIdx == tokenFractionProfitCalculatedTimes) {
       if (_fromToken) {

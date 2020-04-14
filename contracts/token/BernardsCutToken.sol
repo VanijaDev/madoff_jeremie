@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5.8;
 
 import "../SafeMath.sol";
 import "./ERC20Detailed.sol";
@@ -32,7 +32,7 @@ contract BernardsCutToken is ERC20Detailed("BernardsCutToken", "BCT", 0) {
    * TESTED
    */
   function updateBernardEscrow(address _address) public {
-    require(address(escrow) == 0, "Already set");
+    require(address(escrow) == address(0), "Already set");
     escrow = BernardEscrow(_address);
   }
 
@@ -58,7 +58,7 @@ contract BernardsCutToken is ERC20Detailed("BernardsCutToken", "BCT", 0) {
     * @param _loopLimit Limit for loop iteractions.
     * TESTED
     */
-  function transfer(address recipient, uint256 amount, uint256 _loopLimit) public returns (bool) {
+  function transfer(address payable recipient, uint256 amount, uint256 _loopLimit) public returns (bool) {
     escrow.withdrawProfitFromToken(msg.sender, _loopLimit);
     escrow.withdrawProfitFromToken(recipient, _loopLimit);
 

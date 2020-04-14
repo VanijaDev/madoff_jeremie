@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5.8;
 
 /**
  * @dev Optional functions from the ERC20 standard.
