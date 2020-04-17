@@ -138,7 +138,6 @@ ul li, ol li {
   font-size: 14px;
   padding: 12px 20px;
   border-radius: 0px;
-  cursor: pointer;
   font-weight: 400;
   color: #fff;
   text-transform: uppercase;
@@ -147,6 +146,10 @@ ul li, ol li {
   -o-transition: all 0.2s linear;
   transition: all 0.2s linear;
   display: inline-block;
+}
+
+.show_cursor {
+  cursor: pointer;
 }
 
 .btn:focus,
