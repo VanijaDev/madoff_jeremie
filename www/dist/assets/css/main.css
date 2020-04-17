@@ -200,9 +200,9 @@ ul li, ol li {
 .btn-border3 {
   color: #000000;
   background-color: transparent;
-  border: 2px solid #000000;
+  border: 2px solid #3b5998;
   border-radius: 4px;
-  padding: 10px 20px;
+  padding: 6px 20px;
   width: 205px;
 }
 
@@ -1367,4 +1367,8 @@ a.back-to-top:hover, a.back-to-top:focus {
   z-index: -1;
   margin-left: -20px;
   margin-top: -10px;
+}
+
+.jkpt_big {
+  font-size: 2em;
 }
