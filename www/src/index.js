@@ -14,18 +14,9 @@ import TronWeb from 'tronweb';
 
 
 const Index = {
-  gettronweb: function() {
-    if(window.tronWeb){
-      console.log("YES window.tronWeb: ", window.tronWeb);
-
-      if(window.tronWeb.defaultAddress.base58) {
-        document.write("Yes, catch it: ",window.tronWeb.defaultAddress.base58)
-      } else {
-        console.log("NO window.tronWeb.defaultAddress.base58");
-      }
-    } else {
-      console.log("NO window.tronWeb");
-    }
+  setup: function() {
+    console.log("addr: ", window.tronWeb.defaultAddress.base58);
+    
   }
 }
 
@@ -36,7 +27,7 @@ window.onload = function() {
     console.log("YES window.tronWeb - onload");
   }
 
-  this.setup();
+  Index.setup();
 };
 
 window.Index = Index;
