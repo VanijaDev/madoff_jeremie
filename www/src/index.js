@@ -1,4 +1,4 @@
-import TronWeb from 'tronweb';
+// import TronWeb from 'tronweb';
 
 // const HttpProvider = TronWeb.providers.HttpProvider;
 // const fullNode = new HttpProvider('https://api.trongrid.io');
@@ -14,14 +14,51 @@ import TronWeb from 'tronweb';
 
 
 const Index = {
+  ErrorType: {
+    noTronLink: 0,
+    wrongNode: 1
+  },
+
+  currentAccount: "",
+
   setup: function() {
-    console.log("addr: ", window.tronWeb.defaultAddress.base58);
-    
+    if (window.tronWeb.defaultAddress.base58) {
+      this.currentAccount = window.tronWeb.defaultAddress.base58;
+    }
+    // console.log("this.currentAccount: ", this.currentAccount);
+
+    if (this.currentAccount.length == 0) {
+      this.showError(this.ErrorType.noTronLink);
+    }
   },
 
   setLanguage: function(_langId) {
     console.log("setLanguage: " + _langId);
-  }
+  },
+
+  /** HELPERS */
+  showError: function (_errorType) {
+    console.log("_errorType: ", _errorType);
+    let errorText = "";
+
+    switch (_errorType) {
+      case this.ErrorType.noTronLink:
+        errorText = "TronLink is not connected. Please, install and log in into TronLink";
+      break;
+
+      case this.ErrorType.wrongNode:
+        errorText = "Please, select Main Chain - Mainnet inTronLink";
+      break;
+    }
+
+    document.getElementById("error_view_text").textContent = errorText;
+    document.getElementById("error_view").style.display = "block";
+  },
+
+  hideError: function () {
+    document.getElementById("error_view_text").textContent = "";
+    document.getElementById("error_view").style.display = "none";
+  },
 }
 
 window.onload = function() {
@@ -33,5 +70,46 @@ window.onload = function() {
 
   Index.setup();
 };
+
+window.addEventListener('message', function (e) {
+  // if (e.data.message && e.data.message.action == "tabReply") {
+  //     console.log("tabReply event", e.data.message)
+  //     if (e.data.message.data.data.node.chain == '_'){
+  //         console.log("tronLink currently selects the main chain")
+  //     }else{
+  //         console.log("tronLink currently selects the side chain")
+  //     }
+  // }
+
+  if (e.data.message && e.data.message.action == "setAccount") {
+      // console.log("setAccount event e", e)
+      // console.log("setAccount event", e.data.message)
+      // console.log("current address:", e.data.message.data.address)
+
+      Index.currentAccount = (e.data.message.data.address) ? window.tronWeb.defaultAddress.base58 : "";
+      if (Index.currentAccount.length == 0) {
+        Index.showError(Index.ErrorType.noTronLink);
+      }
+  }
+  if (e.data.message && e.data.message.action == "setNode") {
+      // console.log("setNode event e", e)
+      // console.log("setNode event", e.data.message)
+      if (e.data.message.data.node.chain == '_'){
+          // console.log("tronLink currently selects the main chain")
+
+          if (e.data.message.data.node.fullNode == 'https://api.trongrid.io' &&
+              e.data.message.data.node.solidityNode == 'https://api.trongrid.io' &&
+              e.data.message.data.node.eventServer == 'https://api.trongrid.io') {
+                Index.hideError();
+          } else {
+            Index.showError(Index.ErrorType.wrongNode);
+          }
+      } else{
+          // console.log("tronLink currently selects the side chain")
+          Index.showError(Index.ErrorType.wrongNode);
+      }
+
+  }
+})
 
 window.Index = Index;
