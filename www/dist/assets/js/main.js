@@ -49,11 +49,7 @@
     // one page navigation 
     $('.onepage-nev').onePageNav({
       currentClass: 'active'
-    }); 
-
-    $('#more_options_btn').on('click',function(event) {
-      $('#know_more').removeClass('opacity_0');
-    }); 
+    });
 
     /* Back Top Link active
     ========================================================*/

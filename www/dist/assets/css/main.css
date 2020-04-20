@@ -1332,28 +1332,28 @@ a.back-to-top:hover, a.back-to-top:focus {
 }
 
 .know_more {
-  width: 470px;
-  height: 220px;
-  position: absolute;
-  top: 5%;
-  left: 5%;
-  z-index: 2;
+  width: 480px;
   transition: opacity 0.5s;
 }
 
 .opacity_0 {
+  display: none;
   opacity: 0;
 }
 
 .know_more_top {
   float: left;
-  width: 65%;
+  white-space: pre-wrap;
+  margin-top: 10px;
+  width: 70.5%;
   text-align: left;
 }
 
 .know_more_mid {
   float: left;
-  width: 46%;
+  white-space: pre-wrap;
+  margin-top: 10px;
+  width: 73%;
   text-align: left;
 }
 

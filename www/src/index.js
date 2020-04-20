@@ -25,7 +25,7 @@ const Index = {
     if (window.tronWeb.defaultAddress.base58) {
       this.currentAccount = window.tronWeb.defaultAddress.base58;
     }
-    // console.log("this.currentAccount: ", this.currentAccount);
+    console.log("this.currentAccount: ", this.currentAccount);
 
     if (this.currentAccount.length == 0) {
       this.showError(this.ErrorType.noTronLink);
@@ -34,6 +34,18 @@ const Index = {
 
   setLanguage: function(_langId) {
     console.log("setLanguage: " + _langId);
+  },
+
+  /** UI */
+
+  showKnowMore: function () {
+    console.log("showKnowMore");
+    
+    document.getElementById("more_options_btn").classList.add('opacity_0');
+    document.getElementById("more_options_btn").style.display = "none";
+
+    document.getElementById("know_more").style.display = "block";
+    document.getElementById("know_more").classList.remove('opacity_0');
   },
 
   /** HELPERS */
@@ -51,7 +63,7 @@ const Index = {
       break;
     }
 
-    document.getElementById("error_view_text").textContent = errorText;
+    document.getElementById("know_more").textContent = errorText;
     document.getElementById("error_view").style.display = "block";
   },
 
@@ -68,7 +80,7 @@ window.onload = function() {
     console.log("YES window.tronWeb - onload");
   }
 
-  Index.setup();
+  setTimeout(Index.setup, 500);
 };
 
 window.addEventListener('message', function (e) {

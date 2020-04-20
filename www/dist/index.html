@@ -114,26 +114,7 @@
     <!-- Intro Section Start -->
     <section class="intro">
       <div class="container">
-        <div class="row text-center">
-           
-          <!-- Know More Section Start -->
-          <div id="know_more" class="know_more btn-border2 opacity_0">
-            <div class="blur_bg"></div>
-            <div>
-              <p class="know_more_top">** Once jackpot get hit you can withdraw your part from jackpot earnings here</p>
-              <button class="btn btn-common show_cursor" onclick="alert('Wrong amount. Please use amount without extra balance.')">know more</button>
-            </div>
-            <div>
-              <p class="know_more_mid">Withdraw your part of the 20% from the jackpot here</p>
-              <button class="btn btn-common show_cursor" onclick="alert('Wrong amount. Please use amount without extra balance.')">withdraw</button>
-            </div>
-            <div>
-              <p class="know_more_mid">If you are the winner withdraw the jackpot here</p>
-              <button class="btn btn-common show_cursor" onclick="alert('Wrong amount. Please use amount without extra balance.')">withdraw</button>
-            </div>
-          </div>
-          <!-- Know More Section Start -->
-    
+        <div class="row text-center">    
           <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="heading-count">
               <h2>Madoff's game</h2>
@@ -163,7 +144,28 @@
               <h5 class="btn btn-border2">My current earnings : <span>3026.568794</span> TRX</h5>
               <button class="btn btn-common show_cursor" onclick="alert('Withdraw clicked')">Withdraw</button>
               <br>
-              <button id="more_options_btn" class="btn btn-common show_cursor">* More options</button>
+              <button id="more_options_btn" class="btn btn-common show_cursor" onclick="Index.showKnowMore()">* More options</button>
+
+                <!-- TODO -->
+
+                <!-- Know More Section Start -->
+              <div id="know_more" class="know_more opacity_0">
+                <!-- <div class="blur_bg"></div> -->
+                <div>
+                  <p class="know_more_top">** Once jackpot get hit you can withdraw your part from jackpot earnings here</p>
+                  <button class="btn btn-common show_cursor" onclick="alert('Wrong amount. Please use amount without extra balance.')">know more</button>
+                </div>
+                <div>
+                  <p class="know_more_mid">Withdraw your part of the 20% from the jackpot here</p>
+                  <button class="btn btn-common show_cursor" onclick="alert('Wrong amount. Please use amount without extra balance.')">withdraw</button>
+                </div>
+                <div>
+                  <p class="know_more_mid">If you are the winner withdraw the jackpot here</p>
+                  <button class="btn btn-common show_cursor" onclick="alert('Wrong amount. Please use amount without extra balance.')">withdraw</button>
+                </div>
+              </div>
+          <!-- Know More Section Start -->
+
             </div>
             <div class="social mt-4">
             <a href="#services" class="target-scroll page-scroll"><i class="lni-chevron-down"></i></a>
