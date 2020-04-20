@@ -1372,3 +1372,10 @@ a.back-to-top:hover, a.back-to-top:focus {
 .jkpt_big {
   font-size: 2em;
 }
+
+.no_tronlink_text {
+  color: red;
+  font-size: 2em;
+  font-weight: bold;
+  margin-top: 30%;
+}
