@@ -17,6 +17,10 @@ const Index = {
   setup: function() {
     console.log("addr: ", window.tronWeb.defaultAddress.base58);
     
+  },
+
+  setLanguage: function(_langId) {
+    console.log("setLanguage: " + _langId);
   }
 }
 

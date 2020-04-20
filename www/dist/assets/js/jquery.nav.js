@@ -139,6 +139,7 @@
 		},
 
 		handleClick: function(e) {
+			return;
 			var self = this;
 			var $link = $(e.currentTarget);
 			var $parent = $link.parent();
