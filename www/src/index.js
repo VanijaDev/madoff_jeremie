@@ -88,10 +88,12 @@ window.onload = function() {
 
 window.addEventListener('message', function (e) {
   if (e.data.message && e.data.message.action == "tabReply") {
+      // console.log("tabReply event e", e)
+      // console.log("tabReply event", e.data.message)
       if (e.data.message.data.data.node.chain == '_'){
-        if (e.data.message.data.node.fullNode == 'https://api.trongrid.io' &&
-            e.data.message.data.node.solidityNode == 'https://api.trongrid.io' &&
-            e.data.message.data.node.eventServer == 'https://api.trongrid.io') {
+        if (e.data.message.data.data.node.fullNode == 'https://api.trongrid.io' &&
+            e.data.message.data.data.node.solidityNode == 'https://api.trongrid.io' &&
+            e.data.message.data.data.node.eventServer == 'https://api.trongrid.io') {
               Index.hideError();
             } else {
               Index.showError(Index.ErrorType.wrongNode);
