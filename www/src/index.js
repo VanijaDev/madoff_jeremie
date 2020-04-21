@@ -27,8 +27,12 @@ const Index = {
     }
     console.log("this.currentAccount: ", this.currentAccount);
 
-    if (this.currentAccount.length == 0) {
-      this.showError(this.ErrorType.noTronLink);
+    if (!this.currentAccount || this.currentAccount.length == 0) {
+      Index.showError(Index.ErrorType.noTronLink);
+    } else if (window.tronWeb.fullNode != 'https://api.trongrid.io' ||
+              window.tronWeb.solidityNode != 'https://api.trongrid.io' ||
+              window.tronWeb.eventServer != 'https://api.trongrid.io') {
+                Index.showError(Index.ErrorType.wrongNode);
     }
   },
 
@@ -55,15 +59,17 @@ const Index = {
 
     switch (_errorType) {
       case this.ErrorType.noTronLink:
+        console.log("_errorType: TL", this.ErrorType.noTronLink);
         errorText = "TronLink is not connected. Please, install and log in into TronLink";
       break;
 
       case this.ErrorType.wrongNode:
+        console.log("_errorType: WN", this.ErrorType.wrongNode);
         errorText = "Please, select Main Chain - Mainnet inTronLink";
       break;
     }
 
-    document.getElementById("know_more").textContent = errorText;
+    document.getElementById("error_view_text").textContent = errorText;
     document.getElementById("error_view").style.display = "block";
   },
 
