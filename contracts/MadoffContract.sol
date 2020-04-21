@@ -14,8 +14,6 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
   uint8 public ongoingStage;
   uint8 public maxStageNumber = 13;
 
-  // TODO: remove from constructor
-  // address constant OWNER_ADDR = "";
   address OWNER_ADDR;
 
   uint16[14] public blocksForStage =                    [100, 90, 80, 70, 60, 50, 45, 40, 35, 30, 25, 20, 10, 5];  //  TODO: testing
