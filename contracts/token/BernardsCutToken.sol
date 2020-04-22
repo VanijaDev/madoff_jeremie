@@ -18,12 +18,12 @@ contract BernardsCutToken is ERC20Detailed("BernardsCutToken", "BCT", 0) {
 
   /**
    * @dev Constructor.
-   * @param _owner Owner's address.
+   * @param _dev Developer's address.
    * TESTED
    */
-  constructor (address _owner) public {
-    _mint(_owner, 7000);
-    _mint(msg.sender, 3000);
+  constructor (address _dev) public {
+    _mint(_dev, 3000);
+    _mint(msg.sender, 7000);
   }
 
   /**

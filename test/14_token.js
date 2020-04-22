@@ -48,12 +48,12 @@ contract("token", (accounts) => {
   });
 
   describe("constructor", () => {
-    it("should mint 7000 to owner", async() => {
-      assert.equal(0, (await token.balanceOf(OWNER)).cmp(new BN("7000")), "balance should be 7000");
+    it("should mint 7000 to DEPLOYER", async() => {
+      assert.equal(0, (await token.balanceOf(DEPLOYER)).cmp(new BN("7000")), "DEPLOYER balance should be 7000");
     });
 
-    it("should mint 3000 to sender", async() => {
-      assert.equal(0, (await token.balanceOf(DEPLOYER)).cmp(new BN("3000")), "balance should be 3000");
+    it("should mint 3000 to OWNER", async() => {
+      assert.equal(0, (await token.balanceOf(OWNER)).cmp(new BN("3000")), "OWNER balance should be 3000");
     });
   });
 
