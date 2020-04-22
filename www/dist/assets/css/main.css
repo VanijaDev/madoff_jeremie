@@ -1345,8 +1345,12 @@ a.back-to-top:hover, a.back-to-top:focus {
   float: left;
   white-space: pre-wrap;
   margin-top: 10px;
-  width: 70.5%;
+  width: 72.5%;
   text-align: left;
+}
+
+.know_more_btn {
+  padding: 12px 15px;
 }
 
 .know_more_mid {
