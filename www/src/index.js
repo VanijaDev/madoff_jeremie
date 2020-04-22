@@ -72,6 +72,33 @@ const Index = {
     document.getElementById("know_more").classList.remove('opacity_0');
   },
 
+  buyShares: async function() {
+    console.log("buyShares");
+
+    let sharesNumber = document.getElementById("purchaseAmount").value;
+    console.log("sharesNumber: ", sharesNumber);
+    if (sharesNumber < 1) {
+      alert("Please enter valid shares number. Minimum 1 share to buy.");
+      return;
+    } else if (!Number.isInteger(parseFloat(sharesNumber))) {
+      alert("Whole number only.");
+      return;
+    }
+
+    //  calculate TRX amount
+    let txValue = await Index.purchaseValue(sharesNumber);
+    console.log("txValue: ", txValue.toString());
+
+    return;
+
+    //  TODO: correct website address
+    let TEST_websiteAddr = "TQphDXxumffC81VTaChhNuFuK1efRAYQJ4"; // OWNER
+    if (sharesNumber % 2) {
+      TEST_websiteAddr = "TZ75wbxf6x1mMaNRenbMMfREmxsBdGdZZS" //  website1
+    }
+    await Index.gameInst.purchase().call(TEST_websiteAddr);
+  },
+
   /** HELPERS */
   showError: function (_errorType) {
     let errorText = "";
@@ -98,6 +125,37 @@ const Index = {
   hideError: function () {
     document.getElementById("error_view_text").textContent = "";
     document.getElementById("error_view").style.display = "none";
+  },
+
+  purchaseValue: async function(_sharesNumber) {
+    let ongoingStage = await Index.gameInst.ongoingStage().call();
+    console.log("ongoingStage: ", ongoingStage);
+
+    let sharesToPurchase = _sharesNumber;
+    let resultValueBN = new BigNumber(0);
+    do {
+      let sharesForStageToPurchase = await Index.gameInst.sharesForStageToPurchase(ongoingStage).call();
+      console.log("sharesForStageToPurchase: ", sharesForStageToPurchase);
+
+      if (sharesForStageToPurchase > sharesToPurchase) {
+        resultValueBN = resultValueBN.plus(await Index.sharesPrice(sharesToPurchase, ongoingStage));
+        sharesToPurchase = 0;
+      } else {
+        resultValueBN = resultValueBN.plus(await Index.sharesPrice(sharesForStageToPurchase, ongoingStage));
+        sharesToPurchase -= sharesForStageToPurchase;
+        ongoingStage += 1;
+      }
+      console.log("resultValueBN: ", resultValueBN.toString());
+      console.log("\n");
+    } while (sharesToPurchase > 0);
+
+    return resultValueBN;
+  },
+
+  sharesPrice: async function(_sharesNumber, _stage) {
+    let sharePriceForStage = await Index.gameInst.sharePriceForStage(_stage).call();
+    console.log("sharePriceForStage: ", sharePriceForStage.toString());
+    return new BigNumber(_sharesNumber.toString()).multipliedBy(sharePriceForStage);
   },
 }
 
