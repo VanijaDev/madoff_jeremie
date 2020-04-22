@@ -14,8 +14,6 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
   uint8 public ongoingStage;
   uint8 public maxStageNumber = 13;
 
-  address OWNER_ADDR;
-
   uint16[14] public blocksForStage =                    [100, 90, 80, 70, 60, 50, 45, 40, 35, 30, 25, 20, 10, 5];  //  TODO: testing
   // uint16[14] public blocksForStage =                    [21600, 18000, 14400, 10800, 7200, 3600, 1200, 600, 300, 100, 20, 10, 7, 4];
   uint32[14] public sharesForStageToPurchaseOriginal =  [2500,     5000,     3125,     12500,    10000,     62500,     62500,     400000,    390625,    2000000,   1562500,   10000000,   12500000,   25000000];
@@ -35,12 +33,10 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
  
   /**
    * @dev Contract constructor.
-   * @param _OWNER_ADDR Address for owner.
    * @param _token Token address.
    * TESTED
    */
-  constructor(address _OWNER_ADDR, address _token) BernardEscrow(_token) public {
-    OWNER_ADDR = _OWNER_ADDR;
+  constructor(address _token) BernardEscrow(_token) public {
   }
 
   /**
