@@ -6,11 +6,8 @@ import BigNumber from "bignumber.js";
 
 const Index = {
   Config: {
-    "tokenAddress": "TWTdVDwj7NcqPDNi4X9d9Gm29jDZJDSfg1",
-    "tokenAddressHex": "41e0c29a2703d967d685eda81d92f63b2867a2ab32",
-  
-    "gameAddress": "TSQLJmCcQUFWyPEuX25c9qAt1uJaorabd4",
-    "gameAddressHex": "41b442827b2c8959cf08524825b66d1cb00eab27b6"
+    "tokenAddress": "TMFJ2Mg6dx53NorCnoRrjXd4BETD1JQkVt",  
+    "gameAddress": "TSQLJmCcQUFWyPEuX25c9qAt1uJaorabd4"
   },
 
   ErrorType: {
