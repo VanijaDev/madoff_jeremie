@@ -51,14 +51,16 @@ const Index = {
   },
 
   setupEventListeners: function() {
-    // Index.gameInst.Purchase().watch((err, eventResult) => {
-    //   if (err) {
-    //     return console.error('Error with Purchase event:', err);
-    //   }
-    //   if (eventResult) { 
-    //     console.log('eventResult Purchase :',eventResult);
-    //   }
-    // });
+    Index.gameInst.Purchase().watch((err, eventResult) => {
+      if (err) {
+        return console.error('Error with Purchase event:', err);
+      }
+      if (eventResult) { 
+        console.log('eventResult Purchase :',eventResult);
+      }
+
+      Index.hideSpinner();
+    });
 
 
   },
@@ -103,6 +105,7 @@ const Index = {
 
   buyShares: async function() {
     console.log("buyShares");
+    Index.showSpinner();
 
     let sharesNumber = document.getElementById("purchaseAmount").value;
     console.log("sharesNumber: ", sharesNumber);
@@ -132,9 +135,11 @@ const Index = {
       });
 
       console.log("purchaseTx: ", purchaseTx);
+      Index.hideSpinner();
 
     } catch (error) {
         console.log(error);
+        Index.hideSpinner();
     }
   },
 
@@ -164,6 +169,14 @@ const Index = {
   hideError: function () {
     document.getElementById("error_view_text").textContent = "";
     document.getElementById("error_view").style.display = "none";
+  },
+
+  showSpinner: function() {
+    document.getElementById("spinner_view").style.display = "block";
+  },
+
+  hideSpinner: function() {
+    document.getElementById("spinner_view").style.display = "none";
   },
 
   purchaseValue: async function(_sharesNumber) {
