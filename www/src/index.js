@@ -1,13 +1,14 @@
 //  TODO:
 //  - node check + showError
 //  "test addr"
+//  window.onload
 
 import BigNumber from "bignumber.js";
 
 const Index = {
   Config: {
-    "tokenAddress": "TMFJ2Mg6dx53NorCnoRrjXd4BETD1JQkVt",  
-    "gameAddress": "TSQLJmCcQUFWyPEuX25c9qAt1uJaorabd4"
+    "tokenAddress": "TJGsSiXyj1JQbAF1ze1D2PqnPu9sLR38HZ",  
+    "gameAddress": "TL5V8hdXd4iADitkz6wcgVtXMkSJCy5DGf"
   },
 
   ErrorType: {
@@ -23,6 +24,7 @@ const Index = {
 
   setup: async function() {
     console.log("\nSETUP\n");
+
     //  test addr
     Index.currentAccount =  window.tronWeb.defaultAddress.base58;
     // console.log("currentAccount: ", Index.currentAccount);
@@ -30,28 +32,58 @@ const Index = {
     // console.log("Block: ", await tronWeb.trx.getCurrentBlock());
 
     //  Instances
-    Index.gameInst = await tronWeb.contract().at(Index.Config.gameAddressHex);
-    // console.log("gameInst: ", Index.gameInst);
-    Index.tokenInst = await tronWeb.contract().at(Index.Config.tokenAddressHex);
-    // console.log("tokenInst: ", Index.tokenInst);
+    try {
+      Index.gameInst = await tronWeb.contract().at(tronWeb.address.toHex(Index.Config.gameAddress));
+      console.log("gameInst: ", Index.gameInst);
+      Index.tokenInst = await tronWeb.contract().at(tronWeb.address.toHex(Index.Config.tokenAddress));
+      // console.log("tokenInst: ", Index.tokenInst);
+    } catch (error) {
+      console.error("No contract instanses.");
+      Index.showError(Index.ErrorType.wrongNode);
+      return;
+    }
 
+    Index.setupEventListeners();
     Index.updateJackpot();
     Index.updateWinner();
+    Index.updateCountdown();
+
   },
 
-   updateJackpot: async function() {
+  setupEventListeners: function() {
+    // Index.gameInst.Purchase().watch((err, eventResult) => {
+    //   if (err) {
+    //     return console.error('Error with Purchase event:', err);
+    //   }
+    //   if (eventResult) { 
+    //     console.log('eventResult Purchase :',eventResult);
+    //   }
+    // });
+
+
+  },
+
+  updateJackpot: async function() {
     let jp = await Index.gameInst.ongoingJackpot().call();
     document.getElementById("currentJackpot").textContent = jp.toString();
-   },
+  },
 
-   updateWinner: async function() {
+  updateWinner: async function() {
     let winner = await Index.gameInst.ongoingWinner().call();
     console.log("winner: ", winner);
     if (winner != "410000000000000000000000000000000000000000") {
       console.log("winner hex : ", tronWeb.address.fromHex(""));
       document.getElementById("currentWinner").textContent = tronWeb.address.fromHex(winner);
     }
-   },
+  },
+
+  updateCountdown: async function() {
+    let latestPurchaseBlock = await Index.gameInst.latestPurchaseBlock().call();
+    console.log("latestPurchaseBlock: ", latestPurchaseBlock);
+    console.log("latestPurchaseBlock: ", latestPurchaseBlock.toString());
+
+    // jQuery('#clock').countdown('2021/10/19');
+  },
 
   setLanguage: function(_langId) {
     console.log("setLanguage: " + _langId);
@@ -86,14 +118,24 @@ const Index = {
     let txValue = await Index.purchaseValue(sharesNumber);
     console.log("txValue: ", txValue.toString());
 
-    return;
-
     //  TODO: correct website address
     let TEST_websiteAddr = "TQphDXxumffC81VTaChhNuFuK1efRAYQJ4"; // OWNER
     if (sharesNumber % 2) {
       TEST_websiteAddr = "TZ75wbxf6x1mMaNRenbMMfREmxsBdGdZZS" //  website1
     }
-    await Index.gameInst.purchase().call(TEST_websiteAddr);
+
+    try {
+      let purchaseTx = await Index.gameInst.purchase(TEST_websiteAddr).send({
+        feeLimit:100000000,
+        callValue: txValue,
+        shouldPollResponse: true
+      });
+
+      console.log("purchaseTx: ", purchaseTx);
+
+    } catch (error) {
+        console.log(error);
+    }
   },
 
   /** HELPERS */
@@ -156,47 +198,65 @@ const Index = {
   },
 }
 
-// window.onload = fu[nction() {
-//   if (!window.tronWeb) {
-//     console.error("NO window.tronWeb - onload");
-//   } else {
-//     console.log("YES window.tronWeb - onload");
-//   }
-// };]
+window.onload = function() {
+
+  setTimeout(function() {
+    if (!window.tronWeb) {
+      // console.error("NO window.tronWeb - onload");
+      Index.showError(Index.ErrorType.wrongNode);
+    } else {
+      // console.log("YES window.tronWeb - onload");
+
+
+      Index.hideError();
+      Index.setup();
+      return;
+
+
+      if (tronWeb.fullNode.host == 'https://api.trongrid.io' &&
+          tronWeb.solidityNode.host == 'https://api.trongrid.io' &&
+          tronWeb.eventServer.host == 'https://api.trongrid.io') {
+            Index.hideError();
+            Index.setup();
+        } else {
+          Index.showError(Index.ErrorType.wrongNode);
+        }
+      }
+  }, 500);
+};
 
 window.addEventListener('message', function (e) {
-  if (e.data.message && e.data.message.action == "tabReply") {
-    console.log("message - tabReply");
-      // console.log("tabReply event e", e)
-      // console.log("tabReply event", e.data.message)
-      if (e.data.message.data.data.node.chain == '_'){
-        if (e.data.message.data.data.node.fullNode == 'https://api.trongrid.io' &&
-            e.data.message.data.data.node.solidityNode == 'https://api.trongrid.io' &&
-            e.data.message.data.data.node.eventServer == 'https://api.trongrid.io') {
-              Index.hideError();
-              Index.currentAccount = (e.data.message.data.data.address) ? e.data.message.data.data.address : "";
-            } else {
-              // Index.showError(Index.ErrorType.wrongNode);
-            }
-      }else{
-        // Index.showError(Index.ErrorType.wrongNode);
-      }
-      setTimeout(Index.setup, 500);
-  }
-
   if (e.data.message && e.data.message.action == "setAccount") {
     console.log("message - setAccount");
-      Index.currentAccount = (e.data.message.data.address) ? e.data.message.data.address : "";
-      if (Index.currentAccount.length == 0) {
-        // Index.showError(Index.ErrorType.noTronLink);
-      }
-      setTimeout(Index.setup, 500);
+    // console.log("setAccount event e", e)
+
+    if (Index.currentAccount == e.data.message.data.address) {
+      return;
+    }
+
+    if (tronWeb.fullNode.host == 'https://api.trongrid.io' &&
+        tronWeb.solidityNode.host == 'https://api.trongrid.io' &&
+        tronWeb.eventServer.host == 'https://api.trongrid.io') {
+        
+        Index.currentAccount = (e.data.message.data.address) ? e.data.message.data.address : "";
+        if (Index.currentAccount.length == 0) {
+          // Index.showError(Index.ErrorType.noTronLink);
+          // return;
+        }
+
+        Index.hideError();
+    } else {
+      // Index.showError(Index.ErrorType.wrongNode);
+      // return;
+    }
+    setTimeout(Index.setup, 500);
   }
+
   if (e.data.message && e.data.message.action == "setNode") {
     console.log("message - setNode");
       // console.log("setNode event e", e)
       // console.log("setNode event", e.data.message)
-      if (e.data.message.data.node.chain == '_'){
+      if (e.data.message.data.node.chain == '_') {
           // console.log("tronLink currently selects the main chain")
 
           if (e.data.message.data.node.fullNode == 'https://api.trongrid.io' &&
@@ -205,10 +265,12 @@ window.addEventListener('message', function (e) {
                 Index.hideError();
           } else {
             // Index.showError(Index.ErrorType.wrongNode);
+            // return;
           }
       } else{
           // console.log("tronLink currently selects the side chain")
           // Index.showError(Index.ErrorType.wrongNode);
+          // return;
       }
       setTimeout(Index.setup, 500);
   }
