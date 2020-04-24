@@ -7,8 +7,8 @@ import BigNumber from "bignumber.js";
 
 const Index = {
   Config: {
-    "tokenAddress": "TUQ22xotZq8xizEVvrgTH8wJtPRKEC1gAw",  
-    "gameAddress": "TKceyUCJB83azS9Bsjd2VVEFSWDtimHccC"
+    "tokenAddress": "TKzDFqAFxG8Qyfe4oZb9xrShRLZBi8VwyM",  
+    "gameAddress": "TCoNsXisQ3oN633teHkWsyX2gV7d2MEXBH"
   },
 
   ErrorType: {
@@ -122,7 +122,7 @@ const Index = {
 
   /** UI */
 
-  showKnowMore: function () {
+  showKnowMoreClicked: function () {
     console.log("showKnowMore");
     
     document.getElementById("more_options_btn").classList.add('opacity_0');
@@ -173,44 +173,80 @@ const Index = {
     }
   },
 
-  withdrawJackpot: async function() {
+  withdrawJackpotClicked: async function() {
     console.log("withdrawJackpot");
 
-    let jackpotForAddr = await Index.gameInst.jackpotForAddr(Index.currentAccount).call();
-    console.log("jackpotForAddr: ", jackpotForAddr.toString());
-    console.log("jackpotForAddr_1: ", (new BigNumber(jackpotForAddr)).comparedTo(new BigNumber("0")));
-    if ((new BigNumber(jackpotForAddr)).comparedTo(new BigNumber("0")) > 0) {
-      Index.showSpinner();
-      try {
-        let withdrawJackpotTx = await Index.gameInst.withdrawJackpot().send({
-          feeLimit:100000000,
-          shouldPollResponse: true
-        });
-  
-        console.log("withdrawJackpotTx: ", withdrawJackpotTx);
-        Index.hideSpinner();
-        Index.updateData();
-  
-      } catch (error) {
-          console.log(error);
-          Index.hideSpinner();
-      }
+    let ongoingStage = new BigNumber(await Index.gameInst.ongoingStage().call());
+    console.log("ongoingStage: ", ongoingStage.toString());
+    
+    let blocksForStage = new BigNumber(await Index.gameInst.blocksForStage(ongoingStage.toString()).call());
+    console.log("blocksForStage: ", blocksForStage.toString());
+    
+    let latestPurchaseBlock = new BigNumber(await Index.gameInst.latestPurchaseBlock().call());
+    console.log("latestPurchaseBlock: ", latestPurchaseBlock.toString());
+    
+    let winningBlock = latestPurchaseBlock.plus(blocksForStage);
+    console.log("winningBlock: ", winningBlock.toString());
+
+    let currentBlock = (await tronWeb.trx.getCurrentBlock()).block_header.raw_data.number;
+    console.log("currentBlock: ", currentBlock.toString());
+
+    let blocksLeft = winningBlock.minus(currentBlock);
+    console.log("blocksLeft: ", blocksLeft.toString());
+    if (blocksLeft > 0) {
+      alert('Sorry, no jackpot for you.');
+      return;
+    }
+
+    let ongoingWinner = tronWeb.address.fromHex(await Index.gameInst.ongoingWinner().call());
+    console.log("ongoingWinner: ", ongoingWinner);
+    let ongoingJackpot = await Index.gameInst.ongoingJackpot().call();
+    console.log("ongoingJackpot: ", ongoingJackpot.toString());
+
+    if ((!ongoingWinner.localeCompare(Index.currentAccount)) && (new BigNumber(ongoingJackpot).comparedTo(BigNumber("0")) == 1)) {
+      Index.withdrawJackpot();
+      return;
     } else {
-      alert('Sorry, you are not a jackpot winner.')
+      let jackpotForAddr = await Index.gameInst.jackpotForAddr(Index.currentAccount).call();
+      console.log("jackpotForAddr: ", jackpotForAddr.toString());
+      console.log("jackpotForAddr_1: ", (new BigNumber(jackpotForAddr)).comparedTo(new BigNumber("0")));
+      if ((new BigNumber(jackpotForAddr)).comparedTo(new BigNumber("0")) <= 0) {
+        alert('Sorry, no jackpot for you.');
+        return;
+      }
+      Index.withdrawJackpot();
     }
   },
 
-  withdrawSharesProfit: function() {
+  withdrawSharesProfitClicked: function() {
     console.log("withdrawSharesProfit");
 
   },
 
-  withdrawBernardPartProfit: function() {
+  withdrawBernardPartProfitClicked: function() {
     console.log("withdrawBernardPartProfit - 20% from each jp");
 
   },
 
   /** HELPERS */
+  withdrawJackpot: async function() {
+    Index.showSpinner();
+    try {
+      let withdrawJackpotTx = await Index.gameInst.withdrawJackpot().send({
+        feeLimit:100000000,
+        shouldPollResponse: true
+      });
+
+      console.log("withdrawJackpotTx: ", withdrawJackpotTx);
+      Index.hideSpinner();
+      Index.updateData();
+
+    } catch (error) {
+        console.log(error);
+        Index.hideSpinner();
+    }
+  },
+
   showError: function (_errorType) {
     let errorText = "";
     console.log("_errorType: ", _errorType);
