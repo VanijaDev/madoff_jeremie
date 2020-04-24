@@ -201,6 +201,10 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
    * TESTED
    */
   function withdrawJackpot() public {
+    if((ongoingWinner == msg.sender) && (block.number > latestPurchaseBlock.add(blocksForStage[ongoingStage]))) {
+      ongoingStageDurationExceeded();
+    }
+
     uint256 jptTmp = jackpotForAddr[msg.sender];
     require(jptTmp > 0, "No jackpot");
     delete jackpotForAddr[msg.sender];
