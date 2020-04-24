@@ -173,6 +173,21 @@ const Index = {
     }
   },
 
+  withdrawOngoingJackpot: function() {
+    console.log("withdrawOngoingJackpot");
+
+  },
+
+  withdrawSharesProfit: function() {
+    console.log("withdrawSharesProfit");
+
+  },
+
+  withdrawBernardPartProfit: function() {
+    console.log("withdrawBernardPartProfit - 20% from each jp");
+
+  },
+
   /** HELPERS */
   showError: function (_errorType) {
     let errorText = "";

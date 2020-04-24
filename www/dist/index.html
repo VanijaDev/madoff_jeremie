@@ -146,7 +146,7 @@
                 <p>MY WALLET :</p>
 
                 <h5 class="btn btn-border2">My current earnings : <span>3026.568794</span> TRX</h5>
-                <button class="btn btn-common show_cursor" onclick="alert('Withdraw clicked')">Withdraw</button>
+                <button class="btn btn-common show_cursor" onclick="Index.withdrawSharesProfit()">Withdraw</button>
                 <br>
                 <button id="more_options_btn" class="btn btn-common show_cursor" onclick="Index.showKnowMore()">* More options</button>
 
@@ -157,15 +157,15 @@
                   <!-- <div class="blur_bg"></div> -->
                   <div>
                     <p class="know_more_top">** Once jackpot get hit you can withdraw your part from jackpot earnings here</p>
-                    <button class="btn btn-common show_cursor know_more_btn" onclick="alert('Wrong amount. Please use amount without extra balance.')">know more</button>
+                    <button class="btn btn-common show_cursor know_more_btn" onclick="alert('KNOW MORE clicked.')">know more</button>
                   </div>
                   <div>
                     <p class="know_more_mid">Withdraw your part of the 20% from the jackpot here</p>
-                    <button class="btn btn-common show_cursor" onclick="alert('Wrong amount. Please use amount without extra balance.')">withdraw</button>
+                    <button class="btn btn-common show_cursor" onclick="Index.withdrawBernardPartProfit()">withdraw</button>
                   </div>
                   <div>
                     <p class="know_more_mid">If you are the winner withdraw the jackpot here</p>
-                    <button class="btn btn-common show_cursor" onclick="alert('Wrong amount. Please use amount without extra balance.')">withdraw</button>
+                    <button class="btn btn-common show_cursor"  onclick="Index.withdrawOngoingJackpot()">withdraw</button>
                   </div>
                 </div>
                   <!-- Know More Section Start -->
