@@ -69,7 +69,7 @@ const Index = {
 
   updateJackpot: async function() {
     let jp = await Index.gameInst.ongoingJackpot().call();
-    document.getElementById("currentJackpot").textContent = jp.toString();
+    document.getElementById("currentJackpot").textContent = tronWeb.fromSun(jp);
   },
 
   updateWinner: async function() {
