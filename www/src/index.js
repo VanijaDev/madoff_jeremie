@@ -173,9 +173,31 @@ const Index = {
     }
   },
 
-  withdrawOngoingJackpot: function() {
-    console.log("withdrawOngoingJackpot");
+  withdrawJackpot: async function() {
+    console.log("withdrawJackpot");
 
+    let jackpotForAddr = await Index.gameInst.jackpotForAddr(Index.currentAccount).call();
+    console.log("jackpotForAddr: ", jackpotForAddr.toString());
+    console.log("jackpotForAddr_1: ", (new BigNumber(jackpotForAddr)).comparedTo(new BigNumber("0")));
+    if ((new BigNumber(jackpotForAddr)).comparedTo(new BigNumber("0")) > 0) {
+      Index.showSpinner();
+      try {
+        let withdrawJackpotTx = await Index.gameInst.withdrawJackpot().send({
+          feeLimit:100000000,
+          shouldPollResponse: true
+        });
+  
+        console.log("withdrawJackpotTx: ", withdrawJackpotTx);
+        Index.hideSpinner();
+        Index.updateData();
+  
+      } catch (error) {
+          console.log(error);
+          Index.hideSpinner();
+      }
+    } else {
+      alert('Sorry, you are not a jackpot winner.')
+    }
   },
 
   withdrawSharesProfit: function() {
