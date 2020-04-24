@@ -7,8 +7,8 @@ import BigNumber from "bignumber.js";
 
 const Index = {
   Config: {
-    "tokenAddress": "TJGsSiXyj1JQbAF1ze1D2PqnPu9sLR38HZ",  
-    "gameAddress": "TL5V8hdXd4iADitkz6wcgVtXMkSJCy5DGf"
+    "tokenAddress": "TUQ22xotZq8xizEVvrgTH8wJtPRKEC1gAw",  
+    "gameAddress": "TKceyUCJB83azS9Bsjd2VVEFSWDtimHccC"
   },
 
   ErrorType: {
@@ -29,12 +29,10 @@ const Index = {
     Index.currentAccount =  window.tronWeb.defaultAddress.base58;
     // console.log("currentAccount: ", Index.currentAccount);
 
-    // console.log("Block: ", await tronWeb.trx.getCurrentBlock());
-
     //  Instances
     try {
       Index.gameInst = await tronWeb.contract().at(tronWeb.address.toHex(Index.Config.gameAddress));
-      console.log("gameInst: ", Index.gameInst);
+      // console.log("gameInst: ", Index.gameInst);
       Index.tokenInst = await tronWeb.contract().at(tronWeb.address.toHex(Index.Config.tokenAddress));
       // console.log("tokenInst: ", Index.tokenInst);
     } catch (error) {
@@ -43,26 +41,30 @@ const Index = {
       return;
     }
 
-    Index.setupEventListeners();
-    Index.updateJackpot();
-    Index.updateWinner();
-    Index.updateCountdown();
+    Index.updateData();
 
   },
 
+  updateData: function() {
+    console.log("\nUPDATE\n");
+
+    Index.updateJackpot();
+    Index.updateWinner();
+    Index.updateCountdown();
+  },
+
   setupEventListeners: function() {
-    Index.gameInst.Purchase().watch((err, eventResult) => {
-      if (err) {
-        return console.error('Error with Purchase event:', err);
-      }
-      if (eventResult) { 
-        console.log('eventResult Purchase :',eventResult);
-      }
+    // Index.gameInst.Purchase().watch((err, eventResult) => {
+    //   if (err) {
+    //     return console.error('Error with Purchase event:', err);
+    //   }
+    //   if (eventResult) { 
+    //     console.log('eventResult Purchase :',eventResult);
+    //     Index.updateData();
+    //   }
 
-      Index.hideSpinner();
-    });
-
-
+    //   Index.hideSpinner();
+    // });
   },
 
   updateJackpot: async function() {
@@ -72,19 +74,46 @@ const Index = {
 
   updateWinner: async function() {
     let winner = await Index.gameInst.ongoingWinner().call();
-    console.log("winner: ", winner);
+    // console.log("winner: ", winner);
     if (winner != "410000000000000000000000000000000000000000") {
-      console.log("winner hex : ", tronWeb.address.fromHex(""));
+      // console.log("winner hex : ", tronWeb.address.fromHex(winner));
       document.getElementById("currentWinner").textContent = tronWeb.address.fromHex(winner);
     }
   },
 
   updateCountdown: async function() {
-    let latestPurchaseBlock = await Index.gameInst.latestPurchaseBlock().call();
-    console.log("latestPurchaseBlock: ", latestPurchaseBlock);
+    let ongoingStage = new BigNumber(await Index.gameInst.ongoingStage().call());
+    console.log("ongoingStage: ", ongoingStage.toString());
+    
+    let blocksForStage = new BigNumber(await Index.gameInst.blocksForStage(ongoingStage.toString()).call());
+    console.log("blocksForStage: ", blocksForStage.toString());
+    
+    let latestPurchaseBlock = new BigNumber(await Index.gameInst.latestPurchaseBlock().call());
     console.log("latestPurchaseBlock: ", latestPurchaseBlock.toString());
+    
+    let winningBlock = latestPurchaseBlock.plus(blocksForStage);
+    console.log("winningBlock: ", winningBlock.toString());
 
-    // jQuery('#clock').countdown('2021/10/19');
+    let currentBlock = (await tronWeb.trx.getCurrentBlock()).block_header.raw_data.number;
+    console.log("currentBlock: ", currentBlock.toString());
+
+    let blocksLeft = winningBlock.minus(currentBlock);
+    console.log("blocksLeft: ", blocksLeft.toString());
+    if (blocksLeft > 0) {
+      const BLOCK_MINING_TIME = new BigNumber("3");
+      let secLeft = BLOCK_MINING_TIME.multipliedBy(blocksLeft);
+      console.log("secLeft: ", secLeft.toString());
+
+      let nowDate = new Date();
+      console.log("nowDate: ", nowDate);
+
+      let winDate = new Date(nowDate.setSeconds(nowDate.getSeconds() + parseInt(secLeft)));
+      console.log("winDate: ", winDate);
+
+      jQuery('#clock').countdown(winDate);
+    } else {
+      jQuery('#clock').countdown('2000/01/01');
+    }
   },
 
   setLanguage: function(_langId) {
@@ -136,6 +165,7 @@ const Index = {
 
       console.log("purchaseTx: ", purchaseTx);
       Index.hideSpinner();
+      Index.updateData();
 
     } catch (error) {
         console.log(error);
@@ -181,11 +211,11 @@ const Index = {
 
   purchaseValue: async function(_sharesNumber) {
     let ongoingStage = await Index.gameInst.ongoingStage().call();
-    console.log("ongoingStage: ", ongoingStage);
 
     let sharesToPurchase = _sharesNumber;
     let resultValueBN = new BigNumber(0);
     do {
+      console.log("ongoingStage: ", ongoingStage);
       let sharesForStageToPurchase = await Index.gameInst.sharesForStageToPurchase(ongoingStage).call();
       console.log("sharesForStageToPurchase: ", sharesForStageToPurchase);
 
