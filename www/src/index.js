@@ -7,8 +7,8 @@ import BigNumber from "bignumber.js";
 
 const Index = {
   Config: {
-    "tokenAddress": "TKzDFqAFxG8Qyfe4oZb9xrShRLZBi8VwyM",  
-    "gameAddress": "TCoNsXisQ3oN633teHkWsyX2gV7d2MEXBH"
+    "tokenAddress": "THkd6ymgJJH385r8Lzxj1uAAxeYDgK1xdX",  
+    "gameAddress": "TX9cMKYHQqXgGgCxR4MGFfeuuXy93kBKPB"
   },
 
   ErrorType: {
@@ -42,7 +42,6 @@ const Index = {
     }
 
     Index.updateData();
-
   },
 
   updateData: function() {
@@ -75,40 +74,26 @@ const Index = {
   updateWinner: async function() {
     let winner = await Index.gameInst.ongoingWinner().call();
     // console.log("winner: ", winner);
-    if (winner != "410000000000000000000000000000000000000000") {
-      // console.log("winner hex : ", tronWeb.address.fromHex(winner));
-      document.getElementById("currentWinner").textContent = tronWeb.address.fromHex(winner);
+    if (winner.localeCompare("410000000000000000000000000000000000000000") == 0) {
+      document.getElementById("currentWinner").textContent = "0x0";
     }
+    // console.log("winner hex : ", tronWeb.address.fromHex(winner));
+    document.getElementById("currentWinner").textContent = tronWeb.address.fromHex(winner);
   },
 
   updateCountdown: async function() {
-    let ongoingStage = new BigNumber(await Index.gameInst.ongoingStage().call());
-    console.log("ongoingStage: ", ongoingStage.toString());
-    
-    let blocksForStage = new BigNumber(await Index.gameInst.blocksForStage(ongoingStage.toString()).call());
-    console.log("blocksForStage: ", blocksForStage.toString());
-    
-    let latestPurchaseBlock = new BigNumber(await Index.gameInst.latestPurchaseBlock().call());
-    console.log("latestPurchaseBlock: ", latestPurchaseBlock.toString());
-    
-    let winningBlock = latestPurchaseBlock.plus(blocksForStage);
-    console.log("winningBlock: ", winningBlock.toString());
-
-    let currentBlock = (await tronWeb.trx.getCurrentBlock()).block_header.raw_data.number;
-    console.log("currentBlock: ", currentBlock.toString());
-
-    let blocksLeft = winningBlock.minus(currentBlock);
+    let blocksLeft = new BigNumber(await Index.blocksUntilStageFinish());
     console.log("blocksLeft: ", blocksLeft.toString());
-    if (blocksLeft > 0) {
+    if (blocksLeft.comparedTo(new BigNumber("0")) == 1) {
       const BLOCK_MINING_TIME = new BigNumber("3");
       let secLeft = BLOCK_MINING_TIME.multipliedBy(blocksLeft);
-      console.log("secLeft: ", secLeft.toString());
+      // console.log("secLeft: ", secLeft.toString());
 
       let nowDate = new Date();
-      console.log("nowDate: ", nowDate);
+      // console.log("nowDate: ", nowDate);
 
       let winDate = new Date(nowDate.setSeconds(nowDate.getSeconds() + parseInt(secLeft)));
-      console.log("winDate: ", winDate);
+      // console.log("winDate: ", winDate);
 
       jQuery('#clock').countdown(winDate);
     } else {
@@ -134,7 +119,7 @@ const Index = {
 
   buyShares: async function() {
     console.log("buyShares");
-    Index.showSpinner();
+    Index.showSpinner(true);
 
     let sharesNumber = document.getElementById("purchaseAmount").value;
     console.log("sharesNumber: ", sharesNumber);
@@ -163,19 +148,70 @@ const Index = {
         shouldPollResponse: true
       });
 
-      console.log("purchaseTx: ", purchaseTx);
-      Index.hideSpinner();
       Index.updateData();
-
+      Index.showSpinner(false);
     } catch (error) {
-        console.log(error);
-        Index.hideSpinner();
+      console.log(error);
+      Index.showSpinner(false);
     }
   },
 
   withdrawJackpotClicked: async function() {
     console.log("withdrawJackpot");
+    
+    //  withdraw previous jpts
+    let jackpotForAddr = await Index.gameInst.jackpotForAddr(Index.currentAccount).call();
+    console.log("jackpotForAddr: ", jackpotForAddr.toString());
+    if ((new BigNumber(jackpotForAddr)).comparedTo(new BigNumber("0")) > 0) {
+      Index.withdrawJackpot();
+      return;
+    }
 
+    //  withdraw ongoing jp
+    let blocksLeft = new BigNumber(await Index.blocksUntilStageFinish());
+    console.log("blocksLeft: ", blocksLeft.toString());
+    if (blocksLeft.comparedTo(new BigNumber("0")) <= 0) {
+      let ongoingWinner = tronWeb.address.fromHex(await Index.gameInst.ongoingWinner().call());
+      console.log("ongoingWinner: ", ongoingWinner);
+      let ongoingJackpot = await Index.gameInst.ongoingJackpot().call();
+      console.log("ongoingJackpot: ", ongoingJackpot.toString());
+      if ((ongoingWinner.localeCompare(Index.currentAccount) == 0) && (new BigNumber(ongoingJackpot).comparedTo(BigNumber("0")) == 1)) {
+        Index.withdrawJackpot();
+        return;
+      }
+    }
+    alert('Sorry, no jackpot for you.');
+  },
+
+  withdrawSharesProfitClicked: function() {
+    console.log("withdrawSharesProfit");
+
+  },
+
+  withdrawBernardPartProfitClicked: function() {
+    console.log("withdrawBernardPartProfit - 20% from each jp");
+
+  },
+
+  /** HELPERS */
+  withdrawJackpot: async function() {
+    Index.showSpinner(true);
+    try {
+      let withdrawJackpotTx = await Index.gameInst.withdrawJackpot().send({
+        feeLimit:100000000,
+        shouldPollResponse: true
+      });
+
+      // console.log("withdrawJackpotTx: ", withdrawJackpotTx);
+      Index.updateData();
+      Index.showSpinner(false);
+    } catch (error) {
+        console.log(error);
+        Index.showSpinner(false);
+    }
+  },
+
+  blocksUntilStageFinish: async function() {
     let ongoingStage = new BigNumber(await Index.gameInst.ongoingStage().call());
     console.log("ongoingStage: ", ongoingStage.toString());
     
@@ -193,58 +229,8 @@ const Index = {
 
     let blocksLeft = winningBlock.minus(currentBlock);
     console.log("blocksLeft: ", blocksLeft.toString());
-    if (blocksLeft > 0) {
-      alert('Sorry, no jackpot for you.');
-      return;
-    }
 
-    let ongoingWinner = tronWeb.address.fromHex(await Index.gameInst.ongoingWinner().call());
-    console.log("ongoingWinner: ", ongoingWinner);
-    let ongoingJackpot = await Index.gameInst.ongoingJackpot().call();
-    console.log("ongoingJackpot: ", ongoingJackpot.toString());
-
-    if ((!ongoingWinner.localeCompare(Index.currentAccount)) && (new BigNumber(ongoingJackpot).comparedTo(BigNumber("0")) == 1)) {
-      Index.withdrawJackpot();
-      return;
-    } else {
-      let jackpotForAddr = await Index.gameInst.jackpotForAddr(Index.currentAccount).call();
-      console.log("jackpotForAddr: ", jackpotForAddr.toString());
-      console.log("jackpotForAddr_1: ", (new BigNumber(jackpotForAddr)).comparedTo(new BigNumber("0")));
-      if ((new BigNumber(jackpotForAddr)).comparedTo(new BigNumber("0")) <= 0) {
-        alert('Sorry, no jackpot for you.');
-        return;
-      }
-      Index.withdrawJackpot();
-    }
-  },
-
-  withdrawSharesProfitClicked: function() {
-    console.log("withdrawSharesProfit");
-
-  },
-
-  withdrawBernardPartProfitClicked: function() {
-    console.log("withdrawBernardPartProfit - 20% from each jp");
-
-  },
-
-  /** HELPERS */
-  withdrawJackpot: async function() {
-    Index.showSpinner();
-    try {
-      let withdrawJackpotTx = await Index.gameInst.withdrawJackpot().send({
-        feeLimit:100000000,
-        shouldPollResponse: true
-      });
-
-      console.log("withdrawJackpotTx: ", withdrawJackpotTx);
-      Index.hideSpinner();
-      Index.updateData();
-
-    } catch (error) {
-        console.log(error);
-        Index.hideSpinner();
-    }
+    return blocksLeft;
   },
 
   showError: function (_errorType) {
@@ -274,12 +260,13 @@ const Index = {
     document.getElementById("error_view").style.display = "none";
   },
 
-  showSpinner: function() {
-    document.getElementById("spinner_view").style.display = "block";
+  showSpinner: function(_show) {
+    document.getElementById("spinner_view").style.display = _show ? "block" : "none";
   },
 
-  hideSpinner: function() {
-    document.getElementById("spinner_view").style.display = "none";
+  showNotifViewJP: function(_show) {
+    console.log("showNotifViewJP: ", _show);
+    document.getElementById("notif_view_jp").style.display = _show ? "block" : "none";
   },
 
   purchaseValue: async function(_sharesNumber) {
