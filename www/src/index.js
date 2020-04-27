@@ -108,15 +108,11 @@ const Index = {
 
     let totalAmount = await Index.jackpotAmountForCurrentAccount();
     console.log("jackpotAmountForCurrentAccount: ", totalAmount.toString());
-    // totalAmount = totalAmount.plus(await Index.jackpotAmountForCurrentAccount());
-    // console.log("jackpotAmountForCurrentAccount: ", totalAmount);
+    totalAmount = totalAmount.plus(await Index.jackpotForSharesForCurrentAccount());
+    console.log("jackpotForSharesForCurrentAccount: ", totalAmount.toString());
 
     document.getElementById("current_earnings_amount").textContent = tronWeb.fromSun(totalAmount);
   },
-
-  // jackpotAmountForCurrentAccount: async function() {
-  //   console.log("jackpotAmountForCurrentAccount");
-  // },
 
   jackpotAmountForCurrentAccount: async function() {
     console.log("jackpotAmountForCurrentAccount");
@@ -148,32 +144,50 @@ const Index = {
     return totalAmount;
   },
 
-  profitForPurchasedShares: async function() {
-    console.log("profitForPurchasedShares");
-
+  jackpotForSharesForCurrentAccount: async function() {
+    console.log("jackpotForSharesForCurrentAccount");
+    
     let totalAmount = new BigNumber("0");
 
-    let participatedSessionsForUser = await Index.gameInst.participatedSessionsForUser().call();
+    let participatedSessionsForUser = (await Index.gameInst.participatedSessionsForUser().call()).sessions;
     console.log("participatedSessionsForUser: ", participatedSessionsForUser);
 
-    if (participatedSessionsForUser.sessions.length == 0) {
-      return new BigNumber("0");
-    }
-
-    participatedSessionsForUser.sessions.forEach(async sessionId => {
-      let purchasesInSessionForUser = await Index.gameInst.purchasesInSessionForUser(sessionId).call();
-      console.log("purchasesInSessionForUser: ", purchasesInSessionForUser);
-
-      purchasesInSessionForUser.forEach(async purchaseId => {
-        if (1) {
-          let profitForPurchaseInSession = await Index.gameInst.profitForPurchaseInSession(purchaseId, sessionId, ).call();
-          console.log("profitForPurchaseInSession: ", profitForPurchaseInSession);
-        }
-      });
+    participatedSessionsForUser.forEach(async sessionId => {
+      if (!(await Index.gameInst.isJackpotForSharesInSessionWithdrawnForUser(sessionId).call())) {
+        let profit = await Index.gameInst.jackpotForSharesInSessionForUser(sessionId).call();
+        totalAmount = totalAmount.plus(new BigNumber(profit));
+      }
     });
 
     return totalAmount;
   },
+
+  // profitForPurchasedShares: async function() {
+  //   console.log("profitForPurchasedShares");
+
+  //   let totalAmount = new BigNumber("0");
+
+    // let participatedSessionsForUser = await Index.gameInst.participatedSessionsForUser().call();
+    // console.log("participatedSessionsForUser: ", participatedSessionsForUser);
+
+    // if (participatedSessionsForUser.sessions.length == 0) {
+    //   return new BigNumber("0");
+    // }
+
+  //   participatedSessionsForUser.sessions.forEach(async sessionId => {
+  //     let purchasesInSessionForUser = await Index.gameInst.purchasesInSessionForUser(sessionId).call();
+  //     console.log("purchasesInSessionForUser: ", purchasesInSessionForUser);
+
+  //     purchasesInSessionForUser.forEach(async purchaseId => {
+  //       if (1) {
+  //         let profitForPurchaseInSession = await Index.gameInst.profitForPurchaseInSession(purchaseId, sessionId, ).call();
+  //         console.log("profitForPurchaseInSession: ", profitForPurchaseInSession);
+  //       }
+  //     });
+  //   });
+
+  //   return totalAmount;
+  // },
 
 
   setLanguage: function(_langId) {
