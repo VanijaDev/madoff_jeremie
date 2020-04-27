@@ -7,8 +7,8 @@ import BigNumber from "bignumber.js";
 
 const Index = {
   Config: {
-    "tokenAddress": "THkd6ymgJJH385r8Lzxj1uAAxeYDgK1xdX",  
-    "gameAddress": "TX9cMKYHQqXgGgCxR4MGFfeuuXy93kBKPB"
+    "tokenAddress": "TGMzDuhbqzSrATmRXaXL2HnrqrkSLtADxK",
+    "gameAddress": "TXJUKGty4DueYuwr8XhdcQyrHRdYZAi7kL"
   },
 
   ErrorType: {
@@ -50,7 +50,7 @@ const Index = {
     Index.updateJackpot();
     Index.updateWinner();
     Index.updateCountdown();
-    Index.updateCurrentEarnings()
+    Index.updateCurrentEarnings();
   },
 
   // setupEventListeners: function() {
@@ -77,9 +77,10 @@ const Index = {
     // console.log("winner: ", winner);
     if (winner.localeCompare("410000000000000000000000000000000000000000") == 0) {
       document.getElementById("currentWinner").textContent = "0x0";
+    } else {
+      // console.log("winner hex : ", tronWeb.address.fromHex(winner));
+      document.getElementById("currentWinner").textContent = tronWeb.address.fromHex(winner);
     }
-    // console.log("winner hex : ", tronWeb.address.fromHex(winner));
-    document.getElementById("currentWinner").textContent = tronWeb.address.fromHex(winner);
   },
 
   updateCountdown: async function() {
@@ -105,6 +106,20 @@ const Index = {
   updateCurrentEarnings: async function() {
     console.log("     updateCurrentEarnings");
 
+    let totalAmount = await Index.jackpotAmountForCurrentAccount();
+    console.log("jackpotAmountForCurrentAccount: ", totalAmount.toString());
+    // totalAmount = totalAmount.plus(await Index.jackpotAmountForCurrentAccount());
+    // console.log("jackpotAmountForCurrentAccount: ", totalAmount);
+
+    document.getElementById("current_earnings_amount").textContent = tronWeb.fromSun(totalAmount);
+  },
+
+  // jackpotAmountForCurrentAccount: async function() {
+  //   console.log("jackpotAmountForCurrentAccount");
+  // },
+
+  jackpotAmountForCurrentAccount: async function() {
+    console.log("jackpotAmountForCurrentAccount");
     let totalAmount = new BigNumber("0");
 
     //  previous jpts
@@ -115,13 +130,14 @@ const Index = {
       console.log("totalAmount previous: ", totalAmount.toString());
     }
 
-    //  ongoing jp
+    //  ongoing jp if stage finished, but no next purchaseAmount
     let blocksLeft = new BigNumber(await Index.blocksUntilStageFinish());
     console.log("blocksLeft: ", blocksLeft.toString());
     if (blocksLeft.comparedTo(new BigNumber("0")) <= 0) {
       let ongoingWinner = tronWeb.address.fromHex(await Index.gameInst.ongoingWinner().call());
-      console.log("ongoingWinner: ", ongoingWinner);
+      console.log("ongoingWinner 2: ", ongoingWinner);
       let ongoingJackpot = new BigNumber(await Index.gameInst.ongoingJackpot().call());
+      ongoingJackpot = ongoingJackpot.multipliedBy(new BigNumber("8")).dividedBy(new BigNumber("10"));
       console.log("ongoingJackpot: ", ongoingJackpot.toString());
       if ((ongoingWinner.localeCompare(Index.currentAccount) == 0) && (ongoingJackpot.comparedTo(BigNumber("0")) == 1)) {
         totalAmount = totalAmount.plus(ongoingJackpot);
@@ -129,8 +145,36 @@ const Index = {
       }
     }
 
-    document.getElementById("current_earnings_amount").textContent = tronWeb.fromSun(totalAmount);
+    return totalAmount;
   },
+
+  profitForPurchasedShares: async function() {
+    console.log("profitForPurchasedShares");
+
+    let totalAmount = new BigNumber("0");
+
+    let participatedSessionsForUser = await Index.gameInst.participatedSessionsForUser().call();
+    console.log("participatedSessionsForUser: ", participatedSessionsForUser);
+
+    if (participatedSessionsForUser.sessions.length == 0) {
+      return new BigNumber("0");
+    }
+
+    participatedSessionsForUser.sessions.forEach(async sessionId => {
+      let purchasesInSessionForUser = await Index.gameInst.purchasesInSessionForUser(sessionId).call();
+      console.log("purchasesInSessionForUser: ", purchasesInSessionForUser);
+
+      purchasesInSessionForUser.forEach(async purchaseId => {
+        if (1) {
+          let profitForPurchaseInSession = await Index.gameInst.profitForPurchaseInSession(purchaseId, sessionId, ).call();
+          console.log("profitForPurchaseInSession: ", profitForPurchaseInSession);
+        }
+      });
+    });
+
+    return totalAmount;
+  },
+
 
   setLanguage: function(_langId) {
     console.log("     setLanguage: " + _langId);
@@ -204,7 +248,7 @@ const Index = {
     console.log("blocksLeft: ", blocksLeft.toString());
     if (blocksLeft.comparedTo(new BigNumber("0")) <= 0) {
       let ongoingWinner = tronWeb.address.fromHex(await Index.gameInst.ongoingWinner().call());
-      console.log("ongoingWinner: ", ongoingWinner);
+      console.log("ongoingWinner 3: ", ongoingWinner);
       let ongoingJackpot = await Index.gameInst.ongoingJackpot().call();
       console.log("ongoingJackpot: ", ongoingJackpot.toString());
       if ((ongoingWinner.localeCompare(Index.currentAccount) == 0) && (new BigNumber(ongoingJackpot).comparedTo(BigNumber("0")) == 1)) {
@@ -246,22 +290,22 @@ const Index = {
 
   blocksUntilStageFinish: async function() {
     let ongoingStage = new BigNumber(await Index.gameInst.ongoingStage().call());
-    console.log("ongoingStage: ", ongoingStage.toString());
+    // console.log("ongoingStage: ", ongoingStage.toString());
     
     let blocksForStage = new BigNumber(await Index.gameInst.blocksForStage(ongoingStage.toString()).call());
-    console.log("blocksForStage: ", blocksForStage.toString());
+    // console.log("blocksForStage: ", blocksForStage.toString());
     
     let latestPurchaseBlock = new BigNumber(await Index.gameInst.latestPurchaseBlock().call());
-    console.log("latestPurchaseBlock: ", latestPurchaseBlock.toString());
+    // console.log("latestPurchaseBlock: ", latestPurchaseBlock.toString());
     
     let winningBlock = latestPurchaseBlock.plus(blocksForStage);
-    console.log("winningBlock: ", winningBlock.toString());
+    // console.log("winningBlock: ", winningBlock.toString());
 
     let currentBlock = (await tronWeb.trx.getCurrentBlock()).block_header.raw_data.number;
-    console.log("currentBlock: ", currentBlock.toString());
+    // console.log("currentBlock: ", currentBlock.toString());
 
     let blocksLeft = winningBlock.minus(currentBlock);
-    console.log("blocksLeft: ", blocksLeft.toString());
+    // console.log("blocksLeft: ", blocksLeft.toString());
 
     return blocksLeft;
   },
@@ -303,13 +347,20 @@ const Index = {
   },
 
   purchaseValue: async function(_sharesNumber) {
+    let useDefaults = false;
     let ongoingStage = await Index.gameInst.ongoingStage().call();
+
+    let blocksLeft = new BigNumber(await Index.blocksUntilStageFinish());
+    if (blocksLeft.comparedTo(new BigNumber("0")) <= 0) {
+      useDefaults = true;
+      ongoingStage = 0;
+    }
 
     let sharesToPurchase = _sharesNumber;
     let resultValueBN = new BigNumber(0);
     do {
       console.log("ongoingStage: ", ongoingStage);
-      let sharesForStageToPurchase = await Index.gameInst.sharesForStageToPurchase(ongoingStage).call();
+      let sharesForStageToPurchase = (useDefaults) ? await Index.gameInst.sharesForStageToPurchaseOriginal(ongoingStage).call() : await Index.gameInst.sharesForStageToPurchase(ongoingStage).call();
       console.log("sharesForStageToPurchase: ", sharesForStageToPurchase);
 
       if (sharesForStageToPurchase > sharesToPurchase) {
@@ -320,7 +371,7 @@ const Index = {
         sharesToPurchase -= sharesForStageToPurchase;
         ongoingStage += 1;
       }
-      console.log("resultValueBN: ", resultValueBN.toString());
+      console.log("resultValueBN:            ", resultValueBN.toString());
       console.log("\n");
     } while (sharesToPurchase > 0);
 
