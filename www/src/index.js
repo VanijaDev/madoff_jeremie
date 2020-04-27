@@ -23,7 +23,7 @@ const Index = {
 
 
   setup: async function() {
-    console.log("\nSETUP\n");
+    console.log("\n     SETUP\n");
 
     //  test addr
     Index.currentAccount =  window.tronWeb.defaultAddress.base58;
@@ -45,26 +45,27 @@ const Index = {
   },
 
   updateData: function() {
-    console.log("\nUPDATE\n");
+    console.log("\n     UPDATE\n");
 
     Index.updateJackpot();
     Index.updateWinner();
     Index.updateCountdown();
+    Index.updateCurrentEarnings()
   },
 
-  setupEventListeners: function() {
-    // Index.gameInst.Purchase().watch((err, eventResult) => {
-    //   if (err) {
-    //     return console.error('Error with Purchase event:', err);
-    //   }
-    //   if (eventResult) { 
-    //     console.log('eventResult Purchase :',eventResult);
-    //     Index.updateData();
-    //   }
+  // setupEventListeners: function() {
+  //   // Index.gameInst.Purchase().watch((err, eventResult) => {
+  //   //   if (err) {
+  //   //     return console.error('Error with Purchase event:', err);
+  //   //   }
+  //   //   if (eventResult) { 
+  //   //     console.log('eventResult Purchase :',eventResult);
+  //   //     Index.updateData();
+  //   //   }
 
-    //   Index.hideSpinner();
-    // });
-  },
+  //   //   Index.hideSpinner();
+  //   // });
+  // },
 
   updateJackpot: async function() {
     let jp = await Index.gameInst.ongoingJackpot().call();
@@ -101,14 +102,44 @@ const Index = {
     }
   },
 
+  updateCurrentEarnings: async function() {
+    console.log("     updateCurrentEarnings");
+
+    let totalAmount = new BigNumber("0");
+
+    //  previous jpts
+    let jackpotForAddr = new BigNumber(await Index.gameInst.jackpotForAddr(Index.currentAccount).call());
+    console.log("jackpotForAddr: ", jackpotForAddr.toString());
+    if (jackpotForAddr.comparedTo(new BigNumber("0")) > 0) {
+      totalAmount = totalAmount.plus(jackpotForAddr);
+      console.log("totalAmount previous: ", totalAmount.toString());
+    }
+
+    //  ongoing jp
+    let blocksLeft = new BigNumber(await Index.blocksUntilStageFinish());
+    console.log("blocksLeft: ", blocksLeft.toString());
+    if (blocksLeft.comparedTo(new BigNumber("0")) <= 0) {
+      let ongoingWinner = tronWeb.address.fromHex(await Index.gameInst.ongoingWinner().call());
+      console.log("ongoingWinner: ", ongoingWinner);
+      let ongoingJackpot = new BigNumber(await Index.gameInst.ongoingJackpot().call());
+      console.log("ongoingJackpot: ", ongoingJackpot.toString());
+      if ((ongoingWinner.localeCompare(Index.currentAccount) == 0) && (ongoingJackpot.comparedTo(BigNumber("0")) == 1)) {
+        totalAmount = totalAmount.plus(ongoingJackpot);
+        console.log("totalAmount ongoing: ", totalAmount.toString());
+      }
+    }
+
+    document.getElementById("current_earnings_amount").textContent = tronWeb.fromSun(totalAmount);
+  },
+
   setLanguage: function(_langId) {
-    console.log("setLanguage: " + _langId);
+    console.log("     setLanguage: " + _langId);
   },
 
   /** UI */
 
   showKnowMoreClicked: function () {
-    console.log("showKnowMore");
+    console.log("     showKnowMore");
     
     document.getElementById("more_options_btn").classList.add('opacity_0');
     document.getElementById("more_options_btn").style.display = "none";
@@ -118,7 +149,7 @@ const Index = {
   },
 
   buyShares: async function() {
-    console.log("buyShares");
+    console.log("     buyShares");
     Index.showSpinner(true);
 
     let sharesNumber = document.getElementById("purchaseAmount").value;
@@ -151,13 +182,14 @@ const Index = {
       Index.updateData();
       Index.showSpinner(false);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       Index.showSpinner(false);
+      alert("Error: " + error.message);
     }
   },
 
   withdrawJackpotClicked: async function() {
-    console.log("withdrawJackpot");
+    console.log("     withdrawJackpot");
     
     //  withdraw previous jpts
     let jackpotForAddr = await Index.gameInst.jackpotForAddr(Index.currentAccount).call();
@@ -184,12 +216,12 @@ const Index = {
   },
 
   withdrawSharesProfitClicked: function() {
-    console.log("withdrawSharesProfit");
+    console.log("     withdrawSharesProfit");
 
   },
 
   withdrawBernardPartProfitClicked: function() {
-    console.log("withdrawBernardPartProfit - 20% from each jp");
+    console.log("     withdrawBernardPartProfit - 20% from each jp");
 
   },
 
@@ -206,8 +238,9 @@ const Index = {
       Index.updateData();
       Index.showSpinner(false);
     } catch (error) {
-        console.log(error);
+        console.error(error);
         Index.showSpinner(false);
+        alert("Error: " + error.message);
     }
   },
 
