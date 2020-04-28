@@ -131,6 +131,7 @@
               <div id="clock" class="time-count"></div>
             </div>
             <div class="game_interaction">
+              <h5 class="btn btn-border2">Current stage: <span id="current_stage">1</span>, share price: <span id="current_share_price">10</span> TRX</h5>
               <div id="error_view" class="error_view">
                 <p id="error_view_text" class="error_view_text">TronLink is not connected. Please, install and log in into TronLink</p>
               </div>
@@ -161,11 +162,12 @@
                     <button class="btn btn-common show_cursor know_more_btn" onclick="alert('KNOW MORE clicked.')">know more</button>
                   </div>
                   <div>
-                    <p class="know_more_mid">Withdraw your part of the 20% from the jackpot here</p>
+                    <p id="jp_for_shares" class="know_more_mid">Withdraw your part of the 20% from the jackpot here</p>
                     <button class="btn btn-common show_cursor" onclick="Index.withdrawBernardPartProfitClicked()">withdraw</button>
                   </div>
                   <div>
-                    <p class="know_more_mid">If you are the winner withdraw the jackpot here</p>
+                    <!-- <p class="know_more_mid">If you are the winner withdraw the jackpot here</p> -->
+                    <p id="jp" class="know_more_mid">If you are the winner withdraw the jackpot here</p>
                     <button class="btn btn-common show_cursor"  onclick="Index.withdrawJackpotClicked()">withdraw</button>
                   </div>
                 </div>

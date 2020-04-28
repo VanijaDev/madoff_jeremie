@@ -106,12 +106,15 @@ const Index = {
   updateCurrentEarnings: async function() {
     console.log("     updateCurrentEarnings");
 
-    let totalAmount = await Index.jackpotAmountForCurrentAccount();
-    console.log("jackpotAmountForCurrentAccount: ", totalAmount.toString());
-    totalAmount = totalAmount.plus(await Index.jackpotForSharesForCurrentAccount());
-    console.log("jackpotForSharesForCurrentAccount: ", totalAmount.toString());
+    //  JP
+    let jp = await Index.jackpotAmountForCurrentAccount();
+    console.log("jackpotAmountForCurrentAccount: ", jp.toString());
+    document.getElementById("jp").textContent = "If you are the winner withdraw the jackpot here: " + tronWeb.fromSun(jp);
 
-    document.getElementById("current_earnings_amount").textContent = tronWeb.fromSun(totalAmount);
+    //  JP for shares
+    let jpForShares = await Index.jackpotForSharesForCurrentAccount();
+    console.log("jackpotForSharesForCurrentAccount: ", jpForShares.toString());
+    document.getElementById("jp_for_shares").textContent = "Withdraw your part of the 20% from the jackpot here: " + tronWeb.fromSun(jpForShares);
   },
 
   jackpotAmountForCurrentAccount: async function() {
@@ -135,6 +138,7 @@ const Index = {
       let ongoingJackpot = new BigNumber(await Index.gameInst.ongoingJackpot().call());
       ongoingJackpot = ongoingJackpot.multipliedBy(new BigNumber("8")).dividedBy(new BigNumber("10"));
       console.log("ongoingJackpot: ", ongoingJackpot.toString());
+      
       if ((ongoingWinner.localeCompare(Index.currentAccount) == 0) && (ongoingJackpot.comparedTo(BigNumber("0")) == 1)) {
         totalAmount = totalAmount.plus(ongoingJackpot);
         console.log("totalAmount ongoing: ", totalAmount.toString());
@@ -152,12 +156,13 @@ const Index = {
     let participatedSessionsForUser = (await Index.gameInst.participatedSessionsForUser().call()).sessions;
     console.log("participatedSessionsForUser: ", participatedSessionsForUser);
 
-    participatedSessionsForUser.forEach(async sessionId => {
-      if (!(await Index.gameInst.isJackpotForSharesInSessionWithdrawnForUser(sessionId).call())) {
-        let profit = await Index.gameInst.jackpotForSharesInSessionForUser(sessionId).call();
-        totalAmount = totalAmount.plus(new BigNumber(profit));
-      }
-    });
+    let length = participatedSessionsForUser.length;
+    for (let i = 0; i < length; i++) {
+      const sessionId = participatedSessionsForUser[i];
+      let profit = (await Index.gameInst.jackpotForSharesInSessionForUser(sessionId).call()).profit;
+      console.log("to withdraw: ", profit.toString());
+      totalAmount = totalAmount.plus(new BigNumber(profit));
+    }
 
     return totalAmount;
   },
@@ -278,9 +283,16 @@ const Index = {
 
   },
 
-  withdrawBernardPartProfitClicked: function() {
+  withdrawBernardPartProfitClicked: async function() {
     console.log("     withdrawBernardPartProfit - 20% from each jp");
 
+    let participatedSessionsForUser = (await Index.gameInst.participatedSessionsForUser().call()).sessions;
+    let sessions = [];
+    participatedSessionsForUser.forEach(sessionId => {
+      sessions.push(sessionId.toString());
+    });
+
+    prompt(("You participated inSessions: " + sessions + ". Which to withdraw?"));
   },
 
   /** HELPERS */
