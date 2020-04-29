@@ -221,55 +221,6 @@ contract("withdraw", (accounts) => {
       assert.equal(0, BALANCE_BEFORE.sub(gasSpent).add(new BN(CORRECT_JPT.toString())).cmp(BALANCE_AFTER), "wrong jackpot transferred");
     });
 
-    it("should transfer correct amount if ongoing jackpot winner and no transaction after block exceeded", async() => {
-      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 10;
-      await madoffContract.purchase(WEBSITE_1, {
-        from: PURCHASER_0,
-        value: VALUE
-      });
-
-      //  exseed blocks
-      for(let i = 0; i < EXCEED_BLOCKS; i ++) {
-        await time.advanceBlock();
-      }
-      await time.increase(2);
-      const BALANCE_BEFORE = new BN(await web3.eth.getBalance(PURCHASER_0));
-      const CORRECT_JPT = new BN(await madoffContract.ongoingJackpot.call()).mul(new BN("8")).div(new BN("10"));
-
-      let tx = await madoffContract.withdrawJackpot({
-        from: PURCHASER_0
-      });
-
-      let gasUsed = new BN(tx.receipt.gasUsed);
-      let txInfo = await web3.eth.getTransaction(tx.tx);
-      let gasPrice = new BN(txInfo.gasPrice);
-      let gasSpent = gasUsed.mul(gasPrice);
-
-      const BALANCE_AFTER = new BN(await web3.eth.getBalance(PURCHASER_0));
-
-      assert.equal(0, BALANCE_BEFORE.sub(gasSpent).add(CORRECT_JPT).cmp(BALANCE_AFTER), "wrong jackpot transferred");
-    });
-
-    it("should fail if NOT ongoing jackpot winner and no transaction after block exceeded", async() => {
-      let VALUE = SHARE_PRICE_FOR_STAGE[0] * 10;
-      await madoffContract.purchase(WEBSITE_1, {
-        from: PURCHASER_0,
-        value: VALUE
-      });
-
-      //  exseed blocks
-      for(let i = 0; i < EXCEED_BLOCKS; i ++) {
-        await time.advanceBlock();
-      }
-      await time.increase(2);
-      const BALANCE_BEFORE = new BN(await web3.eth.getBalance(PURCHASER_0));
-      const CORRECT_JPT = new BN(await madoffContract.ongoingJackpot.call()).mul(new BN("8")).div(new BN("10"));
-
-      await expectRevert(madoffContract.withdrawJackpot({
-        from: PURCHASER_1
-      }), "No jackpot");
-    });
-
     it("should emit JackpotWithdrawn", async() => {
       let VALUE = SHARE_PRICE_FOR_STAGE[0] * 10;
       await madoffContract.purchase(WEBSITE_1, {

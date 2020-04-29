@@ -7,8 +7,8 @@ import BigNumber from "bignumber.js";
 
 const Index = {
   Config: {
-    "tokenAddress": "TGMzDuhbqzSrATmRXaXL2HnrqrkSLtADxK",
-    "gameAddress": "TXJUKGty4DueYuwr8XhdcQyrHRdYZAi7kL"
+    "tokenAddress": "TF1TiZZQSLdJCvUg6XLoowd2HuS8abbLex",
+    "gameAddress": "TDJWWgz2LaSr57BnZ2CCPmweB67YmXGuqx"
   },
 
   ErrorType: {
@@ -50,6 +50,7 @@ const Index = {
     Index.updateJackpot();
     Index.updateWinner();
     Index.updateCountdown();
+    Index.updateCurrentStagePrice();
     Index.updateCurrentEarnings();
   },
 
@@ -85,7 +86,7 @@ const Index = {
 
   updateCountdown: async function() {
     let blocksLeft = new BigNumber(await Index.blocksUntilStageFinish());
-    console.log("blocksLeft: ", blocksLeft.toString());
+    // console.log("blocksLeft: ", blocksLeft.toString());
     if (blocksLeft.comparedTo(new BigNumber("0")) == 1) {
       const BLOCK_MINING_TIME = new BigNumber("3");
       let secLeft = BLOCK_MINING_TIME.multipliedBy(blocksLeft);
@@ -103,18 +104,35 @@ const Index = {
     }
   },
 
+  updateCurrentStagePrice: async function() {
+    console.log("     updateCurrentStagePrice");
+
+    let ongoingStage = new BigNumber("0");
+
+    if (!(await Index.isStageExpired())) {
+      ongoingStage = new BigNumber(await Index.gameInst.ongoingStage().call());
+    }
+
+    document.getElementById("current_stage").textContent = ongoingStage.toString();
+
+    let sharePriceForStage = new BigNumber(await Index.gameInst.sharePriceForStage(ongoingStage.toString()).call());
+    document.getElementById("current_share_price").textContent = tronWeb.fromSun(sharePriceForStage.toString());
+  },
+
   updateCurrentEarnings: async function() {
     console.log("     updateCurrentEarnings");
 
     //  JP
     let jp = await Index.jackpotAmountForCurrentAccount();
     console.log("jackpotAmountForCurrentAccount: ", jp.toString());
-    document.getElementById("jp").textContent = "If you are the winner withdraw the jackpot here: " + tronWeb.fromSun(jp);
+    document.getElementById("jp").textContent = "If you are the winner withdraw the jackpot here: " + tronWeb.fromSun(jp) + " TRX";
 
     //  JP for shares
     let jpForShares = await Index.jackpotForSharesForCurrentAccount();
     console.log("jackpotForSharesForCurrentAccount: ", jpForShares.toString());
-    document.getElementById("jp_for_shares").textContent = "Withdraw your part of the 20% from the jackpot here: " + tronWeb.fromSun(jpForShares);
+    document.getElementById("jp_for_shares").textContent = "Withdraw your part of the 20% from the jackpot here: " + tronWeb.fromSun(jpForShares) + " TRX";
+
+    document.getElementById("current_earnings_amount").textContent = tronWeb.fromSun((new BigNumber(jp)).plus(new BigNumber(jpForShares)).toString());
   },
 
   jackpotAmountForCurrentAccount: async function() {
@@ -130,9 +148,7 @@ const Index = {
     }
 
     //  ongoing jp if stage finished, but no next purchaseAmount
-    let blocksLeft = new BigNumber(await Index.blocksUntilStageFinish());
-    console.log("blocksLeft: ", blocksLeft.toString());
-    if (blocksLeft.comparedTo(new BigNumber("0")) <= 0) {
+    if ((await Index.isStageExpired())) {
       let ongoingWinner = tronWeb.address.fromHex(await Index.gameInst.ongoingWinner().call());
       console.log("ongoingWinner 2: ", ongoingWinner);
       let ongoingJackpot = new BigNumber(await Index.gameInst.ongoingJackpot().call());
@@ -153,15 +169,22 @@ const Index = {
     
     let totalAmount = new BigNumber("0");
 
-    let participatedSessionsForUser = (await Index.gameInst.participatedSessionsForUser().call()).sessions;
+    let participatedSessionsForUserResponse = await Index.gameInst.participatedSessionsForUser().call();
+    let participatedSessionsForUser = participatedSessionsForUserResponse.sessions;
     console.log("participatedSessionsForUser: ", participatedSessionsForUser);
 
     let length = participatedSessionsForUser.length;
     for (let i = 0; i < length; i++) {
       const sessionId = participatedSessionsForUser[i];
-      let profit = (await Index.gameInst.jackpotForSharesInSessionForUser(sessionId).call()).profit;
-      console.log("to withdraw: ", profit.toString());
-      totalAmount = totalAmount.plus(new BigNumber(profit));
+      // console.log("sessionId: ", sessionId);
+      let profit;
+      try {
+        profit = (await Index.gameInst.jackpotForSharesInSessionForUser(sessionId).call()).profit;
+        // console.log("jackpotForShares: ", profit.toString());
+        totalAmount = totalAmount.plus(new BigNumber(profit));
+      } catch (error) {
+        
+      }
     }
 
     return totalAmount;
@@ -213,7 +236,6 @@ const Index = {
 
   buyShares: async function() {
     console.log("     buyShares");
-    Index.showSpinner(true);
 
     let sharesNumber = document.getElementById("purchaseAmount").value;
     console.log("sharesNumber: ", sharesNumber);
@@ -224,6 +246,8 @@ const Index = {
       alert("Whole number only.");
       return;
     }
+
+    Index.showSpinner(true);
 
     //  calculate TRX amount
     let txValue = await Index.purchaseValue(sharesNumber);
@@ -263,9 +287,7 @@ const Index = {
     }
 
     //  withdraw ongoing jp
-    let blocksLeft = new BigNumber(await Index.blocksUntilStageFinish());
-    console.log("blocksLeft: ", blocksLeft.toString());
-    if (blocksLeft.comparedTo(new BigNumber("0")) <= 0) {
+    if ((await Index.isStageExpired())) {
       let ongoingWinner = tronWeb.address.fromHex(await Index.gameInst.ongoingWinner().call());
       console.log("ongoingWinner 3: ", ongoingWinner);
       let ongoingJackpot = await Index.gameInst.ongoingJackpot().call();
@@ -296,6 +318,7 @@ const Index = {
   },
 
   /** HELPERS */
+
   withdrawJackpot: async function() {
     Index.showSpinner(true);
     try {
@@ -334,6 +357,29 @@ const Index = {
     // console.log("blocksLeft: ", blocksLeft.toString());
 
     return blocksLeft;
+  },
+
+  isStageExpired: async function() {
+    let ongoingStage = new BigNumber(await Index.gameInst.ongoingStage().call());
+    // console.log("ongoingStage: ", ongoingStage.toString());
+    
+    let blocksForStage = new BigNumber(await Index.gameInst.blocksForStage(ongoingStage.toString()).call());
+    // console.log("blocksForStage: ", blocksForStage.toString());
+    
+    let latestPurchaseBlock = new BigNumber(await Index.gameInst.latestPurchaseBlock().call());
+    // console.log("latestPurchaseBlock: ", latestPurchaseBlock.toString());
+    
+    let winningBlock = latestPurchaseBlock.plus(blocksForStage);
+    // console.log("winningBlock: ", winningBlock.toString());
+
+    let currentBlock = (await tronWeb.trx.getCurrentBlock()).block_header.raw_data.number;
+    // console.log("currentBlock: ", currentBlock.toString());
+
+    let blocksLeft = winningBlock.minus(currentBlock);
+    // console.log("blocksLeft: ", blocksLeft.toString());
+
+    // console.log("EXPIRED: ", (blocksLeft.comparedTo(new BigNumber("0")) <= 0));
+    return (blocksLeft.comparedTo(new BigNumber("0")) <= 0);
   },
 
   showError: function (_errorType) {
@@ -376,8 +422,7 @@ const Index = {
     let useDefaults = false;
     let ongoingStage = await Index.gameInst.ongoingStage().call();
 
-    let blocksLeft = new BigNumber(await Index.blocksUntilStageFinish());
-    if (blocksLeft.comparedTo(new BigNumber("0")) <= 0) {
+    if ((await Index.isStageExpired())) {
       useDefaults = true;
       ongoingStage = 0;
     }
