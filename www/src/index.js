@@ -271,18 +271,6 @@ const Index = {
       Index.withdrawJackpot();
       return;
     }
-
-    //  withdraw ongoing jp
-    if ((await Index.isStageExpired())) {
-      let ongoingWinner = tronWeb.address.fromHex(await Index.gameInst.ongoingWinner().call());
-      console.log("ongoingWinner 3: ", ongoingWinner);
-      let ongoingJackpot = await Index.gameInst.ongoingJackpot().call();
-      console.log("ongoingJackpot: ", ongoingJackpot.toString());
-      if ((ongoingWinner.localeCompare(Index.currentAccount) == 0) && (new BigNumber(ongoingJackpot).comparedTo(BigNumber("0")) == 1)) {
-        Index.withdrawJackpot();
-        return;
-      }
-    }
     alert('Sorry, no jackpot for you.');
   },
 
