@@ -147,20 +147,6 @@ const Index = {
       console.log("totalAmount previous: ", totalAmount.toString());
     }
 
-    //  ongoing jp if stage finished, but no next purchaseAmount
-    if ((await Index.isStageExpired())) {
-      let ongoingWinner = tronWeb.address.fromHex(await Index.gameInst.ongoingWinner().call());
-      console.log("ongoingWinner 2: ", ongoingWinner);
-      let ongoingJackpot = new BigNumber(await Index.gameInst.ongoingJackpot().call());
-      ongoingJackpot = ongoingJackpot.multipliedBy(new BigNumber("8")).dividedBy(new BigNumber("10"));
-      console.log("ongoingJackpot: ", ongoingJackpot.toString());
-      
-      if ((ongoingWinner.localeCompare(Index.currentAccount) == 0) && (ongoingJackpot.comparedTo(BigNumber("0")) == 1)) {
-        totalAmount = totalAmount.plus(ongoingJackpot);
-        console.log("totalAmount ongoing: ", totalAmount.toString());
-      }
-    }
-
     return totalAmount;
   },
 
