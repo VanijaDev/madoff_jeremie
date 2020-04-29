@@ -129,7 +129,7 @@ const Index = {
 
     //  JP for shares
     let jpForShares = await Index.jackpotForSharesForCurrentAccount();
-    console.log("jackpotForSharesForCurrentAccount: ", jpForShares.toString());
+    // console.log("jackpotForSharesForCurrentAccount: ", jpForShares.toString());
     document.getElementById("jp_for_shares").textContent = "Withdraw your part of the 20% from the jackpot here: " + tronWeb.fromSun(jpForShares) + " TRX";
 
     document.getElementById("current_earnings_amount").textContent = tronWeb.fromSun((new BigNumber(jp)).plus(new BigNumber(jpForShares)).toString());
@@ -157,19 +157,28 @@ const Index = {
 
     let participatedSessionsForUserResponse = await Index.gameInst.participatedSessionsForUser().call();
     let participatedSessionsForUser = participatedSessionsForUserResponse.sessions;
-    console.log("participatedSessionsForUser: ", participatedSessionsForUser);
+    // console.log("participatedSessionsForUser: ", participatedSessionsForUser);
 
     let length = participatedSessionsForUser.length;
+    let ongoingSessionIdx = await Index.gameInst.ongoingSessionIdx().call();
+    if (new BigNumber(participatedSessionsForUser[length-1]).comparedTo(new BigNumber(ongoingSessionIdx)) == 0) {
+      participatedSessionsForUser.pop();
+      length = participatedSessionsForUser.length;
+    }
+    // console.log("participatedSessionsForUser: ", participatedSessionsForUser);
+
     for (let i = 0; i < length; i++) {
       const sessionId = participatedSessionsForUser[i];
       // console.log("sessionId: ", sessionId);
       let profit;
       try {
-        profit = (await Index.gameInst.jackpotForSharesInSessionForUser(sessionId).call()).profit;
-        // console.log("jackpotForShares: ", profit.toString());
-        totalAmount = totalAmount.plus(new BigNumber(profit));
+        if (!(await Index.gameInst.isJackpotForSharesInSessionWithdrawnForUser(sessionId).call()).withdrawn) {
+          profit = (await Index.gameInst.jackpotForSharesInSessionForUser(sessionId).call()).profit;
+          // console.log("jackpotForShares: ", profit.toString());
+          totalAmount = totalAmount.plus(new BigNumber(profit));
+        }
       } catch (error) {
-        
+        console.error("jackpotForSharesForCurrentAccount");
       }
     }
 
@@ -274,21 +283,64 @@ const Index = {
     alert('Sorry, no jackpot for you.');
   },
 
+  withdrawjackpotForSharesInSessionClicked: async function() {
+    console.log("     withdrawjackpotForSharesInSession - 20% from each jp");
+
+    Index.showSpinner(true);
+
+    let participatedSessionsForUser = (await Index.gameInst.participatedSessionsForUser().call()).sessions;
+    let length = participatedSessionsForUser.length;
+    let ongoingSessionIdx = await Index.gameInst.ongoingSessionIdx().call();
+    if (new BigNumber(participatedSessionsForUser[length-1]).comparedTo(new BigNumber(ongoingSessionIdx)) == 0) {
+      participatedSessionsForUser.pop();
+    }
+    let sessions = [];
+    for (let i = 0; i < participatedSessionsForUser.length; i++) {
+      let sessionId = participatedSessionsForUser[i];
+      if (!(await Index.gameInst.isJackpotForSharesInSessionWithdrawnForUser(sessionId).call()).withdrawn) {
+        sessions.push(sessionId.toString());
+      }
+    }
+    
+    length = participatedSessionsForUser.length;
+
+    let promptResult = prompt(("Session ids with pending jackpot: " + sessions + ". Which one to withdraw?"));
+    let sessionIdx;
+    if (promptResult == null || promptResult == "") {
+      Index.showSpinner(false);
+      return;
+    } else {
+      sessionIdx = parseInt(promptResult);
+      if (!Number.isInteger(sessionIdx)) {
+        Index.showSpinner(false);
+        alert("Wrong session id selected.");
+        return;
+      }
+    }
+
+    try {
+      let withdrawJackpotforSharesTx = await Index.gameInst.withdrawjackpotForSharesInSession(sessionIdx).send({
+        feeLimit:100000000,
+        shouldPollResponse: true
+      });
+
+      // console.log("withdrawJackpotforSharesTx: ", withdrawJackpotforSharesTx);
+      Index.updateData();
+      Index.showSpinner(false);
+    } catch (error) {
+        console.error(error);
+        Index.showSpinner(false);
+        alert("Error: " + error.message);
+    }
+  },
+
+  withdrawjackpotForSharesInSessionPromptClicked: async function(_sessionId) {
+    console.log("     withdrawjackpotForSharesInSessionPromptClicked: ", _sessionId);
+  },
+
   withdrawSharesProfitClicked: function() {
     console.log("     withdrawSharesProfit");
 
-  },
-
-  withdrawBernardPartProfitClicked: async function() {
-    console.log("     withdrawBernardPartProfit - 20% from each jp");
-
-    let participatedSessionsForUser = (await Index.gameInst.participatedSessionsForUser().call()).sessions;
-    let sessions = [];
-    participatedSessionsForUser.forEach(sessionId => {
-      sessions.push(sessionId.toString());
-    });
-
-    prompt(("You participated inSessions: " + sessions + ". Which to withdraw?"));
   },
 
   /** HELPERS */
