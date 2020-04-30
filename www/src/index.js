@@ -132,7 +132,11 @@ const Index = {
     // console.log("jackpotForSharesForCurrentAccount: ", jpForShares.toString());
     document.getElementById("jp_for_shares").textContent = "Withdraw your part of the 20% from the jackpot here: " + tronWeb.fromSun(jpForShares) + " TRX";
 
-    document.getElementById("current_earnings_amount").textContent = tronWeb.fromSun((new BigNumber(jp)).plus(new BigNumber(jpForShares)).toString());
+    //  purchased shares
+    let purchasedSharesProfit = await Index.profitForPurchasedShares();
+    console.log("purchasedSharesProfit: ", purchasedSharesProfit.toString());
+
+    document.getElementById("current_earnings_amount").textContent = tronWeb.fromSun((new BigNumber(jp)).plus(new BigNumber(jpForShares)).plus(new BigNumber(purchasedSharesProfit)).toString());
   },
 
   jackpotAmountForCurrentAccount: async function() {
@@ -185,33 +189,84 @@ const Index = {
     return totalAmount;
   },
 
-  // profitForPurchasedShares: async function() {
-  //   console.log("profitForPurchasedShares");
+  profitForPurchasedShares: async function() {
+    console.log("- profitForPurchasedShares");
 
-  //   let totalAmount = new BigNumber("0");
+    let totalAmount = new BigNumber("0");
 
-    // let participatedSessionsForUser = await Index.gameInst.participatedSessionsForUser().call();
-    // console.log("participatedSessionsForUser: ", participatedSessionsForUser);
+    let participatedSessionsForUserResponse = await Index.gameInst.participatedSessionsForUser().call();
+    let participatedSessionsForUser = participatedSessionsForUserResponse.sessions;
+    console.log("profitForPurchasedShares - participatedSessionsForUser: ", participatedSessionsForUser.toString());
 
-    // if (participatedSessionsForUser.sessions.length == 0) {
-    //   return new BigNumber("0");
-    // }
+    let length = participatedSessionsForUser.length;
+    let ongoingSessionIdx = await Index.gameInst.ongoingSessionIdx().call();
+    if (new BigNumber(participatedSessionsForUser[length-1]).comparedTo(new BigNumber(ongoingSessionIdx)) == 0) {
+      participatedSessionsForUser.pop();
+      length = participatedSessionsForUser.length;
+    }
+    participatedSessionsForUser = participatedSessionsForUser.reverse();
+    console.log("profitForPurchasedShares - participatedSessionsForUser: ", participatedSessionsForUser.toString());
 
-  //   participatedSessionsForUser.sessions.forEach(async sessionId => {
-  //     let purchasesInSessionForUser = await Index.gameInst.purchasesInSessionForUser(sessionId).call();
-  //     console.log("purchasesInSessionForUser: ", purchasesInSessionForUser);
+    for (let i = 0; i < length; i++) {
+      const sessionId = participatedSessionsForUser[i];
+      // console.log("sessionId: ", sessionId);
+      let profit = await Index.profitInSession(sessionId);
+      totalAmount = totalAmount.plus(new BigNumber(profit));
+    }
 
-  //     purchasesInSessionForUser.forEach(async purchaseId => {
-  //       if (1) {
-  //         let profitForPurchaseInSession = await Index.gameInst.profitForPurchaseInSession(purchaseId, sessionId, ).call();
-  //         console.log("profitForPurchaseInSession: ", profitForPurchaseInSession);
-  //       }
-  //     });
-  //   });
+    return totalAmount;
+  },
 
-  //   return totalAmount;
-  // },
+  profitInSession: async function(_sessionId) {
+    console.log("-- profitInSession: ", _sessionId.toString());
 
+    let totalAmount = new BigNumber("0");
+
+    let purchasesInSession = (await Index.gameInst.purchasesInSessionForUser(_sessionId).call()).purchases;
+    console.log("purchasesInSession: ", purchasesInSession.toString());
+    let length = purchasesInSession.length;
+
+    for (let i = 0; i < length; i++) {
+      const profit = await Index.profitForPurchaseInSession(purchasesInSession[i], _sessionId);
+      totalAmount = totalAmount.plus(new BigNumber(profit));
+    }
+
+    return totalAmount;
+  },
+
+  profitForPurchaseInSession: async function(_purchaseId, _sessionId) {
+    console.log("--- profitForPurchaseInSession: purchase:", _purchaseId.toString(), ",session:", _sessionId.toString());
+    let totalAmount = new BigNumber("0");
+    const LOOP_LIMIT = new BigNumber("50");
+
+    let fetch = true;
+    do {
+      let purchaseCountInSession = new BigNumber((await Index.gameInst.purchaseCountInSession(_sessionId).call()).purchases);
+      console.log("purchaseCountInSession: ", purchaseCountInSession.toString());
+    
+      let fromPurchase = new BigNumber((await Index.gameInst.purchaseProfitInSessionWithdrawnOnPurchaseForUser(_purchaseId, _sessionId).call()).purchase);
+      if (fromPurchase.comparedTo(new BigNumber("0")) == 0) {
+        fromPurchase = new BigNumber(_purchaseId).plus(new BigNumber("1"));
+      } else{
+        fromPurchase = fromPurchase.plus(new BigNumber("1"));
+      }
+      console.log("fromPurchase: ", fromPurchase.toString());
+      
+      let purchaseCount = purchaseCountInSession.minus(fromPurchase);
+      let toPurchase = (purchaseCount.comparedTo(LOOP_LIMIT) == 1) ? fromPurchase.plus(LOOP_LIMIT) : fromPurchase.plus(purchaseCount).minus(new BigNumber("1"));
+      console.log("toPurchase: ", toPurchase.toString());
+
+      // const profit = new BigNumber((await Index.gameInst.profitForPurchaseInSession(new BigNumber(_purchaseId), new BigNumber(_sessionId), fromPurchase, toPurchase).call()).profit)
+      const profit = (await Index.gameInst.profitForPurchaseInSession(_purchaseId.toString(), _sessionId.toString(), fromPurchase.toString(), toPurchase.toString()).call()).profit;
+      console.log("profit: ", profit.toString());
+      totalAmount = totalAmount.plus(new BigNumber(profit));
+
+      fetch = purchaseCountInSession.minus(new BigNumber("1")).comparedTo(toPurchase) == 1;
+      
+    } while (fetch);
+
+    return totalAmount;
+  },
 
   setLanguage: function(_langId) {
     console.log("     setLanguage: " + _langId);
