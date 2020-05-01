@@ -46,6 +46,7 @@ const Index = {
 
   updateData: function() {
     console.log("\n     UPDATE\n");
+    Index.showSpinner(true, " ");
 
     Index.updateJackpot();
     Index.updateWinner();
@@ -137,6 +138,8 @@ const Index = {
     console.log("purchasedSharesProfit: ", purchasedSharesProfit.toString());
 
     document.getElementById("current_earnings_amount").textContent = tronWeb.fromSun((new BigNumber(jp)).plus(new BigNumber(jpForShares)).plus(new BigNumber(purchasedSharesProfit)).toString());
+
+    Index.showSpinner(false);
   },
 
   jackpotAmountForCurrentAccount: async function() {
@@ -239,11 +242,18 @@ const Index = {
     let totalAmount = new BigNumber("0");
     const LOOP_LIMIT = new BigNumber("50");
 
+    let purchaseCountInSession = new BigNumber((await Index.gameInst.purchaseCountInSession(_sessionId).call()).purchases);
+    console.log("purchaseCountInSession: ", purchaseCountInSession.toString());
+
+    let lastPurchaseIdx = purchaseCountInSession.minus(new BigNumber("1"));
+
+    if (new BigNumber(_purchaseId).comparedTo(lastPurchaseIdx) == 0) {
+      console.log(lastPurchaseIdx.toString(), "last purchase - skip");
+      return totalAmount;
+    }
+
     let fetch = true;
     do {
-      let purchaseCountInSession = new BigNumber((await Index.gameInst.purchaseCountInSession(_sessionId).call()).purchases);
-      console.log("purchaseCountInSession: ", purchaseCountInSession.toString());
-    
       let fromPurchase = new BigNumber((await Index.gameInst.purchaseProfitInSessionWithdrawnOnPurchaseForUser(_purchaseId, _sessionId).call()).purchase);
       if (fromPurchase.comparedTo(new BigNumber("0")) == 0) {
         fromPurchase = new BigNumber(_purchaseId).plus(new BigNumber("1"));
@@ -490,7 +500,8 @@ const Index = {
     document.getElementById("error_view").style.display = "none";
   },
 
-  showSpinner: function(_show) {
+  showSpinner: function(_show, _text) {
+    document.getElementById("spinner_text").textContent = _text ? _text : "Transaction is being mining…";
     document.getElementById("spinner_view").style.display = _show ? "block" : "none";
   },
 
