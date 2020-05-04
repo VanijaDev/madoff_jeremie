@@ -7,8 +7,8 @@ import BigNumber from "bignumber.js";
 
 const Index = {
   Config: {
-    "tokenAddress": "TF1TiZZQSLdJCvUg6XLoowd2HuS8abbLex",
-    "gameAddress": "TDJWWgz2LaSr57BnZ2CCPmweB67YmXGuqx"
+    "tokenAddress": "TBu2566Qc2jJfbhoVGtf4pMhAtWXccpYUt",
+    "gameAddress": "TGd9rqA1a1X1VCYw9KhPjawb4bFJAKNbsX"
   },
 
   ErrorType: {
@@ -203,6 +203,8 @@ const Index = {
 
     let length = participatedSessionsForUser.length;
     let ongoingSessionIdx = await Index.gameInst.ongoingSessionIdx().call();
+    
+    //  remove ongoing session
     if (new BigNumber(participatedSessionsForUser[length-1]).comparedTo(new BigNumber(ongoingSessionIdx)) == 0) {
       participatedSessionsForUser.pop();
       length = participatedSessionsForUser.length;
@@ -257,9 +259,13 @@ const Index = {
       let fromPurchase = new BigNumber((await Index.gameInst.purchaseProfitInSessionWithdrawnOnPurchaseForUser(_purchaseId, _sessionId).call()).purchase);
       if (fromPurchase.comparedTo(new BigNumber("0")) == 0) {
         fromPurchase = new BigNumber(_purchaseId).plus(new BigNumber("1"));
-      } else{
+      } else if (fromPurchase.comparedTo(lastPurchaseIdx.minus(new BigNumber("1"))) == 0) {
         fromPurchase = fromPurchase.plus(new BigNumber("1"));
+      } else {
+        console.log("--- Already withdrawn - SKIP ---");
+        return new BigNumber("0");
       }
+
       console.log("fromPurchase: ", fromPurchase.toString());
       
       let purchaseCount = purchaseCountInSession.minus(fromPurchase);
@@ -314,22 +320,25 @@ const Index = {
     console.log("txValue: ", txValue.toString());
 
     //  TODO: correct website address
-    let TEST_websiteAddr = "TQphDXxumffC81VTaChhNuFuK1efRAYQJ4"; // OWNER
+    let websiteAddr = "TQphDXxumffC81VTaChhNuFuK1efRAYQJ4"; // OWNER
     if (sharesNumber % 2) {
-      TEST_websiteAddr = "TZ75wbxf6x1mMaNRenbMMfREmxsBdGdZZS" //  website1
+      //  TEST
+      websiteAddr = "TMEp8iyoudx2owrHxFJQMbDn6ND16jJxZW" //  website1
     }
 
     try {
-      let purchaseTx = await Index.gameInst.purchase(TEST_websiteAddr).send({
+      let purchaseTx = await Index.gameInst.purchase(websiteAddr).send({
         feeLimit:100000000,
         callValue: txValue,
         shouldPollResponse: true
       });
 
-      Index.updateData();
+      document.getElementById("purchaseAmount").value = "";
       Index.showSpinner(false);
+      Index.updateData();
     } catch (error) {
       console.error(error);
+      document.getElementById("purchaseAmount").value = "";
       Index.showSpinner(false);
       alert("Error: " + error.message);
     }
@@ -390,8 +399,8 @@ const Index = {
       });
 
       // console.log("withdrawJackpotforSharesTx: ", withdrawJackpotforSharesTx);
-      Index.updateData();
       Index.showSpinner(false);
+      Index.updateData();
     } catch (error) {
         console.error(error);
         Index.showSpinner(false);
@@ -419,8 +428,8 @@ const Index = {
       });
 
       // console.log("withdrawJackpotTx: ", withdrawJackpotTx);
-      Index.updateData();
       Index.showSpinner(false);
+      Index.updateData();
     } catch (error) {
         console.error(error);
         Index.showSpinner(false);
