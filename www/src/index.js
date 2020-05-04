@@ -241,47 +241,113 @@ const Index = {
 
   profitForPurchaseInSession: async function(_purchaseId, _sessionId) {
     console.log("--- profitForPurchaseInSession: purchase:", _purchaseId.toString(), ",session:", _sessionId.toString());
+
+    const LOOP_LIMIT = new BigNumber("5");
     let totalAmount = new BigNumber("0");
-    const LOOP_LIMIT = new BigNumber("50");
 
     let purchaseCountInSession = new BigNumber((await Index.gameInst.purchaseCountInSession(_sessionId).call()).purchases);
     console.log("purchaseCountInSession: ", purchaseCountInSession.toString());
 
     let lastPurchaseIdx = purchaseCountInSession.minus(new BigNumber("1"));
-
     if (new BigNumber(_purchaseId).comparedTo(lastPurchaseIdx) == 0) {
-      console.log(lastPurchaseIdx.toString(), "last purchase - skip");
+      console.log("--- Last purchase in Session - SKIP ---");
       return totalAmount;
     }
 
-    let fetch = true;
-    do {
-      let fromPurchase = new BigNumber((await Index.gameInst.purchaseProfitInSessionWithdrawnOnPurchaseForUser(_purchaseId, _sessionId).call()).purchase);
-      if (fromPurchase.comparedTo(new BigNumber("0")) == 0) {
-        fromPurchase = new BigNumber(_purchaseId).plus(new BigNumber("1"));
-      } else if (fromPurchase.comparedTo(lastPurchaseIdx.minus(new BigNumber("1"))) == 0) {
-        fromPurchase = fromPurchase.plus(new BigNumber("1"));
-      } else {
-        console.log("--- Already withdrawn - SKIP ---");
-        return new BigNumber("0");
+    let withdrawnOnPurchase = new BigNumber((await Index.gameInst.purchaseProfitInSessionWithdrawnOnPurchaseForUser(_purchaseId, _sessionId).call()).purchase);
+    console.log("withdrawnOnPurchase: ", withdrawnOnPurchase.toString());
+
+    let fromPurchase = new BigNumber(_purchaseId).plus(new BigNumber("1"));
+    
+    if (withdrawnOnPurchase.comparedTo(new BigNumber("0")) > 0) {
+      //  alredy withdrawn on profit in past
+
+      if (withdrawnOnPurchase.comparedTo(lastPurchaseIdx) == 0) {
+        //  withdrawn on last purchase - return
+
+        console.log("--- Nothing more to withdraw - SKIP ---");
+        return totalAmount;
       }
 
-      console.log("fromPurchase: ", fromPurchase.toString());
-      
-      let purchaseCount = purchaseCountInSession.minus(fromPurchase);
-      let toPurchase = (purchaseCount.comparedTo(LOOP_LIMIT) == 1) ? fromPurchase.plus(LOOP_LIMIT) : fromPurchase.plus(purchaseCount).minus(new BigNumber("1"));
-      console.log("toPurchase: ", toPurchase.toString());
+      fromPurchase = withdrawnOnPurchase.plus(new BigNumber("1"));
+    }
+    console.log("fromPurchase: ", fromPurchase.toString());
+    
+    let purchaseCountWithProfit = purchaseCountInSession.minus(fromPurchase);
+    let toPurchase = (purchaseCountWithProfit.comparedTo(LOOP_LIMIT) == 1) ? fromPurchase.plus(LOOP_LIMIT) : fromPurchase.plus(purchaseCountWithProfit).minus(new BigNumber("1"));
+    console.log("toPurchase out: ", toPurchase.toString());
 
-      // const profit = new BigNumber((await Index.gameInst.profitForPurchaseInSession(new BigNumber(_purchaseId), new BigNumber(_sessionId), fromPurchase, toPurchase).call()).profit)
-      const profit = (await Index.gameInst.profitForPurchaseInSession(_purchaseId.toString(), _sessionId.toString(), fromPurchase.toString(), toPurchase.toString()).call()).profit;
-      console.log("profit: ", profit.toString());
-      totalAmount = totalAmount.plus(new BigNumber(profit));
+    let fetch = true;
+    do {
+      //  loop trough purchases
+    let localFetch = true;
+      do {
+        //  loop until toPurchase < lastPurchaseIdx
 
-      fetch = purchaseCountInSession.minus(new BigNumber("1")).comparedTo(toPurchase) == 1;
-      
+        if (toPurchase.comparedTo(lastPurchaseIdx) == 0) {
+          localFetch = false;
+        }
+
+        const profit = (await Index.gameInst.profitForPurchaseInSession(_purchaseId.toString(), _sessionId.toString(), fromPurchase.toString(), toPurchase.toString()).call()).profit;
+        console.log("profit: ", profit.toString());
+        totalAmount = totalAmount.plus(new BigNumber(profit));
+  
+        fromPurchase = toPurchase.plus(new BigNumber("1"));
+        if (toPurchase.comparedTo(lastPurchaseIdx) < 0) {
+          toPurchase = (fromPurchase.plus(LOOP_LIMIT).comparedTo(lastPurchaseIdx) <= 0) ? fromPurchase.plus(LOOP_LIMIT) : lastPurchaseIdx;
+          console.log("toPurchase in: ", toPurchase.toString());
+        }
+      } while (localFetch);
+
+      fetch = lastPurchaseIdx.comparedTo(toPurchase) == 1;
     } while (fetch);
 
     return totalAmount;
+
+
+
+
+
+
+
+
+
+
+    // let lastPurchaseIdx = purchaseCountInSession.minus(new BigNumber("1"));
+
+    // if (new BigNumber(_purchaseId).comparedTo(lastPurchaseIdx) == 0) {
+    //   console.log(lastPurchaseIdx.toString(), "--- Last purchase - SKIP ---");
+    //   return totalAmount;
+    // }
+
+    // let fetch = true;
+    // do {
+    //   let fromPurchase = new BigNumber((await Index.gameInst.purchaseProfitInSessionWithdrawnOnPurchaseForUser(_purchaseId, _sessionId).call()).purchase);
+    //   if (fromPurchase.comparedTo(new BigNumber("0")) == 0) {
+    //     fromPurchase = new BigNumber(_purchaseId).plus(new BigNumber("1"));
+    //   } else if (fromPurchase.comparedTo(lastPurchaseIdx.minus(new BigNumber("1"))) == 0) {
+    //     fromPurchase = fromPurchase.plus(new BigNumber("1"));
+    //   } else {
+    //     console.log("--- Already withdrawn - SKIP ---");
+    //     return new BigNumber("0");
+    //   }
+
+    //   console.log("fromPurchase: ", fromPurchase.toString());
+      
+    //   let purchaseCount = purchaseCountInSession.minus(fromPurchase);
+    //   let toPurchase = (purchaseCount.comparedTo(LOOP_LIMIT) == 1) ? fromPurchase.plus(LOOP_LIMIT) : fromPurchase.plus(purchaseCount).minus(new BigNumber("1"));
+    //   console.log("toPurchase: ", toPurchase.toString());
+
+    //   // const profit = new BigNumber((await Index.gameInst.profitForPurchaseInSession(new BigNumber(_purchaseId), new BigNumber(_sessionId), fromPurchase, toPurchase).call()).profit)
+    //   const profit = (await Index.gameInst.profitForPurchaseInSession(_purchaseId.toString(), _sessionId.toString(), fromPurchase.toString(), toPurchase.toString()).call()).profit;
+    //   console.log("profit: ", profit.toString());
+    //   totalAmount = totalAmount.plus(new BigNumber(profit));
+
+    //   fetch = purchaseCountInSession.minus(new BigNumber("1")).comparedTo(toPurchase) == 1;
+      
+    // } while (fetch);
+
+    // return totalAmount;
   },
 
   setLanguage: function(_langId) {
