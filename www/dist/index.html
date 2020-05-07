@@ -39,25 +39,28 @@
           <div class="menu-list navbar-collapse">
             <ul class="onepage-nev navbar-nav">
               <li class="nav-item active">
-                <a class="nav-link" href="#header-wrap">Play</a>
+                <a id="menu_1" class="nav-link" href="#header-wrap">Play</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#services">How it works</a>
+                <a id="menu_2" class="nav-link" href="#services">How it works</a>
               </li>                            
               <li class="nav-item">
-                <a class="nav-link" href="#team">How to play</a>
+                <a id="menu_3" class="nav-link" href="#team">How to play</a>
               </li>   
               <li class="nav-item">
-                <a class="nav-link" href="#connect">Connect With Us</a>
+                <a id="menu_4" class="nav-link" href="#connect">Connect With Us</a>
               </li>   
               <li class="nav-item">
                 <a class="nav-link" href="javascript:Index.setLanguage(0);"><i class="fas fa-flag"></i>&nbsp&nbsp English   </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="javascript:Index.setLanguage(1);"><i class="fas fa-flag"></i>&nbsp&nbsp 广东话   </a>
+                <a class="nav-link" href="javascript:Index.setLanguage(1);"><i class="fas fa-flag"></i>&nbsp&nbsp 普通话   </a>
               </li>   
               <li class="nav-item">
-                <a class="nav-link" href="javascript:Index.setLanguage(2);"><i class="fas fa-flag"></i>&nbsp&nbsp Deutsche   </a>
+                <a class="nav-link" href="javascript:Index.setLanguage(1);"><i class="fas fa-flag"></i>&nbsp&nbsp 粵語  </a>
+              </li>   
+              <li class="nav-item">
+                <a class="nav-link" href="javascript:Index.setLanguage(2);"><i class="fas fa-flag"></i>&nbsp&nbsp Deutsch   </a>
               </li>  
               <li class="nav-item">
                 <a class="nav-link" href="javascript:Index.setLanguage(3);"><i class="fas fa-flag"></i>&nbsp&nbsp Español   </a>
@@ -94,16 +97,16 @@
         <!-- Mobile Menu Start -->
         <ul class="mobile-menu">
           <li>
-            <a href="#header-wrap">Home</a>
+            <a id="m_menu_1" href="#header-wrap">Play</a>
           </li>
           <li>
-            <a href="#services">Services</a>
+            <a id="m_menu_2" href="#services">How it works</a>
           </li>
           <li>
-            <a href="#team">Team</a>
+            <a id="m_menu_3" href="#team">How to play</a>
           </li>
           <li>
-            <a href="#contact">Contact</a>
+            <a id="m_menu_4"  href="#contact">Connect With Us</a>
           </li>
         </ul>
         <!-- Mobile Menu End -->
@@ -117,10 +120,10 @@
         <div class="row text-center">    
           <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="heading-count">
-              <h2>Madoff's game</h2>
-              <p>Our exciting new game : try to win the jackpot. If you don't you start earning dividends from new players.<br> In this game you always win something, the only question is how much ?</p>
+              <h2 id="main_title"> Madoff's game</h2>
+              <p id="intro_sentence">Our exciting new game : try to win the jackpot. If you don't you start earning dividends from new players.<br> In this game you always win something, the only question is : HOW MUCH ?</p>
                <br>
-               <h3 class="btn btn-common2 jkpt_big">Current jackpot : <span id="currentJackpot">...</span> TRX</h3>
+               <h3 id="currentjkstatus" class="btn btn-common2 jkpt_big">Current jackpot : <span id="currentJackpot">...</span> TRX</h3>
             </div>
           </div>
           <div class="col-md-12 col-sm-12 col-xs-12">
@@ -131,24 +134,24 @@
               <div id="clock" class="time-count"></div>
             </div>
             <div class="game_interaction">
-              <h5 class="btn btn-border2">Current stage: <span id="current_stage">1</span>, share price: <span id="current_share_price">10</span> TRX</h5>
+              <h5 id="stagestatus" class="btn btn-border2">Current stage: <span id="current_stage">1</span>, share price: <span id="current_share_price">10</span> TRX</h5>
               <div id="error_view" class="error_view">
                 <p id="error_view_text" class="error_view_text">TronLink is not connected. Please, install and log in into TronLink</p>
               </div>
               <div id="spinner_view" class="error_view">
-                <p class="error_view_text">Transaction is being mining…</p>
+                <p id="spinner_mining_text" class="error_view_text">Mining transaction…</p>
                 <div class="loader" id="loader-1"></div>
               </div>
               <div>
                 <input type="number" id="purchaseAmount" class=" btn-border3" placeholder="enter a whole number" min="1" step="1">
-                <button class="btn btn-common show_cursor" onclick="Index.buyShares()">Buy shares</button>
+                <button id="buy_share_btn" class="btn btn-common show_cursor" onclick="Index.buyShares()">Buy shares</button>
               </div>
               <br><br>
               <div class="btn btn-border2">
-                <p>MY WALLET :</p>
+                <p id="my_wallet_intro" >MY WALLET :</p>
 
-                <h5 class="btn btn-border2">My current earnings : <span id="current_earnings_amount">0</span> TRX</h5>
-                <button class="btn btn-common show_cursor" onclick="Index.withdrawSharesProfitClicked()">Withdraw</button>
+                <h5 id="my_current_earning" class="btn btn-border2">My current earnings : <span id="current_earnings_amount">0</span> TRX</h5>
+                <button id="withdraw_n_1"class="btn btn-common show_cursor" onclick="Index.withdrawSharesProfitClicked()">Withdraw</button>
                 <br>
                 <button id="more_options_btn" class="btn btn-common show_cursor" onclick="Index.showKnowMoreClicked()">* More options</button>
 
@@ -158,17 +161,17 @@
                 <div id="know_more" class="know_more opacity_0">
                   <!-- <div class="blur_bg"></div> -->
                   <div>
-                    <p class="know_more_top">** Once jackpot get hit you can withdraw your part from jackpot earnings here</p>
-                    <button class="btn btn-common show_cursor know_more_btn" onclick="alert('KNOW MORE clicked.')">know more</button>
+                    <p id="withdraw_explain" class="know_more_top">** Once jackpot get hit you can withdraw your part from jackpot earnings here</p>
+                    <button id="withdraw_explain_btn" class="btn btn-common show_cursor know_more_btn" onclick="alert('KNOW MORE clicked.')">know more</button>
                   </div>
                   <div>
                     <p id="jp_for_shares" class="know_more_mid">Withdraw your part of the 20% from the jackpot here</p>
-                    <button class="btn btn-common show_cursor" onclick="Index.withdrawBernardPartProfitClicked()">withdraw</button>
+                    <button id="jp_for_shares_btn" class="btn btn-common show_cursor" onclick="Index.withdrawBernardPartProfitClicked()">withdraw</button>
                   </div>
                   <div>
                     <!-- <p class="know_more_mid">If you are the winner withdraw the jackpot here</p> -->
                     <p id="jp" class="know_more_mid">If you are the winner withdraw the jackpot here</p>
-                    <button class="btn btn-common show_cursor"  onclick="Index.withdrawJackpotClicked()">withdraw</button>
+                    <button id="jp_btn" class="btn btn-common show_cursor"  onclick="Index.withdrawJackpotClicked()">withdraw</button>
                   </div>
                 </div>
                   <!-- Know More Section Start -->
@@ -186,13 +189,13 @@
       <div class="container">
         <div class="row justify-content-center">
           <div class="col-md-8 col-lg-8 col-xs-12 text-center">
-            <h2 class="section-title">
+            <h2 id="title_2" class="section-title">
               We are a new TRON gambling dapp
             </h2>
-            <div class="section-info">
-              In this game the last player to had buy a share when the countdown end win the jackpot.<br>
-              Each time a player buy a share the coundown get reset and the jackpot get inscrease by 40% of the share price. <br>
-              The rest of the share price is split among previous shareholders.<br>
+            <div id="p_1" class="section-info">
+              In this game the last player who had buy a share when the countdown end win the jackpot.<br>
+              Each time a new player buy a share the countdown get reset and the jackpot get inscrease by 40% of the share price. <br>
+              The rest of the share price is split among previous players.<br>
             </div>
           </div>            
         </div>
@@ -201,40 +204,43 @@
           <div class="col-lg-4 col-md-6 col-xs-12 fadeInUp" data-animation="fadeInUp">
             <div class="services-item">
               <div class="icon">
+                <i class="fas fa-trophy"></i>
+              </div>
+              <h3><a href="#" id="title_3">Win the jackpot</a></h3>
+              <p id="p_2" >If countdown reach 0: the last player that had buy a share win 80% of the jackpot. <br><br>The rest: 20%, is split equally among all unlucky shareholders. <br><br>If jackpot reach is final amount: 25 Billions TRX the last player is the winner.<br><br> Once a player win the jackpot you just need to buy one or mulitple shares, this will launch a new game session. </p><br>
+              <h3><a href="#" target="_blank"><button type="submit" class="btn btn-common show_cursor" id="form-submit_1"></i>  Know More</button></a></h3>
+            </div>       
+          </div> 
+
+          <div class="col-lg-4 col-md-6 col-xs-12 fadeInUp" data-animation="fadeInUp" data-delay="300">
+            <div class="services-item">
+              <div class="icon">
                 <i class="fas fa-sort-amount-up"></i>
               </div>
-              <h3><a href="#">14 Steps</a></h3>
-              <p>This is a 14 steps game: each time the jackpot reach a certain amount game goes into next step.<br><br> On each new step the countdown max time decrease and price per share is increased.<br><br>
+              <h3><a href="#" id="title_4">14 Steps</a></h3>
+              <p id="p_3" >This is a 14 steps game: each time the jackpot reach a certain amount game goes into next step.<br><br> On each new step the countdown max time decrease and price per share is increased.<br><br>
               Here you have a board listing the steps:</p><br>
-             <a href="assets/img/steps.png" target="new" class="grid image-link">
-            <img class="img-fluid" src="assets/img/steps.png" alt=""><br><br>
-              <h3><a href="#" target="_blank"><button type="submit" class="btn btn-common show_cursor" id="form-submit"></i>  Know More</button></a></h3>
+             <a href="assets/img/steps.jpg" target="new" class="grid image-link">
+            <img class="img-fluid" src="assets/img/steps.jpg" alt=""><br><br>
+              <h3><a href="#" target="_blank"><button type="submit" class="btn btn-common show_cursor" id="form-submit_2"></i>  Know More</button></a></h3>
             </div>  
           </div> 
-          <div class="col-lg-4 col-md-6 col-xs-12 fadeInUp" data-animation="fadeInUp" data-delay="300">
+
+          <div class="col-lg-4 col-md-6 col-xs-12 fadeInUp" data-animation="fadeInUp" data-delay="600">
             <div class="services-item">
               <div class="icon">
                 <i class="fas fa-hand-holding-usd"></i>
               </div>
-              <h3><a href="#">Earn new players money</a></h3>
-              <p>Each time a new share is perchase 50% of the share price get split equaly among all previous players.<br> <br>Understand that here is no guaranted return: your earnings depend on how much players will play after you.<br><br> You can withdraw your winning at anytime. <br><br> We have realized an imperfect <a href="#">projection</a> on how much you could win from where you buy share.</p><br><br>
-              <a href="assets/img/costs-returns.png" target="new" class="grid image-link">
-              <img class="img-fluid" src="assets/img/costs-returns.png" alt=""><br>
-              <h3><a href="#" target="_blank"><button type="submit" class="btn btn-common show_cursor" id="form-submit"></i>  Know More</button></a></h3>
+              <h3><a href="#" id="title_5" >Earn new players money</a></h3>
+              <p id="p_4" >Each time a new share is purchase 50% of the share price get split equally among all previous players.<br> <br>Understand their is no guaranteed return: your earnings depend on how much shares will be purchase after you.<br><br> You can withdraw your winning at anytime. <br><br> We have realized an imperfect <a href="#">projection</a> on how much you could win depending where you buy your shares.</p><br><br>
+              <a href="assets/img/costs-returns.jpg" target="new" class="grid image-link">
+              <img class="img-fluid" src="assets/img/costs-returns.jpg" alt=""><br><br>
+              <h3><a href="#" target="_blank"><button type="submit" class="btn btn-common show_cursor" id="form-submit_3"></i> Know More</button></a></h3>
             </div>
-          </div> 
-          <div class="col-lg-4 col-md-6 col-xs-12 fadeInUp" data-animation="fadeInUp" data-delay="600">
-            <div class="services-item">
-              <div class="icon">
-                <i class="fas fa-trophy"></i>
-              </div>
-              <h3><a href="#">Win the jackpot</a></h3>
-              <p>If coundown reach 0: the last person that had buy a share win 80% of the jackpot. <br><br>The rest: 20%, is split equaly among all unlucky shareholders. <br><br>If jackpot reach 180 millions EOS the game stop and the contract execute a random fonction to draw a winner. <br>In this precise case: each share you own give you one chance to win.</p><br>
-              <h3><a href="#" target="_blank"><button type="submit" class="btn btn-common show_cursor" id="form-submit"></i>  Know More</button></a></h3>
-            </div>
+           
           </div>
          </div>
-      </div>
+        </div>
     </section>
 
     <!-- Team Section Start -->
@@ -245,8 +251,8 @@
             <h2 id="white"class="section-title">
               How To Play
             </h2>
-            <div class="section-info">
-              In order to play you need a TRON wallet with some TRX on it + TRONLINK plugin installed. <br>Follow the step bellow if you need help.
+            <div id="how_to_play_1" class="section-info">
+              In order to play you need some TRX + TRONLINK plugin installed. <br>Follow the step bellow if you need help.
             </div>
           </div>            
         </div>
@@ -266,7 +272,7 @@
               </div>
               <div class="info-text">
                 <br>
-                <p>Create a TRON wallet</p>
+                <p id="how_to_play_2">Create a Tronlink wallet</p>
                 <br>
               </div>
             </div>
@@ -287,7 +293,7 @@
               </div>
               <div class="info-text">
                 <br>
-                <p>Login with Tronlink</p>
+                <p id="how_to_play_3">Deposit TRX on your Tronlink</p>
                 <br>
               </div>
             </div>
@@ -307,7 +313,7 @@
                 </div>
               </div>
               <div class="info-text">
-                <p>Choose the number of shares you want to buy, 1 minimum.</p>
+                <p id="how_to_play_4">Choose the mainnet network and unlock your Tronlink wallet.</p>
                 <br>
               </div>
             </div>
@@ -327,7 +333,7 @@
                 </div>
               </div>
               <div class="info-text">
-                <p>Click buy then confirm your purchase with the TronLink popup.</p>
+                <p id="how_to_play_5" >Choose a shares number to buy. Click buy and confirm your purchase with the popup.</p>
               </div>
             </div>
             <!-- Team Item Ends -->
@@ -345,7 +351,7 @@
             <h6 class="subtitle">
               
             </h6>
-            <h2 class="section-title">
+            <h2 id="contact_1" class="section-title">
               Connect With Us
             </h2>
           </div>            
@@ -356,22 +362,22 @@
             <!-- Contact form -->
             <div class="col-md-12">
               <div class="row">
-                  <h5>
-                    <br><br>              <br><br>You can connect with us through bitcointalk : <a class="instagram" href="#" target="_blank"><i class="fab fa-btc"></i></a><br><br>
+                  <h5 id="contact_2">
+                    <br><br><br><br>You can connect with us through bitcointalk : <a class="instagram" href="#" target="_blank"><i class="fab fa-btc"></i></a><br><br>
                   </h5>
               </div>  
               <div class="row">
-                  <h5>
+                  <h5 id="contact_3">
                     <br>You can know more about the dapp with our wiki : <a class="instagram" href="#" target="_blank"><i class="fab fa-wikipedia-w"></i></a><br><br>
                   </h5>
               </div>
               <div class="row">
-                <h5>
+                <h5 id="contact_4">
                    <br>You can check our contract on github : <a class="instagram" href="#" target="_blank"><i class="fab fa-github"></i></a><br><br>
                 </h5>
               </div>
               <div class="row">
-                <h5>
+                <h5 id="contact_5">
                    <br>You can check dapp ranking on Dappradar : <a class="instagram" href="https://dappradar.com/rankings/protocol/eos/category/gambling" target="_blank"><i class="fas fa-sort-amount-up"></i></a><br><br>
                 </h5>
               </div>
@@ -406,7 +412,7 @@
                   <a class="instagram" href="#" target="_blank"><i class="fab fa-wikipedia-w"></i></a>
                 </li>
               </ul>
-              <p>Copyright © 2018 | Crafted by <a onclick="window.open('https://uideck.com/', '_blank')">UIdeck</a></p>
+              <p>Copyright <a onclick="window.open('https://blockgambit.com/', '_blank')">Blockgambit©</a> 2020 | Crafted by <a onclick="window.open('https://uideck.com/', '_blank')">UIdeck</a></p>
             </div>
           </div>
         </div>
