@@ -26,6 +26,8 @@ const Index = {
   setup: async function() {
     console.log("\n     SETUP\n");
 
+    Index.updateLanguages(lang_en);
+
     //  test addr
     Index.currentAccount =  window.tronWeb.defaultAddress.base58;
     // console.log("currentAccount: ", Index.currentAccount);
@@ -664,6 +666,58 @@ const Index = {
     console.log("sharePriceForStage: ", sharePriceForStage.toString());
     return new BigNumber(_sharesNumber.toString()).multipliedBy(sharePriceForStage);
   },
+
+  updateLanguages: (languageSource) => {
+    document.getElementById("menu_1").innerText = languageSource.menu_1;
+    document.getElementById("menu_2").innerText = languageSource.menu_2;
+    document.getElementById("menu_3").innerText = languageSource.menu_3;
+    document.getElementById("menu_4").innerText = languageSource.menu_4;
+    document.getElementById("m_menu_1").innerText = languageSource.m_menu_1;
+    document.getElementById("m_menu_2").innerText = languageSource.m_menu_2;
+    document.getElementById("m_menu_3").innerText = languageSource.m_menu_3;
+    document.getElementById("m_menu_4").innerText = languageSource.m_menu_4;
+    document.getElementById("main_title").innerText = languageSource.main_title;
+    document.getElementById("intro_sentence").innerText = languageSource.intro_sentence;
+    document.getElementById("currentjkstatus").innerText = languageSource.currentjkstatus;
+    document.getElementById("will_win_in").innerHTML = languageSource.will_win_in;
+    document.getElementById("current_stage_txt").innerText = languageSource.current_stage_txt;
+    document.getElementById("current_share_price_txt").innerText = languageSource.current_share_price_txt;
+    document.getElementById("error_view_text").innerText = languageSource.error_view_text;
+    document.getElementById("spinner_text").innerText = languageSource.spinner_text;
+    document.getElementById("buy_share_btn").innerText = languageSource.buy_share_btn;
+    document.getElementById("my_wallet_intro").innerText = languageSource.my_wallet_intro;
+    document.getElementById("my_current_earning").innerText = languageSource.my_current_earning;
+    document.getElementById("withdraw_n_1").innerText = languageSource.withdraw_n_1;
+    document.getElementById("more_options_btn").innerText = languageSource.more_options_btn;
+    document.getElementById("withdraw_explain").innerText = languageSource.withdraw_explain;
+    document.getElementById("withdraw_explain_btn").innerText = languageSource.withdraw_explain_btn;
+    document.getElementById("jp_for_shares").innerText = languageSource.jp_for_shares;
+    document.getElementById("jp_for_shares_btn").innerText = languageSource.jp_for_shares_btn;
+    document.getElementById("jp").innerText = languageSource.jp;
+    document.getElementById("jp_btn").innerText = languageSource.jp_btn;
+    document.getElementById("title_2").innerText = languageSource.title_2;
+    document.getElementById("p_1").innerText = languageSource.p_1;
+    document.getElementById("title_3").innerText = languageSource.title_3;
+    document.getElementById("p_2").innerText = languageSource.p_2;
+    document.getElementById("form_submit_1").innerText = languageSource.form_submit_1;
+    document.getElementById("title_4").innerText = languageSource.title_4;
+    document.getElementById("p_3").innerText = languageSource.p_3;
+    document.getElementById("form_submit_2").innerText = languageSource.form_submit_2;
+    document.getElementById("title_5").innerText = languageSource.title_5;
+    document.getElementById("p_4").innerText = languageSource.p_4;
+    document.getElementById("form_submit_3").innerText = languageSource.form_submit_3;
+    document.getElementById("white").innerText = languageSource.white;
+    document.getElementById("how_to_play_1").innerText = languageSource.how_to_play_1;
+    document.getElementById("how_to_play_2").innerText = languageSource.how_to_play_2;
+    document.getElementById("how_to_play_3").innerText = languageSource.how_to_play_3;
+    document.getElementById("how_to_play_4").innerText = languageSource.how_to_play_4;
+    document.getElementById("how_to_play_5").innerText = languageSource.how_to_play_5;
+    document.getElementById("contact_1").innerText = languageSource.contact_1;
+    document.getElementById("contact_2").innerText = languageSource.contact_2;
+    document.getElementById("contact_3").innerText = languageSource.contact_3;
+    document.getElementById("contact_4").innerText = languageSource.contact_4;
+    document.getElementById("contact_5").innerText = languageSource.contact_5;
+  }
 }
 
 window.onload = function() {
