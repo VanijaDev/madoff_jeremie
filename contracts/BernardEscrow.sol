@@ -9,8 +9,8 @@ contract BernardEscrow {
 
   BernardsCutToken public token;
 
-//   uint256 public constant CALCULATION_DISABLED_BLOCKS = 21600; //  used to avoid spam
-  uint256 public constant CALCULATION_DISABLED_BLOCKS = 5;   // TODO: testing
+  uint256 public constant CALCULATION_DISABLED_BLOCKS = 21600; //  used to avoid spam
+  // uint256 public constant CALCULATION_DISABLED_BLOCKS = 5;   // TODO: testing
   
   uint256 public prevCalculationBlock;
   uint256 public tokenFractionProfitCalculatedTimes;
@@ -136,9 +136,5 @@ contract BernardEscrow {
     profitWithdrawnOnCalculationIdx[recipient] = endIdx;
     recipient.transfer(profit);
     emit BernardFeeWithdrawn(recipient, profit);
-  }
-  
-  function TEST_balance() public view returns (uint256 balance) {
-      return address(this).balance;
   }
 }

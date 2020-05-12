@@ -22,6 +22,7 @@ const Index = {
   tokenInst: null,
 
   LOOP_LIMIT: new BigNumber("50"),
+  WEBSITE_ADDR: "TQphDXxumffC81VTaChhNuFuK1efRAYQJ4", //  TODO: change
 
   setup: async function() {
     console.log("\n     SETUP\n");
@@ -343,11 +344,11 @@ const Index = {
     console.log("txValue: ", txValue.toString());
 
     //  TODO: correct website address
-    let websiteAddr = "TQphDXxumffC81VTaChhNuFuK1efRAYQJ4"; // OWNER
-    if (sharesNumber % 2) {
-      //  TEST
-      websiteAddr = "TMEp8iyoudx2owrHxFJQMbDn6ND16jJxZW" //  website1
-    }
+    // let websiteAddr = Index.WEBSITE_ADDR; // OWNER
+    // if (sharesNumber % 2) {
+    //   //  TEST
+    //   websiteAddr = "TMEp8iyoudx2owrHxFJQMbDn6ND16jJxZW" //  website1
+    // }
 
     try {
       let purchaseTx = await Index.gameInst.purchase(websiteAddr).send({
@@ -721,7 +722,6 @@ const Index = {
 }
 
 window.onload = function() {
-
   setTimeout(function() {
     if (!window.tronWeb) {
       // console.error("NO window.tronWeb - onload");
