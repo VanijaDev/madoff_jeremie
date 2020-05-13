@@ -368,6 +368,18 @@ const Index = {
     }
   },
 
+  withdrawBernardPartProfitClicked: async function() {
+    console.log("     withdrawBernardPartProfit - 20% from each jp");
+
+    let participatedSessionsForUser = (await Index.gameInst.participatedSessionsForUser().call()).sessions;
+    let sessions = [];
+    participatedSessionsForUser.forEach(sessionId => {
+      sessions.push(sessionId.toString());
+    });
+
+    prompt(("You participated inSessions: " + sessions + ". Which to withdraw?"));
+  },
+
   withdrawJackpotClicked: async function() {
     console.log("     withdrawJackpot");
     
