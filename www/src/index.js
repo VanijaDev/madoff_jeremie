@@ -7,8 +7,8 @@ import BigNumber from "bignumber.js";
 
 const Index = {
   Config: {
-    "tokenAddress": "TP5rKS9UG8x3tx3rwaWWniSt3aAr3ZiW8y",
-    "gameAddress": "TEKReLRZx4AsE5RiT8VCfjD6J7EnSTPisE"
+    "tokenAddress": "TQJc3sXnk42NeAW5zi1c8aTJb9iF5RqsiX",
+    "gameAddress": "TBruFsQXk43gBisYYk7PYNw85QZTXUhCjX"
   },
 
   ErrorType: {
@@ -351,7 +351,7 @@ const Index = {
     // }
 
     try {
-      let purchaseTx = await Index.gameInst.purchase(websiteAddr).send({
+      let purchaseTx = await Index.gameInst.purchase(Index.WEBSITE_ADDR).send({
         feeLimit:100000000,
         callValue: txValue,
         shouldPollResponse: true
