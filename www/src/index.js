@@ -7,8 +7,8 @@ import BigNumber from "bignumber.js";
 
 const Index = {
   Config: {
-    "tokenAddress": "TQJc3sXnk42NeAW5zi1c8aTJb9iF5RqsiX",
-    "gameAddress": "TBruFsQXk43gBisYYk7PYNw85QZTXUhCjX"
+    "tokenAddress": "TMQ1dV9qywQV99d3AUmn4yUpa1u8ix34Ux",
+    "gameAddress": "THbw9QpZ1hzTg2ZHETbt1JtXHJDrXtU71y"
   },
 
   ErrorType: {
@@ -377,7 +377,7 @@ const Index = {
       sessions.push(sessionId.toString());
     });
 
-    prompt(("You participated inSessions: " + sessions + ". Which to withdraw?"));
+    prompt(("You participated in Sessions: " + sessions + ". Which to withdraw?"));
   },
 
   withdrawJackpotClicked: async function() {
