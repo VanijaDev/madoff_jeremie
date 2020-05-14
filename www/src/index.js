@@ -7,8 +7,8 @@ import BigNumber from "bignumber.js";
 
 const Index = {
   Config: {
-    "tokenAddress": "TMQ1dV9qywQV99d3AUmn4yUpa1u8ix34Ux",
-    "gameAddress": "THbw9QpZ1hzTg2ZHETbt1JtXHJDrXtU71y"
+    "tokenAddress": "TKg7ENzGPG5esDTjLBGptSW3ZVC2LFVoft",
+    "gameAddress": "TAtDTk85H2SGkV4f8t9uM7UJiP6uudgw9G"
   },
 
   ErrorType: {
@@ -20,14 +20,15 @@ const Index = {
   currentAccount: "",
   gameInst: null,
   tokenInst: null,
+  languageSource: null,
 
   LOOP_LIMIT: new BigNumber("50"),
-  WEBSITE_ADDR: "TQphDXxumffC81VTaChhNuFuK1efRAYQJ4", //  TODO: change
+  WEBSITE_ADDR: "TEZgaJz4BqRPrSViLVYY4sZdxRtxoWAW7e", //  TODO: change
 
   setup: async function() {
     console.log("\n     SETUP\n");
-
-    Index.updateLanguages(lang_en);
+    
+    Index.setLanguage(0);
 
     //  test addr
     Index.currentAccount =  window.tronWeb.defaultAddress.base58;
@@ -310,6 +311,33 @@ const Index = {
 
   setLanguage: function(_langId) {
     console.log("     setLanguage: " + _langId);
+
+    Index.languageSource = lang_en;
+
+    switch (_langId) {
+      case 1:
+        console.log("Index.languageSource: 普通话");
+        // Index.languageSource = lang_ch;
+        break;
+      case 2:
+        console.log("Index.languageSource: 粵語");
+        // Index.languageSource = lang_jp;
+        break;
+      case 3:
+        console.log("Index.languageSource: Deutsch");
+        // Index.languageSource = lang_de;
+        break;
+      case 4:
+        console.log("Index.languageSource: Español");
+        // Index.languageSource = lang_es;
+        break;
+    
+      default:
+        console.log("Index.languageSource: English");
+        break;
+    }
+
+    Index.updateLanguages(Index.languageSource);
   },
 
   /** UI */
@@ -337,7 +365,7 @@ const Index = {
       return;
     }
 
-    Index.showSpinner(true, " ");
+    Index.showSpinner(true, Index.languageSource.spinner_text);
 
     //  calculate TRX amount
     let txValue = await Index.purchaseValue(sharesNumber);
@@ -384,7 +412,7 @@ const Index = {
   withdrawjackpotForSharesInSessionClicked: async function() {
     console.log("     withdrawjackpotForSharesInSession - 20% from each jp");
 
-    Index.showSpinner(true, " ");
+    Index.showSpinner(true, Index.languageSource.spinner_text);
 
     let participatedSessionsForUser = (await Index.gameInst.participatedSessionsForUser().call()).sessions;
     let length = participatedSessionsForUser.length;
@@ -452,7 +480,7 @@ const Index = {
       return;
     }
 
-    Index.showSpinner(true, " ");
+    Index.showSpinner(true, Index.languageSource.spinner_text);
 
     for (let i = 0; i < sessionsLength; i++) {
       const sessionId = sessionsToCheckForProfitForShares[i];
@@ -532,7 +560,7 @@ const Index = {
   },
 
   withdrawJackpot: async function() {
-    Index.showSpinner(true, " ");
+    Index.showSpinner(true, Index.languageSource.spinner_text);
     try {
       let withdrawJackpotTx = await Index.gameInst.withdrawJackpot().send({
         feeLimit:100000000,
@@ -668,56 +696,56 @@ const Index = {
     return new BigNumber(_sharesNumber.toString()).multipliedBy(sharePriceForStage);
   },
 
-  updateLanguages: (languageSource) => {
-    document.getElementById("menu_1").innerText = languageSource.menu_1;
-    document.getElementById("menu_2").innerText = languageSource.menu_2;
-    document.getElementById("menu_3").innerText = languageSource.menu_3;
-    document.getElementById("menu_4").innerText = languageSource.menu_4;
-    document.getElementById("m_menu_1").innerText = languageSource.m_menu_1;
-    document.getElementById("m_menu_2").innerText = languageSource.m_menu_2;
-    document.getElementById("m_menu_3").innerText = languageSource.m_menu_3;
-    document.getElementById("m_menu_4").innerText = languageSource.m_menu_4;
-    document.getElementById("main_title").innerText = languageSource.main_title;
-    document.getElementById("intro_sentence").innerText = languageSource.intro_sentence;
-    document.getElementById("currentjkstatus").innerText = languageSource.currentjkstatus;
-    document.getElementById("will_win_in").innerHTML = languageSource.will_win_in;
-    document.getElementById("current_stage_txt").innerText = languageSource.current_stage_txt;
-    document.getElementById("current_share_price_txt").innerText = languageSource.current_share_price_txt;
-    document.getElementById("error_view_text").innerText = languageSource.error_view_text;
-    document.getElementById("spinner_text").innerText = languageSource.spinner_text;
-    document.getElementById("buy_share_btn").innerText = languageSource.buy_share_btn;
-    document.getElementById("my_wallet_intro").innerText = languageSource.my_wallet_intro;
-    document.getElementById("my_current_earning").innerText = languageSource.my_current_earning;
-    document.getElementById("withdraw_n_1").innerText = languageSource.withdraw_n_1;
-    document.getElementById("more_options_btn").innerText = languageSource.more_options_btn;
-    document.getElementById("withdraw_explain").innerText = languageSource.withdraw_explain;
-    document.getElementById("withdraw_explain_btn").innerText = languageSource.withdraw_explain_btn;
-    document.getElementById("jp_for_shares").innerText = languageSource.jp_for_shares;
-    document.getElementById("jp_for_shares_btn").innerText = languageSource.jp_for_shares_btn;
-    document.getElementById("jp").innerText = languageSource.jp;
-    document.getElementById("jp_btn").innerText = languageSource.jp_btn;
-    document.getElementById("title_2").innerText = languageSource.title_2;
-    document.getElementById("p_1").innerText = languageSource.p_1;
-    document.getElementById("title_3").innerText = languageSource.title_3;
-    document.getElementById("p_2").innerText = languageSource.p_2;
-    document.getElementById("form_submit_1").innerText = languageSource.form_submit_1;
-    document.getElementById("title_4").innerText = languageSource.title_4;
-    document.getElementById("p_3").innerText = languageSource.p_3;
-    document.getElementById("form_submit_2").innerText = languageSource.form_submit_2;
-    document.getElementById("title_5").innerText = languageSource.title_5;
-    document.getElementById("p_4").innerText = languageSource.p_4;
-    document.getElementById("form_submit_3").innerText = languageSource.form_submit_3;
-    document.getElementById("white").innerText = languageSource.white;
-    document.getElementById("how_to_play_1").innerText = languageSource.how_to_play_1;
-    document.getElementById("how_to_play_2").innerText = languageSource.how_to_play_2;
-    document.getElementById("how_to_play_3").innerText = languageSource.how_to_play_3;
-    document.getElementById("how_to_play_4").innerText = languageSource.how_to_play_4;
-    document.getElementById("how_to_play_5").innerText = languageSource.how_to_play_5;
-    document.getElementById("contact_1").innerText = languageSource.contact_1;
-    document.getElementById("contact_2").innerText = languageSource.contact_2;
-    document.getElementById("contact_3").innerText = languageSource.contact_3;
-    document.getElementById("contact_4").innerText = languageSource.contact_4;
-    document.getElementById("contact_5").innerText = languageSource.contact_5;
+  updateLanguages: (_languageSource) => {
+    document.getElementById("menu_1").innerText = _languageSource.menu_1;
+    document.getElementById("menu_2").innerText = _languageSource.menu_2;
+    document.getElementById("menu_3").innerText = _languageSource.menu_3;
+    document.getElementById("menu_4").innerText = _languageSource.menu_4;
+    document.getElementById("m_menu_1").innerText = _languageSource.m_menu_1;
+    document.getElementById("m_menu_2").innerText = _languageSource.m_menu_2;
+    document.getElementById("m_menu_3").innerText = _languageSource.m_menu_3;
+    document.getElementById("m_menu_4").innerText = _languageSource.m_menu_4;
+    document.getElementById("main_title").innerText = _languageSource.main_title;
+    document.getElementById("intro_sentence").innerText = _languageSource.intro_sentence;
+    document.getElementById("currentjkstatus").innerText = _languageSource.currentjkstatus;
+    document.getElementById("will_win_in").innerHTML = _languageSource.will_win_in;
+    document.getElementById("current_stage_txt").innerText = _languageSource.current_stage_txt;
+    document.getElementById("current_share_price_txt").innerText = _languageSource.current_share_price_txt;
+    document.getElementById("error_view_text").innerText = _languageSource.error_view_text;
+    document.getElementById("spinner_text").innerText = _languageSource.spinner_text;
+    document.getElementById("buy_share_btn").innerText = _languageSource.buy_share_btn;
+    document.getElementById("my_wallet_intro").innerText = _languageSource.my_wallet_intro;
+    document.getElementById("my_current_earning").innerText = _languageSource.my_current_earning;
+    document.getElementById("withdraw_n_1").innerText = _languageSource.withdraw_n_1;
+    document.getElementById("more_options_btn").innerText = _languageSource.more_options_btn;
+    document.getElementById("withdraw_explain").innerText = _languageSource.withdraw_explain;
+    document.getElementById("withdraw_explain_btn").innerText = _languageSource.withdraw_explain_btn;
+    document.getElementById("jp_for_shares").innerText = _languageSource.jp_for_shares;
+    document.getElementById("jp_for_shares_btn").innerText = _languageSource.jp_for_shares_btn;
+    document.getElementById("jp").innerText = _languageSource.jp;
+    document.getElementById("jp_btn").innerText = _languageSource.jp_btn;
+    document.getElementById("title_2").innerText = _languageSource.title_2;
+    document.getElementById("p_1").innerText = _languageSource.p_1;
+    document.getElementById("title_3").innerText = _languageSource.title_3;
+    document.getElementById("p_2").innerText = _languageSource.p_2;
+    document.getElementById("form_submit_1").innerText = _languageSource.form_submit_1;
+    document.getElementById("title_4").innerText = _languageSource.title_4;
+    document.getElementById("p_3").innerText = _languageSource.p_3;
+    document.getElementById("form_submit_2").innerText = _languageSource.form_submit_2;
+    document.getElementById("title_5").innerText = _languageSource.title_5;
+    document.getElementById("p_4").innerText = _languageSource.p_4;
+    document.getElementById("form_submit_3").innerText = _languageSource.form_submit_3;
+    document.getElementById("white").innerText = _languageSource.white;
+    document.getElementById("how_to_play_1").innerText = _languageSource.how_to_play_1;
+    document.getElementById("how_to_play_2").innerText = _languageSource.how_to_play_2;
+    document.getElementById("how_to_play_3").innerText = _languageSource.how_to_play_3;
+    document.getElementById("how_to_play_4").innerText = _languageSource.how_to_play_4;
+    document.getElementById("how_to_play_5").innerText = _languageSource.how_to_play_5;
+    document.getElementById("contact_1").innerText = _languageSource.contact_1;
+    document.getElementById("contact_2").innerText = _languageSource.contact_2;
+    document.getElementById("contact_3").innerText = _languageSource.contact_3;
+    document.getElementById("contact_4").innerText = _languageSource.contact_4;
+    document.getElementById("contact_5").innerText = _languageSource.contact_5;
   }
 }
 
@@ -729,18 +757,21 @@ window.onload = function() {
     } else {
       // console.log("YES window.tronWeb - onload");
 
-
       Index.hideError();
       Index.setup();
-      return;
-
 
       if (tronWeb.fullNode.host == 'https://api.trongrid.io' &&
           tronWeb.solidityNode.host == 'https://api.trongrid.io' &&
           tronWeb.eventServer.host == 'https://api.trongrid.io') {
             Index.hideError();
             Index.setup();
-        } else {
+        } else if (tronWeb.fullNode.host == 'https://api.shasta.trongrid.io' &&
+        tronWeb.solidityNode.host == 'https://api.shasta.trongrid.io' &&
+        tronWeb.eventServer.host == 'https://api.shasta.trongrid.io') {
+          //  TEST TODO shasta
+          Index.hideError();
+          Index.setup();
+      } else {
           Index.showError(Index.ErrorType.wrongNode);
         }
       }
@@ -762,14 +793,25 @@ window.addEventListener('message', function (e) {
         
         Index.currentAccount = (e.data.message.data.address) ? e.data.message.data.address : "";
         if (Index.currentAccount.length == 0) {
-          // Index.showError(Index.ErrorType.noTronLink);
-          // return;
+          Index.showError(Index.ErrorType.noTronLink);
+          return;
         }
 
         Index.hideError();
-    } else {
-      // Index.showError(Index.ErrorType.wrongNode);
-      // return;
+    } else if (tronWeb.fullNode.host == 'https://api.shasta.trongrid.io' &&
+    tronWeb.solidityNode.host == 'https://api.shasta.trongrid.io' &&
+    tronWeb.eventServer.host == 'https://api.shasta.trongrid.io') {
+      //  TEST TODO shasta    
+    Index.currentAccount = (e.data.message.data.address) ? e.data.message.data.address : "";
+    if (Index.currentAccount.length == 0) {
+      Index.showError(Index.ErrorType.noTronLink);
+      return;
+    }
+
+    Index.hideError();
+  } else {
+      Index.showError(Index.ErrorType.wrongNode);
+      return;
     }
     setTimeout(Index.setup, 500);
   }
@@ -785,14 +827,19 @@ window.addEventListener('message', function (e) {
               e.data.message.data.node.solidityNode == 'https://api.trongrid.io' &&
               e.data.message.data.node.eventServer == 'https://api.trongrid.io') {
                 Index.hideError();
+          } else if (e.data.message.data.node.fullNode == 'https://api.shasta.trongrid.io' &&
+              e.data.message.data.node.solidityNode == 'https://api.shasta.trongrid.io' &&
+              e.data.message.data.node.eventServer == 'https://api.shasta.trongrid.io') {
+                //  TEST TODO shasta    
+                Index.hideError();
           } else {
-            // Index.showError(Index.ErrorType.wrongNode);
-            // return;
+            Index.showError(Index.ErrorType.wrongNode);
+            return;
           }
       } else{
           // console.log("tronLink currently selects the side chain")
-          // Index.showError(Index.ErrorType.wrongNode);
-          // return;
+          Index.showError(Index.ErrorType.wrongNode);
+          return;
       }
       setTimeout(Index.setup, 500);
   }
