@@ -9,7 +9,7 @@ lang_en = {
   m_menu_3 : " How to play ",
   m_menu_4 : " Connect With Us ",
   main_title : " Madoff's game ",
-  intro_sentence : " Our exciting new game : try to win the jackpot. If you don't you start earning dividends from new players.<br> In this game you always win something, the only question is how much ? ",
+  intro_sentence : " Our exciting new game : try to win the jackpot. If you don't you start earning dividends from new players. \n In this game you always win something, the only question is how much ? ",
   currentjkstatus : " Current jackpot : ",
   will_win_in : " will win in: ",
   current_stage_txt : " Current stage: ",
