@@ -7,8 +7,8 @@ import BigNumber from "bignumber.js";
 
 const Index = {
   Config: {
-    "tokenAddress": "TKg7ENzGPG5esDTjLBGptSW3ZVC2LFVoft",
-    "gameAddress": "TAtDTk85H2SGkV4f8t9uM7UJiP6uudgw9G"
+    "tokenAddress": "TLsMjwkFSLKSWovx2a11z4ZgRg6VfYNRUx",
+    "gameAddress": "TTnbEvURFjbn2rxJcNjYNPdf1rJqtJp9zQ"
   },
 
   ErrorType: {
@@ -23,7 +23,7 @@ const Index = {
   languageSource: null,
 
   LOOP_LIMIT: new BigNumber("50"),
-  WEBSITE_ADDR: "TEZgaJz4BqRPrSViLVYY4sZdxRtxoWAW7e", //  TODO: change
+  WEBSITE_ADDR: "TQphDXxumffC81VTaChhNuFuK1efRAYQJ4", //  TODO: change
 
   setup: async function() {
     console.log("\n     SETUP\n");
@@ -209,11 +209,11 @@ const Index = {
     let length = participatedSessionsForUser.length;
     let ongoingSessionIdx = await Index.gameInst.ongoingSessionIdx().call();
     
-    //  remove ongoing session
-    if (new BigNumber(participatedSessionsForUser[length-1]).comparedTo(new BigNumber(ongoingSessionIdx)) == 0) {
-      participatedSessionsForUser.pop();
-      length = participatedSessionsForUser.length;
-    }
+    // //  remove ongoing session
+    // if (new BigNumber(participatedSessionsForUser[length-1]).comparedTo(new BigNumber(ongoingSessionIdx)) == 0) {
+    //   participatedSessionsForUser.pop();
+    //   length = participatedSessionsForUser.length;
+    // }
     participatedSessionsForUser = participatedSessionsForUser.reverse();
     console.log("profitForPurchasedShares - participatedSessionsForUser: ", participatedSessionsForUser.toString());
 
@@ -530,10 +530,10 @@ const Index = {
     let length = participatedSessionsForUser.length;
     let ongoingSessionIdx = await Index.gameInst.ongoingSessionIdx().call();
     
-    //  remove ongoing session
-    if (new BigNumber(participatedSessionsForUser[length-1]).comparedTo(new BigNumber(ongoingSessionIdx)) == 0) {
-      participatedSessionsForUser.pop();
-    }
+    // //  remove ongoing session
+    // if (new BigNumber(participatedSessionsForUser[length-1]).comparedTo(new BigNumber(ongoingSessionIdx)) == 0) {
+    //   participatedSessionsForUser.pop();
+    // }
     return participatedSessionsForUser.reverse();
   },
 
