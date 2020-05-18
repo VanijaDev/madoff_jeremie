@@ -34,6 +34,10 @@ const Index = {
     Index.currentAccount =  window.tronWeb.defaultAddress.base58;
     // console.log("currentAccount: ", Index.currentAccount);
 
+    if (!Index.currentAccount) {
+      Index.shawFakeCountdown();
+    }
+
     //  Instances
     try {
       Index.gameInst = await tronWeb.contract().at(tronWeb.address.toHex(Index.Config.gameAddress));
@@ -60,20 +64,6 @@ const Index = {
     Index.updateCurrentEarnings();
   },
 
-  // setupEventListeners: function() {
-  //   // Index.gameInst.Purchase().watch((err, eventResult) => {
-  //   //   if (err) {
-  //   //     return console.error('Error with Purchase event:', err);
-  //   //   }
-  //   //   if (eventResult) { 
-  //   //     console.log('eventResult Purchase :',eventResult);
-  //   //     Index.updateData();
-  //   //   }
-
-  //   //   Index.hideSpinner();
-  //   // });
-  // },
-
   updateJackpot: async function() {
     let jp = await Index.gameInst.ongoingJackpot().call();
     document.getElementById("currentJackpot").textContent = tronWeb.fromSun(jp);
@@ -88,6 +78,14 @@ const Index = {
       // console.log("winner hex : ", tronWeb.address.fromHex(winner));
       document.getElementById("currentWinner").textContent = tronWeb.address.fromHex(winner);
     }
+  },
+
+  shawFakeCountdown: function() {
+    console.log("showError");
+    let nowDate = new Date();
+    let winDate = new Date(nowDate.setSeconds(nowDate.getSeconds() + parseInt(600)));
+    // console.log("winDate: ", winDate);
+    jQuery('#clock').countdown(winDate);
   },
 
   updateCountdown: async function() {
