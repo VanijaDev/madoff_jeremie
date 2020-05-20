@@ -27,8 +27,6 @@ const Index = {
 
     //  test addr
     Index.currentAccount =  window.tronWeb.defaultAddress.base58;
-    // console.log("currentAccount: ", Index.currentAccount);
-
     if (!Index.currentAccount) {
       Index.shawFakeCountdown();
     }
@@ -36,9 +34,7 @@ const Index = {
     //  Instances
     try {
       Index.gameInst = await tronWeb.contract().at(tronWeb.address.toHex(Index.Config.gameAddress));
-      // console.log("gameInst: ", Index.gameInst);
       Index.tokenInst = await tronWeb.contract().at(tronWeb.address.toHex(Index.Config.tokenAddress));
-      // console.log("tokenInst: ", Index.tokenInst);
     } catch (error) {
       console.error("No contract instanses.");
       Index.showError(Index.ErrorType.wrongNode);
@@ -66,36 +62,27 @@ const Index = {
 
   updateWinner: async function() {
     let winner = await Index.gameInst.ongoingWinner().call();
-    // console.log("winner: ", winner);
     if (winner.localeCompare("410000000000000000000000000000000000000000") == 0) {
       document.getElementById("currentWinner").textContent = "0x0";
     } else {
-      // console.log("winner hex : ", tronWeb.address.fromHex(winner));
       document.getElementById("currentWinner").textContent = tronWeb.address.fromHex(winner);
     }
   },
 
   shawFakeCountdown: function() {
-    console.log("showError");
     let nowDate = new Date();
     let winDate = new Date(nowDate.setSeconds(nowDate.getSeconds() + parseInt(600)));
-    // console.log("winDate: ", winDate);
     jQuery('#clock').countdown(winDate);
   },
 
   updateCountdown: async function() {
     let blocksLeft = new BigNumber(await Index.blocksUntilStageFinish());
-    // console.log("blocksLeft: ", blocksLeft.toString());
     if (blocksLeft.comparedTo(new BigNumber("0")) == 1) {
       const BLOCK_MINING_TIME = new BigNumber("3");
       let secLeft = BLOCK_MINING_TIME.multipliedBy(blocksLeft);
-      // console.log("secLeft: ", secLeft.toString());
 
       let nowDate = new Date();
-      // console.log("nowDate: ", nowDate);
-
       let winDate = new Date(nowDate.setSeconds(nowDate.getSeconds() + parseInt(secLeft)));
-      // console.log("winDate: ", winDate);
 
       jQuery('#clock').countdown(winDate);
     } else {
@@ -104,8 +91,6 @@ const Index = {
   },
 
   updateCurrentStagePrice: async function() {
-    console.log("     updateCurrentStagePrice");
-
     let ongoingStage = new BigNumber("0");
 
     if (!(await Index.isStageExpired())) {
@@ -119,50 +104,38 @@ const Index = {
   },
 
   updateCurrentEarnings: async function() {
-    console.log("     updateCurrentEarnings");
-
     //  JP
     let jp = await Index.jackpotAmountForCurrentAccount();
-    console.log("jackpotAmountForCurrentAccount: ", jp.toString());
     document.getElementById("jp").textContent = "If you are the winner withdraw the jackpot here: " + tronWeb.fromSun(jp) + " TRX";
 
     //  JP for shares
     let jpForShares = await Index.jackpotForSharesForCurrentAccount();
-    // console.log("jackpotForSharesForCurrentAccount: ", jpForShares.toString());
     document.getElementById("jp_for_shares").textContent = "Withdraw your part of the 20% from the jackpot here: " + tronWeb.fromSun(jpForShares) + " TRX";
 
     //  purchased shares
     let purchasedSharesProfit = await Index.profitForPurchasedShares();
-    console.log("purchasedSharesProfit: ", purchasedSharesProfit.toString());
-
     document.getElementById("current_earnings_amount").textContent = tronWeb.fromSun((new BigNumber(jp)).plus(new BigNumber(jpForShares)).plus(new BigNumber(purchasedSharesProfit)).toString());
 
     Index.showSpinner(false);
   },
 
   jackpotAmountForCurrentAccount: async function() {
-    console.log("jackpotAmountForCurrentAccount");
     let totalAmount = new BigNumber("0");
 
     //  previous jpts
     let jackpotForAddr = new BigNumber(await Index.gameInst.jackpotForAddr(Index.currentAccount).call());
-    console.log("jackpotForAddr: ", jackpotForAddr.toString());
     if (jackpotForAddr.comparedTo(new BigNumber("0")) > 0) {
       totalAmount = totalAmount.plus(jackpotForAddr);
-      console.log("totalAmount previous: ", totalAmount.toString());
     }
 
     return totalAmount;
   },
 
   jackpotForSharesForCurrentAccount: async function() {
-    console.log("jackpotForSharesForCurrentAccount");
-    
     let totalAmount = new BigNumber("0");
 
     let participatedSessionsForUserResponse = await Index.gameInst.participatedSessionsForUser().call();
     let participatedSessionsForUser = participatedSessionsForUserResponse.sessions;
-    // console.log("participatedSessionsForUser: ", participatedSessionsForUser);
 
     let length = participatedSessionsForUser.length;
     let ongoingSessionIdx = await Index.gameInst.ongoingSessionIdx().call();
@@ -170,16 +143,13 @@ const Index = {
       participatedSessionsForUser.pop();
       length = participatedSessionsForUser.length;
     }
-    // console.log("participatedSessionsForUser: ", participatedSessionsForUser);
 
     for (let i = 0; i < length; i++) {
       const sessionId = participatedSessionsForUser[i];
-      // console.log("sessionId: ", sessionId);
       let profit;
       try {
         if (!(await Index.gameInst.isJackpotForSharesInSessionWithdrawnForUser(sessionId).call()).withdrawn) {
           profit = (await Index.gameInst.jackpotForSharesInSessionForUser(sessionId).call()).profit;
-          // console.log("jackpotForShares: ", profit.toString());
           totalAmount = totalAmount.plus(new BigNumber(profit));
         }
       } catch (error) {
@@ -191,13 +161,10 @@ const Index = {
   },
 
   profitForPurchasedShares: async function() {
-    console.log("- profitForPurchasedShares");
-
     let totalAmount = new BigNumber("0");
 
     let participatedSessionsForUserResponse = await Index.gameInst.participatedSessionsForUser().call();
     let participatedSessionsForUser = participatedSessionsForUserResponse.sessions;
-    console.log("profitForPurchasedShares - participatedSessionsForUser: ", participatedSessionsForUser.toString());
 
     let length = participatedSessionsForUser.length;
     let ongoingSessionIdx = await Index.gameInst.ongoingSessionIdx().call();
@@ -208,11 +175,8 @@ const Index = {
     //   length = participatedSessionsForUser.length;
     // }
     participatedSessionsForUser = participatedSessionsForUser.reverse();
-    console.log("profitForPurchasedShares - participatedSessionsForUser: ", participatedSessionsForUser.toString());
-
     for (let i = 0; i < length; i++) {
       const sessionId = participatedSessionsForUser[i];
-      // console.log("sessionId: ", sessionId);
       let profit = await Index.profitInSession(sessionId);
       totalAmount = totalAmount.plus(new BigNumber(profit));
     }
@@ -221,12 +185,9 @@ const Index = {
   },
 
   profitInSession: async function(_sessionId) {
-    console.log("-- profitInSession: ", _sessionId.toString());
-
     let totalAmount = new BigNumber("0");
 
     let purchasesInSession = (await Index.gameInst.purchasesInSessionForUser(_sessionId).call()).purchases;
-    console.log("purchasesInSession: ", purchasesInSession.toString());
     let length = purchasesInSession.length;
 
     for (let i = 0; i < length; i++) {
@@ -238,22 +199,16 @@ const Index = {
   },
 
   profitForPurchaseInSession: async function(_purchaseId, _sessionId) {
-    console.log("--- profitForPurchaseInSession: purchase:", _purchaseId.toString(), ",session:", _sessionId.toString());
-
     let totalAmount = new BigNumber("0");
 
     let purchaseCountInSession = new BigNumber((await Index.gameInst.purchaseCountInSession(_sessionId).call()).purchases);
-    console.log("purchaseCountInSession: ", purchaseCountInSession.toString());
 
     let lastPurchaseIdx = purchaseCountInSession.minus(new BigNumber("1"));
     if (new BigNumber(_purchaseId).comparedTo(lastPurchaseIdx) == 0) {
-      console.log("--- Last purchase in Session - SKIP ---");
       return totalAmount;
     }
 
     let withdrawnOnPurchase = new BigNumber((await Index.gameInst.purchaseProfitInSessionWithdrawnOnPurchaseForUser(_purchaseId, _sessionId).call()).purchase);
-    console.log("withdrawnOnPurchase: ", withdrawnOnPurchase.toString());
-
     let fromPurchase = new BigNumber(_purchaseId).plus(new BigNumber("1"));
     
     if (withdrawnOnPurchase.comparedTo(new BigNumber("0")) > 0) {
@@ -261,18 +216,14 @@ const Index = {
 
       if (withdrawnOnPurchase.comparedTo(lastPurchaseIdx) == 0) {
         //  withdrawn on last purchase - return
-
-        console.log("--- Nothing more to withdraw - SKIP ---");
         return totalAmount;
       }
 
       fromPurchase = withdrawnOnPurchase.plus(new BigNumber("1"));
     }
-    console.log("fromPurchase: ", fromPurchase.toString());
     
     let purchaseCountWithProfit = purchaseCountInSession.minus(fromPurchase);
     let toPurchase = (purchaseCountWithProfit.comparedTo(Index.LOOP_LIMIT) == 1) ? fromPurchase.plus(Index.LOOP_LIMIT) : fromPurchase.plus(purchaseCountWithProfit).minus(new BigNumber("1"));
-    console.log("toPurchase out: ", toPurchase.toString());
 
     let fetch = true;
     do {
@@ -286,13 +237,11 @@ const Index = {
         }
 
         const profit = (await Index.gameInst.profitForPurchaseInSession(_purchaseId.toString(), _sessionId.toString(), fromPurchase.toString(), toPurchase.toString()).call()).profit;
-        console.log("profit: ", profit.toString());
         totalAmount = totalAmount.plus(new BigNumber(profit));
   
         fromPurchase = toPurchase.plus(new BigNumber("1"));
         if (toPurchase.comparedTo(lastPurchaseIdx) < 0) {
           toPurchase = (fromPurchase.plus(Index.LOOP_LIMIT).comparedTo(lastPurchaseIdx) <= 0) ? fromPurchase.plus(Index.LOOP_LIMIT) : lastPurchaseIdx;
-          console.log("toPurchase in: ", toPurchase.toString());
         }
       } while (localFetch);
 
@@ -303,8 +252,6 @@ const Index = {
   },
 
   setLanguage: function(_langId) {
-    console.log("     setLanguage: " + _langId);
-
     Index.languageSource = lang_en;
 
     switch (_langId) {
@@ -336,8 +283,6 @@ const Index = {
   /** UI */
 
   showKnowMoreClicked: function () {
-    console.log("     showKnowMore");
-    
     document.getElementById("more_options_btn").classList.add('opacity_0');
     document.getElementById("more_options_btn").style.display = "none";
 
@@ -346,10 +291,7 @@ const Index = {
   },
 
   buyShares: async function() {
-    console.log("     buyShares");
-
     let sharesNumber = document.getElementById("purchaseAmount").value;
-    console.log("sharesNumber: ", sharesNumber);
     if (sharesNumber < 1) {
       alert("Please enter valid shares number. Minimum 1 share to buy.");
       return;
@@ -362,7 +304,6 @@ const Index = {
 
     //  calculate TRX amount
     let txValue = await Index.purchaseValue(sharesNumber);
-    console.log("txValue: ", txValue.toString());
 
     //  TODO: correct website address
     // let websiteAddr = Index.WEBSITE_ADDR; // OWNER
@@ -389,12 +330,9 @@ const Index = {
     }
   },
 
-  withdrawJackpotClicked: async function() {
-    console.log("     withdrawJackpot");
-    
+  withdrawJackpotClicked: async function() {   
     //  withdraw previous jpts
     let jackpotForAddr = await Index.gameInst.jackpotForAddr(Index.currentAccount).call();
-    console.log("jackpotForAddr: ", jackpotForAddr.toString());
     if ((new BigNumber(jackpotForAddr)).comparedTo(new BigNumber("0")) > 0) {
       Index.withdrawJackpot();
       return;
@@ -403,8 +341,6 @@ const Index = {
   },
 
   withdrawjackpotForSharesInSessionClicked: async function() {
-    console.log("     withdrawjackpotForSharesInSession - 20% from each jp");
-
     Index.showSpinner(true, Index.languageSource.spinner_text);
 
     let participatedSessionsForUser = (await Index.gameInst.participatedSessionsForUser().call()).sessions;
@@ -461,11 +397,7 @@ const Index = {
    * Withdraw implemented by single purchase
    */
   withdrawSharesProfitClicked: async function() {
-    console.log("     withdrawSharesProfit");
-
-    let sessionsToCheckForProfitForShares = await Index.sessionsToCheckForProfitForShares();
-    console.log("sessionsToCheckForProfitForShares - sessionsToCheckForProfitForShares: ", sessionsToCheckForProfitForShares.toString());
-    
+    let sessionsToCheckForProfitForShares = await Index.sessionsToCheckForProfitForShares();    
     let sessionsLength = sessionsToCheckForProfitForShares.length;
 
     if (sessionsLength == 0) {
@@ -477,31 +409,24 @@ const Index = {
 
     for (let i = 0; i < sessionsLength; i++) {
       const sessionId = sessionsToCheckForProfitForShares[i];
-      console.log("sessionId: ", sessionId.toString());
 
       let purchaseCountInSession = new BigNumber((await Index.gameInst.purchaseCountInSession(sessionId).call()).purchases);
-      console.log("purchaseCountInSession: ", purchaseCountInSession.toString());
       
       let lastPurchaseIdx = purchaseCountInSession.minus(new BigNumber("1"));
       
       let userPurchasesInSession = (await Index.gameInst.purchasesInSessionForUser(sessionId).call()).purchases;
-      console.log("userPurchasesInSession: ", userPurchasesInSession.toString());
       let userPurchasesInSessionLength = userPurchasesInSession.length;
 
       for (let j = 0; j < userPurchasesInSessionLength; j ++) {
         let purchaseId = new BigNumber(userPurchasesInSession[j]);
-        console.log("purchaseId: ", purchaseId.toString());
 
         if (purchaseId.comparedTo(lastPurchaseIdx) == 0) {
-          console.log("--- Last purchase in Session - SKIP ---");
           continue;
         }
 
         let withdrawnOnPurchase = new BigNumber((await Index.gameInst.purchaseProfitInSessionWithdrawnOnPurchaseForUser(purchaseId.toString(), sessionId.toString()).call()).purchase);
-        console.log("withdrawnOnPurchase: ", withdrawnOnPurchase.toString());
 
         if (withdrawnOnPurchase.comparedTo(lastPurchaseIdx) == 0) {
-          console.log("--- Total withdrawn - SKIP ---");
         } else if (withdrawnOnPurchase.comparedTo(lastPurchaseIdx) > 0) {
           throw("withdrawSharesProfitClicked - withdrawnOnPurchase:", withdrawnOnPurchase);
         } else {
@@ -531,8 +456,6 @@ const Index = {
   },
 
   withdrawSharesProfitForPurchaseInSession: async function(_purchaseId, _sessionId) {
-    console.log("withdrawSharesProfitForPurchase:", _purchaseId.toString(), " InSession:", _sessionId.toString());
-
     if (confirm("Profit for purchased shares withdrawal. Multiple withdrawals may be required to withdraw total profit.")) {
       try {
         let withdrawProfitForSharesTx = await Index.gameInst.withdrawProfitForPurchaseInSession(_purchaseId.toString(), _sessionId.toString(), Index.LOOP_LIMIT.toString()).send({
@@ -617,7 +540,6 @@ const Index = {
 
   showError: function (_errorType) {
     let errorText = "";
-    console.log("_errorType: ", _errorType);
 
     switch (_errorType) {
       case this.ErrorType.noTronLink:
@@ -648,7 +570,6 @@ const Index = {
   },
 
   showNotifViewJP: function(_show) {
-    console.log("showNotifViewJP: ", _show);
     document.getElementById("notif_view_jp").style.display = _show ? "block" : "none";
   },
 
@@ -664,9 +585,7 @@ const Index = {
     let sharesToPurchase = _sharesNumber;
     let resultValueBN = new BigNumber(0);
     do {
-      console.log("ongoingStage: ", ongoingStage);
       let sharesForStageToPurchase = (useDefaults) ? await Index.gameInst.sharesForStageToPurchaseOriginal(ongoingStage).call() : await Index.gameInst.sharesForStageToPurchase(ongoingStage).call();
-      console.log("sharesForStageToPurchase: ", sharesForStageToPurchase);
 
       if (sharesForStageToPurchase > sharesToPurchase) {
         resultValueBN = resultValueBN.plus(await Index.sharesPrice(sharesToPurchase, ongoingStage));
@@ -676,8 +595,7 @@ const Index = {
         sharesToPurchase -= sharesForStageToPurchase;
         ongoingStage += 1;
       }
-      console.log("resultValueBN:            ", resultValueBN.toString());
-      console.log("\n");
+
     } while (sharesToPurchase > 0);
 
     return resultValueBN;
@@ -685,7 +603,6 @@ const Index = {
 
   sharesPrice: async function(_sharesNumber, _stage) {
     let sharePriceForStage = await Index.gameInst.sharePriceForStage(_stage).call();
-    console.log("sharePriceForStage: ", sharePriceForStage.toString());
     return new BigNumber(_sharesNumber.toString()).multipliedBy(sharePriceForStage);
   },
 
