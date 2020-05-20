@@ -305,13 +305,6 @@ const Index = {
     //  calculate TRX amount
     let txValue = await Index.purchaseValue(sharesNumber);
 
-    //  TODO: correct website address
-    // let websiteAddr = Index.WEBSITE_ADDR; // OWNER
-    // if (sharesNumber % 2) {
-    //   //  TEST
-    //   websiteAddr = "TMEp8iyoudx2owrHxFJQMbDn6ND16jJxZW" //  website1
-    // }
-
     try {
       let purchaseTx = await Index.gameInst.purchase(Index.WEBSITE_ADDR).send({
         feeLimit:100000000,
