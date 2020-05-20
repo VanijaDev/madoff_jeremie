@@ -1,8 +1,3 @@
-//  TODO:
-//  - node check + showError
-//  "test addr"
-//  window.onload
-
 import BigNumber from "bignumber.js";
 
 const Index = {
@@ -764,9 +759,8 @@ window.onload = function() {
             Index.hideError();
             Index.setup();
         } else if (tronWeb.fullNode.host == 'https://api.shasta.trongrid.io' &&
-        tronWeb.solidityNode.host == 'https://api.shasta.trongrid.io' &&
-        tronWeb.eventServer.host == 'https://api.shasta.trongrid.io') {
-          //  TEST TODO shasta
+          tronWeb.solidityNode.host == 'https://api.shasta.trongrid.io' &&
+          tronWeb.eventServer.host == 'https://api.shasta.trongrid.io') {
           Index.hideError();
           Index.setup();
       } else {
@@ -797,17 +791,16 @@ window.addEventListener('message', function (e) {
 
         Index.hideError();
     } else if (tronWeb.fullNode.host == 'https://api.shasta.trongrid.io' &&
-    tronWeb.solidityNode.host == 'https://api.shasta.trongrid.io' &&
-    tronWeb.eventServer.host == 'https://api.shasta.trongrid.io') {
-      //  TEST TODO shasta    
-    Index.currentAccount = (e.data.message.data.address) ? e.data.message.data.address : "";
-    if (Index.currentAccount.length == 0) {
-      Index.showError(Index.ErrorType.noTronLink);
-      return;
-    }
+      tronWeb.solidityNode.host == 'https://api.shasta.trongrid.io' &&
+      tronWeb.eventServer.host == 'https://api.shasta.trongrid.io') {
+      Index.currentAccount = (e.data.message.data.address) ? e.data.message.data.address : "";
+      if (Index.currentAccount.length == 0) {
+        Index.showError(Index.ErrorType.noTronLink);
+        return;
+      }
 
-    Index.hideError();
-  } else {
+      Index.hideError();
+    } else {
       Index.showError(Index.ErrorType.wrongNode);
       return;
     }
@@ -828,7 +821,6 @@ window.addEventListener('message', function (e) {
           } else if (e.data.message.data.node.fullNode == 'https://api.shasta.trongrid.io' &&
               e.data.message.data.node.solidityNode == 'https://api.shasta.trongrid.io' &&
               e.data.message.data.node.eventServer == 'https://api.shasta.trongrid.io') {
-                //  TEST TODO shasta    
                 Index.hideError();
           } else {
             Index.showError(Index.ErrorType.wrongNode);
