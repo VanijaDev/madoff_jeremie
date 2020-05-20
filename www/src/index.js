@@ -382,10 +382,6 @@ const Index = {
     }
   },
 
-  withdrawjackpotForSharesInSessionPromptClicked: async function(_sessionId) {
-    console.log("     withdrawjackpotForSharesInSessionPromptClicked: ", _sessionId);
-  },
-
   /**
    * Withdraw implemented by single purchase
    */
