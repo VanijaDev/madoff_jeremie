@@ -10,7 +10,6 @@ contract BernardEscrow {
   BernardsCutToken public token;
 
   uint256 public constant CALCULATION_DISABLED_BLOCKS = 21600; //  used to avoid spam
-  // uint256 public constant CALCULATION_DISABLED_BLOCKS = 5;   // testing
   
   uint256 public prevCalculationBlock;
   uint256 public tokenFractionProfitCalculatedTimes;

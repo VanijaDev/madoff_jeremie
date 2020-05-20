@@ -19,13 +19,6 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
   uint32[14] public sharesForStageToPurchase =          [2500,    5000,     3125,     12500,    10000,    62500,     62500,     400000,    390625,    2000000,   562500,    10000000,   12500000,   25000000];
   uint256[14] public sharePriceForStage =               [10 trx,  20 trx,   40 trx,   80 trx,   125 trx,  160 trx,   200 trx,   250 trx,   320 trx,   500 trx,   800 trx,   1000 trx,   1000 trx,   1000 trx];
   
-  // // testing  
-  // uint16[14] public blocksForStage =                    [100,   90,    80,    70,    60,     50,     45,     40,     35,     30,     25,     20,      10,      5];  
-  // uint32[14] public sharesForStageToPurchaseOriginal =  [25,    50,    31,    12,    10,     62,     62,     40,     39,     20,     15,     10,      12,      25];
-  // uint32[14] public sharesForStageToPurchase =          [25,    50,    31,    12,    10,     62,     62,     40,     39,     20,     15,     10,      12,      25];
-  // uint256[14] public sharePriceForStage =               [1 trx, 2 trx, 4 trx, 8 trx, 12 trx, 16 trx, 20 trx, 25 trx, 32 trx, 50 trx, 80 trx, 100 trx, 100 trx, 1000 trx];
-  
-
   uint256 public latestPurchaseBlock;
   uint256 public ongoingJackpot;
   address public ongoingWinner;
