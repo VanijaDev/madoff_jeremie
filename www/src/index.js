@@ -2,8 +2,8 @@ import BigNumber from "bignumber.js";
 
 const Index = {
   Config: {
-    "tokenAddress": "TFbmfwEF8VPDyMwzq5GEQMc1nj61gjwrB1",
-    "gameAddress": "TJSniQhZJbaFRLQYjP9g7vZpYiQobGKPaL"
+    "tokenAddress": "TPQny8QYj5jXjssYTitxHCTVx2ZnX9shLJ",
+    "gameAddress": "THDbeqgY9AgJicjxTmwMb3Kz6FmKp8eYwB"
   },
 
   ErrorType: {
@@ -22,8 +22,6 @@ const Index = {
 
   setup: async function() {
     console.log("\n     SETUP\n");
-    
-    Index.setLanguage(0);
 
     //  test addr
     Index.currentAccount =  window.tronWeb.defaultAddress.base58;
@@ -48,11 +46,24 @@ const Index = {
     console.log("\n     UPDATE\n");
     Index.showSpinner(true, " ");
 
+    Index.updateOwningSharesCount();
     Index.updateJackpot();
     Index.updateWinner();
     Index.updateCountdown();
     Index.updateCurrentStagePrice();
     Index.updateCurrentEarnings();
+  },
+
+  updateOwningSharesCount: async function() {
+    let participatedSessionsForUserResponse = await Index.gameInst.participatedSessionsForUser().call();
+    let participatedSessionsForUser = participatedSessionsForUserResponse.sessions;
+
+    let sharesTotal = new BigNumber("0");
+    for (let i = 0; i < participatedSessionsForUser.length; i ++) {
+      let shares = new BigNumber((await Index.gameInst.sharesPurchasedInSessionByPurchaser(participatedSessionsForUser[i].toString()).call()).shares);
+      sharesTotal = sharesTotal.plus(shares);
+    }
+    document.getElementById("share_amount").textContent = sharesTotal.toString();
   },
 
   updateJackpot: async function() {
@@ -649,6 +660,8 @@ const Index = {
 }
 
 window.onload = function() {
+  Index.setLanguage(0);
+
   setTimeout(function() {
     if (!window.tronWeb) {
       // console.error("NO window.tronWeb - onload");

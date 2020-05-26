@@ -147,7 +147,9 @@
                 <input type="number" id="purchaseAmount" class=" btn-border3" placeholder="enter a whole number" min="1" step="1">
                 <button id="buy_share_btn" class="btn btn-common show_cursor" onclick="Index.buyShares()"></button>
               </div>
-              <br><br>
+              <div style="height:40px; font-size:14px; padding:12px 20px; font-weight:400; color:#3b5998;">
+                <span>IN TOTAL YOU OWN: </span><span id="share_amount">...</span><span> SHARES</span>
+              </div>
               <div class="btn btn-border2">
                 <p id="my_wallet_intro"></p>
                 <h5 class="btn btn-border2"><span id="my_current_earning"></span> <span id="current_earnings_amount">...</span> TRX</h5>
