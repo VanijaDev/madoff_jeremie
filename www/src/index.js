@@ -312,6 +312,9 @@ const Index = {
     }
 
     Index.showSpinner(true, Index.languageSource.spinner_text);
+    setTimeout(() => {
+      Index.showSpinner(false);
+    }, 5000);
 
     //  calculate TRX amount
     let txValue = await Index.purchaseValue(sharesNumber);
@@ -324,12 +327,10 @@ const Index = {
       });
 
       document.getElementById("purchaseAmount").value = "";
-      Index.showSpinner(false);
       Index.updateData();
     } catch (error) {
       console.error(error);
       document.getElementById("purchaseAmount").value = "";
-      Index.showSpinner(false);
       alert("Error: " + error.message);
     }
   },
@@ -377,6 +378,9 @@ const Index = {
       }
     }
 
+    setTimeout(() => {
+      Index.showSpinner(false);
+    }, 5000);
     try {
       let withdrawJackpotforSharesTx = await Index.gameInst.withdrawjackpotForSharesInSession(sessionIdx).send({
         feeLimit:100000000,
@@ -384,11 +388,9 @@ const Index = {
       });
 
       // console.log("withdrawJackpotforSharesTx: ", withdrawJackpotforSharesTx);
-      Index.showSpinner(false);
       Index.updateData();
     } catch (error) {
         console.error(error);
-        Index.showSpinner(false);
         alert("Error: " + error.message);
     }
   },
@@ -457,6 +459,9 @@ const Index = {
 
   withdrawSharesProfitForPurchaseInSession: async function(_purchaseId, _sessionId) {
     if (confirm("Profit for purchased shares withdrawal. Multiple withdrawals may be required to withdraw total profit.")) {
+      setTimeout(() => {
+        Index.showSpinner(false);
+      }, 5000);
       try {
         let withdrawProfitForSharesTx = await Index.gameInst.withdrawProfitForPurchaseInSession(_purchaseId.toString(), _sessionId.toString(), Index.LOOP_LIMIT.toString()).send({
           feeLimit:100000000,
@@ -467,7 +472,6 @@ const Index = {
         Index.updateData();
       } catch (error) {
           console.error(error);
-          Index.showSpinner(false);
           alert("Error: " + error.message);
       }
     } else {
@@ -477,6 +481,10 @@ const Index = {
 
   withdrawJackpot: async function() {
     Index.showSpinner(true, Index.languageSource.spinner_text);
+    setTimeout(() => {
+      Index.showSpinner(false);
+    }, 5000);
+
     try {
       let withdrawJackpotTx = await Index.gameInst.withdrawJackpot().send({
         feeLimit:100000000,
@@ -484,11 +492,9 @@ const Index = {
       });
 
       // console.log("withdrawJackpotTx: ", withdrawJackpotTx);
-      Index.showSpinner(false);
       Index.updateData();
     } catch (error) {
         console.error(error);
-        Index.showSpinner(false);
         alert("Error: " + error.message);
     }
   },
