@@ -50,5 +50,8 @@ lang_cn_trad = {
   contact_5 : "\n查看我們在Dappradar上的排名 :",
 
   error_wrongNode: "Unlock your Tronlink and use MainNet to access the game. - www.tronlink.org -.",
-  error_noInst: "ERROR: contract instance failed."
+  error_noInst: "ERROR: contract instance failed.",
+  clock_hours: " Hours",
+  clock_minutes: " Minutes",
+  clock_seconds: " Seconds"
 };

@@ -51,5 +51,8 @@ lang_korean = {
   contact_5 : "\nDappradar에서 디앱 랭킹을 확인할 수 있습니다 :",
 
   error_wrongNode: "Unlock your Tronlink and use MainNet to access the game. - www.tronlink.org -.",
-  error_noInst: "ERROR: contract instance failed."
+  error_noInst: "ERROR: contract instance failed.",
+  clock_hours: " Hours",
+  clock_minutes: " Minutes",
+  clock_seconds: " Seconds"
 };

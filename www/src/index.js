@@ -658,6 +658,9 @@ const Index = {
     document.getElementById("contact_3").innerText = _languageSource.contact_3;
     document.getElementById("contact_4").innerText = _languageSource.contact_4;
     document.getElementById("contact_5").innerText = _languageSource.contact_5;
+    document.getElementById("clock_hours").innerText = _languageSource.clock_hours;
+    document.getElementById("clock_minutes").innerText = _languageSource.clock_minutes;
+    document.getElementById("clock_seconds").innerText = _languageSource.clock_seconds;
   }
 }
 

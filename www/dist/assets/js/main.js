@@ -35,9 +35,9 @@
     ========================================================================== */
      jQuery('#clock').countdown('2018/10/19',function(event){
       var $this=jQuery(this).html(event.strftime(''
-      +'<div class="time-entry hours"><span>%H</span> Hours</div> '
-      +'<div class="time-entry minutes"><span>%M</span> Minutes</div> '
-      +'<div class="time-entry seconds"><span>%S</span> Seconds</div> '));
+      +'<div class="time-entry hours"><span>%H</span> <span id="clock_hours" style="font-size: 14px;font-weight: 400;font-family: Open Sans, sans-serif;"> Hours</span></div> '
+      +'<div class="time-entry minutes"><span>%M</span> <span id="clock_minutes" style="font-size: 14px;font-weight: 400;font-family: Open Sans, sans-serif;"> Minutes</span></div> '
+      +'<div class="time-entry seconds"><span>%S</span> <span id="clock_seconds" style="font-size: 14px;font-weight: 400;font-family: Open Sans, sans-serif;"> Seconds</span></div> '));
     });
 
     /* WOW Scroll Spy
