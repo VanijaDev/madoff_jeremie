@@ -21,7 +21,7 @@ const Index = {
   WEBSITE_ADDR: "TQphDXxumffC81VTaChhNuFuK1efRAYQJ4", //  TODO: change
 
   setup: async function() {
-    console.log("\n     SETUP\n");
+    // console.log("\n     SETUP\n");
 
     //  test addr
     Index.currentAccount =  window.tronWeb.defaultAddress.base58;
@@ -43,7 +43,7 @@ const Index = {
   },
 
   updateData: function() {
-    console.log("\n     UPDATE\n");
+    // console.log("\n     UPDATE\n");
     Index.showSpinner(true, " ");
 
     Index.updateOwningSharesCount();
@@ -99,6 +99,10 @@ const Index = {
     } else {
       jQuery('#clock').countdown('2000/01/01');
     }
+
+    document.getElementById("clock_hours").innerText = this.languageSource.clock_hours;
+    document.getElementById("clock_minutes").innerText = this.languageSource.clock_minutes;
+    document.getElementById("clock_seconds").innerText = this.languageSource.clock_seconds;
   },
 
   updateCurrentStagePrice: async function() {
@@ -658,9 +662,6 @@ const Index = {
     document.getElementById("contact_3").innerText = _languageSource.contact_3;
     document.getElementById("contact_4").innerText = _languageSource.contact_4;
     document.getElementById("contact_5").innerText = _languageSource.contact_5;
-    document.getElementById("clock_hours").innerText = _languageSource.clock_hours;
-    document.getElementById("clock_minutes").innerText = _languageSource.clock_minutes;
-    document.getElementById("clock_seconds").innerText = _languageSource.clock_seconds;
   }
 }
 
@@ -696,8 +697,8 @@ window.onload = function() {
 
 window.addEventListener('message', function (e) {
   if (e.data.message && e.data.message.action == "setAccount") {
-    console.log("message - setAccount");
-    console.log("setAccount event e", e)
+    // console.log("message - setAccount");
+    // console.log("setAccount event e", e)
 
     if (Index.currentAccount == e.data.message.data.address) {
       return;
@@ -732,7 +733,7 @@ window.addEventListener('message', function (e) {
   }
 
   if (e.data.message && e.data.message.action == "setNode") {
-    console.log("message - setNode");
+    // console.log("message - setNode");
       // console.log("setNode event e", e)
       // console.log("setNode event", e.data.message)
       if (e.data.message.data.node.chain == '_') {
