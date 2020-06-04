@@ -267,20 +267,16 @@ const Index = {
 
     switch (_langId) {
       case 1:
-        console.log("Index.languageSource: 普通话");
-        Index.languageSource = lang_ch;
+        console.log("Index.languageSource: Korean");
+        Index.languageSource = lang_korean;
         break;
       case 2:
-        console.log("Index.languageSource: 粵語");
-        // Index.languageSource = lang_jp;
+        console.log("Index.languageSource: 简体  >> Simplified CN");
+        Index.languageSource = lang_cn_simpl;
         break;
       case 3:
-        console.log("Index.languageSource: Deutsch");
-        // Index.languageSource = lang_de;
-        break;
-      case 4:
-        console.log("Index.languageSource: Español");
-        // Index.languageSource = lang_es;
+        console.log("Index.languageSource: 繁体  >> trad CN");
+        Index.languageSource = lang_cn_trad;
         break;
     
       default:
