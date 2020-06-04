@@ -1,5 +1,5 @@
 // do not translate: TRON and TRX (tronlink > spanish and deutsh)
-lang_en = {
+sp_en = {
   menu_1 : " Play ",
   menu_2 : " How it works ",
   menu_3 : " How to play ",

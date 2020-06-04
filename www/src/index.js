@@ -268,7 +268,7 @@ const Index = {
     switch (_langId) {
       case 1:
         console.log("Index.languageSource: 普通话");
-        // Index.languageSource = lang_ch;
+        Index.languageSource = lang_ch;
         break;
       case 2:
         console.log("Index.languageSource: 粵語");
@@ -549,15 +549,15 @@ const Index = {
 
     switch (_errorType) {
       case this.ErrorType.noTronLink:
-        errorText = "TronLink is not connected. Please, install and log in into TronLink.";
+        errorText = Index.languageSource.error_wrongNode;
       break;
 
       case this.ErrorType.wrongNode:
-        errorText = "Please, select Main Chain - Mainnet inTronLink.";
+        errorText = Index.languageSource.error_wrongNode;
       break;
 
       case this.ErrorType.noInst:
-        errorText = "ERROR: contract instance failed.";
+        errorText = Index.languageSource.error_noInst;
       break;
     }
 
@@ -671,7 +671,7 @@ window.onload = function() {
   setTimeout(function() {
     if (!window.tronWeb) {
       // console.error("NO window.tronWeb - onload");
-      Index.showError(Index.ErrorType.wrongNode);
+      Index.showError(Index.ErrorType.noTronLink);
     } else {
       // console.log("YES window.tronWeb - onload");
 
@@ -698,7 +698,7 @@ window.onload = function() {
 window.addEventListener('message', function (e) {
   if (e.data.message && e.data.message.action == "setAccount") {
     console.log("message - setAccount");
-    // console.log("setAccount event e", e)
+    console.log("setAccount event e", e)
 
     if (Index.currentAccount == e.data.message.data.address) {
       return;
