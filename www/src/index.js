@@ -323,11 +323,14 @@ const Index = {
       let purchaseTx = await Index.gameInst.purchase(Index.WEBSITE_ADDR).send({
         feeLimit:100000000,
         callValue: txValue,
-        shouldPollResponse: true
+        shouldPollResponse: false
       });
 
       document.getElementById("purchaseAmount").value = "";
-      Index.updateData();
+      // Index.updateData();
+      setTimeout(() => {
+        location.reload();
+      }, 3000);
     } catch (error) {
       console.error(error);
       document.getElementById("purchaseAmount").value = "";
@@ -335,7 +338,7 @@ const Index = {
     }
   },
 
-  withdrawJackpotClicked: async function() {   
+  withdrawJackpotClicked: async function() {
     //  withdraw previous jpts
     let jackpotForAddr = await Index.gameInst.jackpotForAddr(Index.currentAccount).call();
     if ((new BigNumber(jackpotForAddr)).comparedTo(new BigNumber("0")) > 0) {
