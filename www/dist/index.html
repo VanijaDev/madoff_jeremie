@@ -29,8 +29,12 @@
 	<!-- Intro Section Start -->
 	<section class="intro">
 		<dl id='countries' class="dropdown">
-			<dt><a href="javascript:void(0);"><img src="assets/img/web.png"
-						alt=""><span id="lang">Language</span></a></dt>
+			<dt>
+				<div>
+					<a href="javascript:void(0);"><img src="assets/img/web.png" alt=""><span id="lang">Language</span></a>
+					<img src="assets/img/gameoftrons-logo.png" alt="" style="width: 40px;">
+				</div>
+			</dt>
 			<dd>
 				<ul>
 					<li><a href="javascript:void(0);" id="lang_eng">English<span class="value">ENG</span></a></li>
@@ -56,13 +60,14 @@
 						<h3 class="btn-common2 jkpt_big">
 							<b style="color: #000;" id="current_treasure">Current Kingdom Treasure :</b>
 							<span id="currentjkstatus"></span>
-							<span id="currentJackpot"> TRX 20 000 </span>
+							TRX <span id="currentJackpot">0</span>
 						</h3>
 					</div>
 					</div>
 				<div class="col-md-12 col-sm-12 col-xs-12">
-					<div class="btn btn-border">
-						<span id="will_win_in">DDFxdVvrf1254fhgt54f - WILL BE KING IN :</span>
+					<div class="btn btn-border will-be-king-block">
+						<span id="currentWinner">0x0</span>
+						<span id="will_win_in"> WILL BE KING IN :</span>
 					</div>
 					<div class="row countdown justify-content-center">
 						<div id="clock" class="time-count"></div>
@@ -109,10 +114,10 @@
 						<p id="currentstatus"><b><span>Current tron :</span> <span class="colorb" id="cur_level">Paper Tron</span>  <span id="currentstatus2"> -  Price to buy a land :</span>
 								<span class="colorb" id="cur_price">10</span><span id="unit1">Trx</span></b></p>
 						<div id="error_view" class="error_view">
-							<p class="error_view_text">Unlock your Tronlink to access the game - www.tronlink.org</p>
+							<p id="error_view_text" class="error_view_text">Unlock your Tronlink to access the game - www.tronlink.org</p>
 						</div>
 						<div id="spinner_view" class="error_view">
-							<p class="error_view_text">Mining transaction…</p>
+							<p id="spinner_text" class="error_view_text">Mining transaction…</p>
 							<div class="loader" id="loader-1"></div>
 						</div>
 						<div>

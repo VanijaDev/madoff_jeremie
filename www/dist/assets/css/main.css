@@ -1549,7 +1549,8 @@ div#clock .dots {
     align-items: center;
     padding-left: 8px;
     border-radius: 8px;
-    margin-left: auto;
+    /* margin-left: auto; */
+    float: right;
     border: 1px solid;
     margin-right: 15px;
 }
@@ -1725,5 +1726,11 @@ margin-bottom: 40px;
   color: #000;
 }
 
+.will-be-king-block {
+  overflow: auto;
+  display: block;
+  max-width: 750px;
+  margin: auto !important;
+}
 
 

@@ -1,5 +1,10 @@
 import BigNumber from "bignumber.js";
 
+import lang_cn_simpl from "../languages/cn_simpl";
+import lang_cn_trad from "../languages/cn_trad";
+import lang_en from "../languages/english";
+import lang_korean from "../languages/korean";
+
 const Index = {
   Config: {
     "tokenAddress": "TEPKHWEea8AH4YCKmbofWqihH38eoNz4Mo",
@@ -21,13 +26,13 @@ const Index = {
   WEBSITE_ADDR: "TQphDXxumffC81VTaChhNuFuK1efRAYQJ4", //  TODO: change
 
   setup: async function() {
-    // console.log("\n     SETUP\n");
+    console.log("\n     SETUP\n");
 
     //  test addr
     Index.currentAccount =  window.tronWeb.defaultAddress.base58;
-    if (!Index.currentAccount) {
-      Index.shawFakeCountdown();
-    }
+    // if (!Index.currentAccount) {
+    //   Index.shawFakeCountdown();
+    // }
 
     //  Instances
     try {
@@ -43,15 +48,15 @@ const Index = {
   },
 
   updateData: function() {
-    // console.log("\n     UPDATE\n");
-    Index.showSpinner(true, " ");
+    console.log("\n     UPDATE\n");
+    // Index.showSpinner(true, " ");
 
-    Index.updateOwningSharesCount();
-    Index.updateJackpot();
-    Index.updateWinner();
-    Index.updateCountdown();
-    Index.updateCurrentStagePrice();
-    Index.updateCurrentEarnings();
+    // Index.updateOwningSharesCount();
+    // Index.updateJackpot();
+    // Index.updateWinner();
+    // Index.updateCountdown();
+    // Index.updateCurrentStagePrice();
+    // Index.updateCurrentEarnings();
   },
 
   updateOwningSharesCount: async function() {
@@ -80,11 +85,11 @@ const Index = {
     }
   },
 
-  shawFakeCountdown: function() {
-    let nowDate = new Date();
-    let winDate = new Date(nowDate.setSeconds(nowDate.getSeconds() + parseInt(600)));
-    jQuery('#clock').countdown(winDate);
-  },
+  // shawFakeCountdown: function() {
+  //   let nowDate = new Date();
+  //   let winDate = new Date(nowDate.setSeconds(nowDate.getSeconds() + parseInt(600)));
+  //   jQuery('#clock').countdown(winDate);
+  // },
 
   updateCountdown: async function() {
     let blocksLeft = new BigNumber(await Index.blocksUntilStageFinish());
@@ -95,9 +100,9 @@ const Index = {
       let nowDate = new Date();
       let winDate = new Date(nowDate.setSeconds(nowDate.getSeconds() + parseInt(secLeft)));
 
-      jQuery('#clock').countdown(winDate);
+      // jQuery('#clock').countdown(winDate);
     } else {
-      jQuery('#clock').countdown('2000/01/01');
+      // jQuery('#clock').countdown('2000/01/01');
     }
 
     document.getElementById("clock_hours").innerText = this.languageSource.clock_hours;
@@ -267,6 +272,8 @@ const Index = {
   },
 
   setLanguage: function(_langId) {
+    console.error("setLanguage - not used");
+    return;
     Index.languageSource = lang_en;
 
     switch (_langId) {
@@ -669,39 +676,35 @@ const Index = {
 }
 
 window.onload = function() {
-  console.log("1111");
   Index.setLanguage(0);
 
   setTimeout(function() {
     if (!window.tronWeb) {
-      // console.error("NO window.tronWeb - onload");
+      console.error("NO window.tronWeb - onload");
       Index.showError(Index.ErrorType.noTronLink);
     } else {
-      // console.log("YES window.tronWeb - onload");
-
-      Index.hideError();
-      Index.setup();
+      console.log("YES window.tronWeb - onload");
 
       if (tronWeb.fullNode.host == 'https://api.trongrid.io' &&
           tronWeb.solidityNode.host == 'https://api.trongrid.io' &&
           tronWeb.eventServer.host == 'https://api.trongrid.io') {
-            Index.hideError();
-            Index.setup();
         } else if (tronWeb.fullNode.host == 'https://api.shasta.trongrid.io' &&
           tronWeb.solidityNode.host == 'https://api.shasta.trongrid.io' &&
           tronWeb.eventServer.host == 'https://api.shasta.trongrid.io') {
-          Index.hideError();
-          Index.setup();
       } else {
-          Index.showError(Index.ErrorType.wrongNode);
-        }
+        Index.showError(Index.ErrorType.wrongNode);
+        return;
       }
+
+      Index.hideError();
+      Index.setup();
+    }
   }, 500);
 };
 
 window.addEventListener('message', function (e) {
   if (e.data.message && e.data.message.action == "setAccount") {
-    // console.log("message - setAccount");
+    console.log("message - setAccount");
     // console.log("setAccount event e", e)
 
     if (Index.currentAccount == e.data.message.data.address) {
@@ -737,7 +740,7 @@ window.addEventListener('message', function (e) {
   }
 
   if (e.data.message && e.data.message.action == "setNode") {
-    // console.log("message - setNode");
+    console.log("message - setNode");
       // console.log("setNode event e", e)
       // console.log("setNode event", e.data.message)
       if (e.data.message.data.node.chain == '_') {
