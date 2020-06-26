@@ -1,452 +1,378 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>Madoff's game</title>
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <link rel="shortcut icon" href="assets/img/6.jpg">
+	<title>Game Of Trons</title>
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css" >
-    <!-- Fonts -->
-    <link rel="stylesheet" type="text/css" href="assets/fonts/line-icons.css">
-    <!-- Slicknav -->
-    <link rel="stylesheet" type="text/css" href="assets/css/slicknav.css">
-    <!-- Off Canvas Menu -->
-    <link rel="stylesheet" type="text/css" href="assets/css/menu_sideslide.css">
-    <!-- Color Switcher -->
-    <link rel="stylesheet" type="text/css" href="assets/css/vegas.min.css">
-    <!-- Animate -->
-    <link rel="stylesheet" type="text/css" href="assets/css/animate.css">
-    <!-- Main Style -->
-    <link rel="stylesheet" type="text/css" href="assets/css/main.css">
-    <!-- Responsive Style -->
-    <link rel="stylesheet" type="text/css" href="assets/css/responsive.css">
+	<link rel="shortcut icon" href="assets/img/gameoftrons-logo.png">
 
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
+	<!-- Fonts -->
+	<link rel="stylesheet" type="text/css" href="assets/fonts/line-icons.css">
+	<link rel="stylesheet" type="text/css" href="assets/css/main.css">
+	<!-- Slick -->
+	<link rel="stylesheet" type="text/css" href="assets/css/slick.css">
+	<link rel="stylesheet" type="text/css" href="assets/css/slick-theme.css">
 
-    <script src="main.js"></script>
-    <script src="languages/english.js"></script>
-    <script src="languages/korean.js"></script>
-    <script src="languages/cn_simpl.js"></script>
-    <script src="languages/cn_trad.js"></script>
-  </head>
-  <body>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+		integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+</head>
 
-    <!-- Header Area wrapper Starts -->
-    <header id="header-wrap">
-      <div class="menu-wrap">
-        <div class="menu navbar">
-          <div class="menu-list navbar-collapse">
-            <ul class="onepage-nev navbar-nav">
-              <li class="nav-item active">
-                <a id="menu_1" class="nav-link" href="#header-wrap">Play</a>
-              </li>
-              <li class="nav-item">
-                <a id="menu_2" class="nav-link" href="#services">How it works</a>
-              </li>                            
-              <li class="nav-item">
-                <a id="menu_3" class="nav-link" href="#team">How to play</a>
-              </li>   
-              <li class="nav-item">
-                <a id="menu_4" class="nav-link" href="#connect">Connect With Us</a>
-              </li>   
-              <li class="nav-item">
-                <a class="nav-link" href="javascript:Index.setLanguage(0);"><i class="fas fa-flag"></i>&nbsp&nbsp English</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="javascript:Index.setLanguage(1);"><i class="fas fa-flag"></i>&nbsp&nbsp Korean</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="javascript:Index.setLanguage(2);"><i class="fas fa-flag"></i>&nbsp&nbsp 简体</a>  <!-- CN simple -->
-              </li>   
-              <li class="nav-item">
-                <a class="nav-link" href="javascript:Index.setLanguage(3);"><i class="fas fa-flag"></i>&nbsp&nbsp 繁体/a>  <!-- CN trad -->
-              </li>   
-              <!-- <li class="nav-item">
-                <a class="nav-link" href="javascript:Index.setLanguage(3);"><i class="fas fa-flag"></i>&nbsp&nbsp Deutsch   </a>
-              </li>  
-              <li class="nav-item">
-                <a class="nav-link" href="javascript:Index.setLanguage(4);"><i class="fas fa-flag"></i>&nbsp&nbsp Español   </a>
-              </li> -->
-            </ul>
-          </div>
-        </div> 
-        <button class="close-button" id="close-button"><i class="lni-close"></i></button>
-      </div>  
-      <!-- Navbar Start -->
-      <nav class="navbar navbar-expand-lg fixed-top scrolling-navbar menu-bg">
-        <div class="container">
-          <!-- Brand and toggle get grouped for better mobile display -->
-          <div class="navbar-header">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-              <span class="lni-menu"></span>
-              <span class="lni-menu"></span>
-              <span class="lni-menu"></span>
-            </button>
-            <img src="assets/img/6.jpg" alt="">
-          </div>
-          <div class="collapse navbar-collapse" id="main-navbar">
-            <ul class="navbar-nav mr-auto w-100 justify-content-end clearfix">
-              <li class="nav-item" id="open-button">
-                <a class="nav-link">
-                  <i class="lni-menu"></i>
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
+<body>
+	<!-- Header Area wrapper Starts -->
 
-        <!-- Mobile Menu Start -->
-        <ul class="mobile-menu">
-          <li>
-            <a id="m_menu_1" href="#header-wrap">Play</a>
-          </li>
-          <li>
-            <a id="m_menu_2" href="#services">How it works</a>
-          </li>
-          <li>
-            <a id="m_menu_3" href="#team">How to play</a>
-          </li>
-          <li>
-            <a id="m_menu_4"  href="#contact">Connect With Us</a>
-          </li>
-        </ul>
-        <!-- Mobile Menu End -->
-      </nav>
-      <!-- Navbar End -->
-    </header>
-    
-    <!-- Intro Section Start -->
-    <section class="intro">
-      <div class="container">
-        <div class="row text-center">    
-          <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="heading-count">
-              <h2 id="main_title"></h2>
-              <p id="intro_sentence"></p>
-               <br>
-               <h3 class="btn btn-common2 jkpt_big"><span id="currentjkstatus"></span><span id="currentJackpot">10000</span> TRX</h3>
-            </div>
-          </div>
-          <div class="col-md-12 col-sm-12 col-xs-12">
-             <div class="btn btn-border"><span id="currentWinner">...</span> <span id="will_win_in"></span></div>
+	<!-- Intro Section Start -->
+	<section class="intro">
+		<dl id='countries' class="dropdown">
+			<dt><a href="javascript:void(0);"><img src="assets/img/web.png"
+						alt=""><span id="lang">Language</span></a></dt>
+			<dd>
+				<ul>
+					<li><a href="javascript:void(0);" id="lang_eng">English<span class="value">ENG</span></a></li>
+					<li><a href="javascript:void(0);" id="lang_sc">简体<span class="value">SC</span></a></li>
+					<li><a href="javascript:void(0);" id="lang_tc">繁体<span class="value">TC</span></a></li>
+				</ul>
+			</dd>
+		</dl>
+		<div class="container">
+			<div class="row text-center">
+				<div class="col-md-11 col-sm-9 col-xs-12">
+					<div class="heading-count">
+						<h2 id="main_title">Game of Trons</h2>
 
-            <div class="row countdown justify-content-center">
-              
-              <div id="clock" class="time-count"></div>
-            </div>
-            <div class="game_interaction">
-              <h5 class="btn btn-border2"><span id="current_stage_txt"></span> <span id="current_stage">...</span>, <span id="current_share_price_txt"></span> <span id="current_share_price">...</span> TRX</h5>
-              <div id="error_view" class="error_view">
-                <p id="error_view_text" class="error_view_text"></p>
-              </div>
-              <div id="spinner_view" class="error_view">
-                <p id="spinner_text" class="error_view_text"></p>
-                <div class="loader" id="loader-1"></div>
-              </div>
-              <div>
-                <input type="number" id="purchaseAmount" class=" btn-border3" placeholder="enter a whole number" min="1" step="1">
-                <button id="buy_share_btn" class="btn btn-common show_cursor" onclick="Index.buyShares()"></button>
-              </div>
-              <div style="height:40px; font-size:14px; padding:12px 20px; font-weight:400; color:#3b5998;">
-                <span>IN TOTAL YOU OWN: </span><span id="share_amount">...</span><span> SHARES</span>
-              </div>
-              <div class="btn btn-border2">
-                <p id="my_wallet_intro"></p>
-                <h5 class="btn btn-border2"><span id="my_current_earning"></span> <span id="current_earnings_amount">...</span> TRX</h5>
-                <button id="withdraw_n_1"class="btn btn-common show_cursor" onclick="Index.withdrawSharesProfitClicked()"></button>
-                <br>
-                <button id="more_options_btn" class="btn btn-common show_cursor" onclick="Index.showKnowMoreClicked()"></button>
+						<p class="intro-text"id="intro_sentence">Once upon a time, there was a blockchain kingdom full of infinite
+							treasures. Legend has it that only one <br> true king could claim the Tron to the kingdom
+							and marvel in its wealth. Since then, cryptonauts from <br> all over the world have tried to
+							claim the right to the kingdom's treasure. But to this day the Tron <br> remains empty,
+							waiting for it's rightful king to rise. <br></p><p id="line1">Will YOU be the last one to sit on the Tron, 
+							be crowned king and win the treasure ?</p> <p id="line2" class="intro-text">Or will you
+							invest in land and collect taxes from other players that attempt to become your king ?</p>
+						<br>
+						<h3 class="btn-common2 jkpt_big">
+							<b style="color: #000;" id="current_treasure">Current Kingdom Treasure :</b>
+							<span id="currentjkstatus"></span>
+							<span id="currentJackpot"> TRX 20 000 </span>
+						</h3>
+					</div>
+					</div>
+				<div class="col-md-12 col-sm-12 col-xs-12">
+					<div class="btn btn-border">
+						<span id="will_win_in">DDFxdVvrf1254fhgt54f - WILL BE KING IN :</span>
+					</div>
+					<div class="row countdown justify-content-center">
+						<div id="clock" class="time-count"></div>
+					</div>
+					<div class="btn btn-border-light" id="btn_king">I will be the king!</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- Intro Section End -->
 
-                <!-- Know More Section Start -->
-                <div id="know_more" class="know_more opacity_0">
-                  <!-- <div class="blur_bg"></div> -->
-                  <div>
-                    <p id="withdraw_explain" class="know_more_top"></p>
-                    <button id="withdraw_explain_btn" class="btn btn-common show_cursor know_more_btn" onclick="alert('KNOW MORE clicked.')"></button>
-                  </div>
-                  <div>
-                    <p id="jp_for_shares" class="know_more_mid"></p>
-                    <button id="jp_for_shares_btn" class="btn btn-common show_cursor" onclick="Index.withdrawjackpotForSharesInSessionClicked()"></button>
-                  </div>
-                  <div>
-                    <!-- <p class="know_more_mid">If you are the winner withdraw the jackpot here</p> -->
-                    <p id="jp" class="know_more_mid"></p>
-                    <button id="jp_btn" class="btn btn-common show_cursor"  onclick="Index.withdrawJackpotClicked()"></button>
-                  </div>
-                </div>
-                  <!-- Know More Section Start -->
-              </div>
-            </div>
-            <div class="social mt-4">
-            <a href="#services" class="target-scroll page-scroll"><i class="lni-chevron-down"></i></a>
-          </div>
-        </div>
-      </div>
-    </section>
-    <!-- Intro Section End -->
+	<section class="withdrawal-section">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-6 col-sm-12 col-xs-12 pl-md-0">
+					<div class="game_interaction text-white withdrawal-left">
 
-    <section id="services" class="section-padding" >
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-md-8 col-lg-8 col-xs-12 text-center">
-            <h2 id="title_2" class="section-title"></h2>
-            <div id="p_1" class="section-info"> </div>
-          </div>
-        </div>
-        
-        <div class="row">
-          <div class="col-lg-4 col-md-6 col-xs-12 fadeInUp" data-animation="fadeInUp">
-            <div class="services-item">
-              <div class="icon">
-                <i class="fas fa-trophy"></i>
-              </div>
-              <h3><a href="#" id="title_3"></a></h3>
-              <p id="p_2"></p><br>
-              <h3><a href="#" target="_blank"><button type="submit" class="btn btn-common show_cursor" id="form_submit_1"></i></button></a></h3>
-            </div>       
-          </div> 
+						<div>
+							<h4 style="text-align: center;" id="lands">My Land :</h4>
+							
+							<!-- Know More Section Start -->
+							<div id="know_more" class="know_more">
+								<div id="own1" style="text-align: center;">I own <span class="colorb">00000</span id="own2"> lands</div>		
+								<div class="flex-column flex justify-content-between float-left" style="width: 100%;">
+									<p class="know_more_mid" id="earn1"><b>I earn  <span class="colorb">00000</span> Trx from taxes</b></p>
+									<button class="btn btn-common show_cursor" id="withdraw1">withdraw</button>
+								</div>
+								<div class="flex-column flex justify-content-between float-left">
+									<p class="know_more_mid" id="withdrawopt2">Withdraw your part of the 20% from treasure here : <span class="colorb">000</span> Trx</p>
+									<button class="btn btn-common show_cursor" style="margin-top: 15px;" id="withdraw2">withdraw</button>
+								</div>
+								<div class="flex-column flex justify-content-between float-left mb-5">
+									<p class="know_more_mid" id="withdrawopt2">If you are the winner withdraw the jackpot here : <span class="colorb">000</span> Trx</p>
+									<button class="btn btn-common show_cursor"  style="margin-top: 15px; " id="withdraw3">withdraw</button>
+								</div>
+							</div>
+							<!-- Know More Section Start -->
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6 col-sm-12 col-xs-12 pr-md-0">
+					<div class="game_interaction text-white withdrawal-right">
+						<h4 id="moreland" style="text-align: center;">Get More Lands :</h4>
+						<p id="currentstatus"><b><span>Current tron :</span> <span class="colorb" id="cur_level">Paper Tron</span>  <span id="currentstatus2"> -  Price to buy a land :</span>
+								<span class="colorb" id="cur_price">10</span><span id="unit1">Trx</span></b></p>
+						<div id="error_view" class="error_view">
+							<p class="error_view_text">Unlock your Tronlink to access the game - www.tronlink.org</p>
+						</div>
+						<div id="spinner_view" class="error_view">
+							<p class="error_view_text">Mining transaction…</p>
+							<div class="loader" id="loader-1"></div>
+						</div>
+						<div>
+							<input type="number" id="purchaseAmount" class=" btn-border3"
+								placeholder="enter a whole number" min="1" step="1">
+							<button class="btn btn-common show_cursor" id="buy_btn2">BUY NEW LANDS</button>
+						</div>
 
-          <div class="col-lg-4 col-md-6 col-xs-12 fadeInUp" data-animation="fadeInUp" data-delay="300">
-            <div class="services-item">
-              <div class="icon">
-                <i class="fas fa-sort-amount-up"></i>
-              </div>
-              <h3><a href="#" id="title_4"></a></h3>
-              <p id="p_3"></p><br>
-             <a href="assets/img/steps.jpg" target="new" class="grid image-link">
-            <img class="img-fluid" src="assets/img/steps.jpg" alt=""><br><br>
-              <h3><a href="#" target="_blank"><button type="submit" class="btn btn-common show_cursor" id="form_submit_2"></i></button></a></h3>
-            </div>  
-          </div> 
+					</div>
+				</div>
 
-          <div class="col-lg-4 col-md-6 col-xs-12 fadeInUp" data-animation="fadeInUp" data-delay="600">
-            <div class="services-item">
-              <div class="icon">
-                <i class="fas fa-hand-holding-usd"></i>
-              </div>
-              <h3><a href="#" id="title_5"></a></h3>
-              <p id="p_4"></p><br><br>
-              <a href="assets/img/costs-returns.jpg" target="new" class="grid image-link">
-              <img class="img-fluid" src="assets/img/costs-returns.jpg" alt=""><br><br>
-              <h3><a href="#" target="_blank"><button type="submit" class="btn btn-common show_cursor" id="form_submit_3"></i></button></a></h3>
-            </div>
-           
-          </div>
-         </div>
-        </div>
-    </section>
+			</div>
+		</div>
+	</section>
 
-    <!-- Team Section Start -->
-    <section id="team" class="section-padding">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-md-8 col-lg-8 col-xs-12 text-center">
-            <h2 id="white"class="section-title"> </h2>
-            <div id="how_to_play_1" class="section-info"></div>
-          </div>            
-        </div>
-        <div class="row">
-          <div class="col-sm-6 col-md-6 col-lg-3">
-            <!-- Team Item Starts -->
-            <div class="team-item text-center">
-              <div class="team-img">
-                <img class="img-fluid" src="assets/img/team/team-02.jpg" alt="">
-                <div class="team-overlay">
-                  <div class="overlay-social-icon text-center">
-                    <ul class="social-icons">
-                      <li><a href="#" target="_blank"><i class="fas fa-external-link-square-alt"></i></a></li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="info-text">
-                <br>
-                <p id="how_to_play_2"></p>
-                <br>
-              </div>
-            </div>
-            <!-- Team Item Ends -->
-          </div>
-          <div class="col-sm-6 col-md-6 col-lg-3">
-            <!-- Team Item Starts -->
-            <div class="team-item text-center">
-              <div class="team-img">
-                <img class="img-fluid" src="assets/img/team/team-02.jpg" alt="">
-                <div class="team-overlay">
-                  <div class="overlay-social-icon text-center">
-                    <ul class="social-icons">
-                      <li><a href="#"><i class="fas fa-search-plus"></i></a></li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="info-text">
-                <br>
-                <p id="how_to_play_3"></p>
-                <br>
-              </div>
-            </div>
-            <!-- Team Item Ends -->
-          </div>
-          <div class="col-sm-6 col-md-6 col-lg-3">
-            <!-- Team Item Starts -->
-            <div class="team-item text-center">
-              <div class="team-img">
-                <img class="img-fluid" src="assets/img/team/team-03.jpg" alt="">
-                <div class="team-overlay">
-                  <div class="overlay-social-icon text-center">
-                    <ul class="social-icons">
-                      <li><a href="#"><i class="fas fa-search-plus"></i></a></li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="info-text">
-                <p id="how_to_play_4"></p>
-                <br>
-              </div>
-            </div>
-            <!-- Team Item Ends -->
-          </div>
-          <div class="col-sm-6 col-md-6 col-lg-3">
-            <!-- Team Item Starts -->
-            <div class="team-item text-center">
-              <div class="team-img">
-                <img class="img-fluid" src="assets/img/team/team-04.jpg" alt="">
-                <div class="team-overlay">
-                  <div class="overlay-social-icon text-center">
-                    <ul class="social-icons">
-                      <li><a href="#"><i class="fas fa-search-plus"></i></a></li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="info-text">
-                <p id="how_to_play_5"></p>
-              </div>
-            </div>
-            <!-- Team Item Ends -->
-          </div>
-        </div>
-      </div>
-    </section>
-    <!-- Team Section End -->
 
-    <!-- Contact Section Start -->
-    <section id="connect" class="section-padding">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-md-8 col-lg-8 col-xs-12 text-center">
-            <h6 class="subtitle">
-              
-            </h6>
-            <h2 id="contact_1" class="section-title"></h2>
-          </div>
-        </div>
-        
-        <form>
-          <div class="row">
-            <!-- Contact form -->
-            <div class="col-md-12">
-              <div class="row">
-                  <h5>
-                    <span id="contact_2"></span>
-                    <a class="instagram" href="#" target="_blank"><i class="fab fa-btc"></i></a><br><br>
-                  </h5>
-              </div>  
-              <div class="row">
-                  <h5>
-                    <span id="contact_3"></span>
-                    <a class="instagram" href="#" target="_blank"><i class="fab fa-wikipedia-w"></i></a><br><br>
-                  </h5>
-              </div>
-              <div class="row">
-                <h5>
-                  <span id="contact_4"></span>
-                   <a class="instagram" href="#" target="_blank"><i class="fab fa-github"></i></a><br><br>
-                </h5>
-              </div>
-              <div class="row">
-                <h5>
-                  <span id="contact_5"></span>
-                  <a class="instagram" href="https://dappradar.com/rankings/protocol/eos/category/gambling" target="_blank"><i class="fas fa-sort-amount-up"></i></a><br><br>
-                </h5>
-              </div>
-            </div>
-            
-            <!-- Contact info -->
-          
-            </div>
-          </div>
-        </form>
-      </div>
-    </section>
-    <!-- Contact Section End -->
+	<section id="services" class="mt-4">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-6 service-bg">
+					<div class="container py-5">
+						<div class="row">
+							<div class="col-md-10 paddingLeft20">
+								<p class="font-weight-900" id="how_it_works">To sit on the Tron and claim your right to the kingdom:
+									Expand the kingdom by adding new land to it.<br><br>
+									When the countdown ends : the suitor sitting on the Tron at that time will become
+									king and win 80% of the kingdom's treasure.
+									The other 20% of the treasure will be split between all existing land owners in the
+									kingdom.<br><br>
+									If someone else expands the kingdom before you can become king. You will become a
+									land owner and he’ll be the one to sit on the Tron. And so on until a new king
+									rises.<br><br>
+									Each land you own in the kingdom gives you the right to claim a part of each new
+									suitor's contribution.<br><br>
+									A 50% tax on each new purchased land is split equally between all existing land
+									owners.<br><br>
+									As a land owner you can withdraw your tax earnings whenever you want, even if no
+									king has been chosen yet.<br>
+									Your lands will always remain yours and you will keep getting tax earnings until a
+									new king is crowned.<br><br>
+									You can buy multiple lands at once to become a huge land owner and make 
+									money with tax earnings on the back of future suitor.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6 bg-white">
+					<div class="container py-5">
+						<div class="row">
+							<div class="col-md-10 paddingLeft20">
+								<h6 class="font-weight-bold" id="levels">Each time the kingdom's treasure reaches a certain size, the Tron changes it's value. <br> The countdown reduces but
+									the land price increases.</h6>
+									<a class="level-img" data-toggle="modal" data-target="#level-img" data-image-src="assets/img/final_design_table.jpg">							
+										<img class="img-fluid mt-3" src="assets/img/final_design_table.jpg" alt="">
+									</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
 
-    <!-- Footer Section Start -->
-    <footer class="footer-area section-padding">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12">
-            <div class="footer-text text-center">
-              <ul class="social-icon">
-                <li>
-                  <a class="instagram" href="#" target="_blank"><i class="fab fa-btc"></i></a>
-                </li>
-                <li>
-                  <a class="instagram" href="#" target="_blank"><span><i class="fab fa-github"></i></span></a>
-                </li>
-                <li>
-                  <a class="instagram" href="https://dappradar.com/rankings/protocol/eos/category/gambling" target="_blank"><span><i class="fas fa-sort-amount-up"></i></span></a>
-                </li>
-                <li>
-                  <a class="instagram" href="#" target="_blank"><i class="fab fa-wikipedia-w"></i></a>
-                </li>
-              </ul>
-              <p>Copyright <a href="https://www.blockgambit.com" target="_blank">Blockgambit©</a> 2020 | Crafted by<a href="https://www.uideck.com" target="_blank">UIdeck</a></p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
-    <!-- Footer Section End -->
+	<!-- How To Play Section Start -->
+	<section id="team" class="section-padding how-to-play-bg">
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-md-8 col-lg-8 col-xs-12 text-center">
+					<h2 id="white" class="section-title">How To Play</h2>
+					<div id="how_to_play_1" class="section-info">In order to play you need some TRX + TRONLINK plugin
+						installed. Follow the step bellow if you need help.</div>
+				</div>
+			</div>
 
-    <!-- Go to Top Link -->
-    <a href="#" class="back-to-top">
-      <i class="lni-chevron-up"></i>
-    </a>
+			<div class="container">
+				<div class="howto">
+					<!-- Team Item Starts -->
+					<div class="team-item text-center" data-toggle="modal" data-target="#lightbox">
+						<div class="team-img" data-image-src="assets/img/how-to-play-1.png">
+							<img class="img-fluid" src="assets/img/how-to-play-1.png" alt="">
+							<div class="team-overlay">
+								<div class="overlay-social-icon text-center">
+									<ul class="social-icons">
+										<li><i class="fas fa-search-plus"></i></li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="info-text">
+							<br>
+							<p id="how_to_play_2">Grab some tron</p><br>
+						</div>
+					</div>
+					<!-- Team Item Ends -->
+					<!-- Team Item Starts -->
+					<div class="team-item text-center" data-toggle="modal" data-target="#lightbox">
+						<div class="team-img" data-image-src="assets/img/how-to-play-2.png">
+							<img class="img-fluid" src="assets/img/how-to-play-2.png" alt="">
+							<div class="team-overlay">
+								<div class="overlay-social-icon text-center">
+									<ul class="social-icons">
+										<li><i class="fas fa-search-plus"></i></li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="info-text">
+							<br>
+							<p id="how_to_play_3">Unlock Tronlink</p><br>
+						</div>
+					</div>
+					<!-- Team Item Ends -->
+					<!-- Team Item Starts -->
+					<div class="team-item text-center" data-toggle="modal" data-target="#lightbox">
+						<div class="team-img" data-image-src="assets/img/how-to-play-3.png">
+							<img class="img-fluid" src="assets/img/how-to-play-3.png" alt="">
+							<div class="team-overlay">
+								<div class="overlay-social-icon text-center">
+									<ul class="social-icons">
+										<li><i class="fas fa-search-plus"></i></li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="info-text">
+							<br>
+							<p id="how_to_play_4">Buy a land</p><br>
+						</div>
+					</div>
+					<!-- Team Item Ends -->
+					<!-- Team Item Starts -->
+					<div class="team-item text-center" data-toggle="modal" data-target="#lightbox">
+						<div class="team-img" data-image-src="assets/img/how-to-play-4.png">
+							<img class="img-fluid" src="assets/img/how-to-play-4.png" alt="">
+							<div class="team-overlay">
+								<div class="overlay-social-icon text-center">
+									<ul class="social-icons">
+										<li><i class="fas fa-search-plus"></i></li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="info-text">
+							<br>
+							<p id="how_to_play_5">Game is on</p><br>
+						</div>
+					</div>
+					<!-- Team Item Ends -->
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- How To Play Section End -->
 
-    <!-- Preloader -->
-    <div id="preloader">
-      <div class="loader" id="loader-1"></div>
-    </div>
-    <!-- End Preloader -->
+	<!-- About the Game Section Start -->
+	<section id="connect" class="section-padding bg-white contact-section">
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-md-8 col-lg-8 col-xs-12 text-center">
+					<h2 id="contact_1" class="text-uppercase mb-4 section-title">about the game</h2>
+				</div>
+			</div> 
+			<div class="row">
+				<div class="col-md-12">
+				<p><span id="contact_2">All game rules are managed by a non modifiable and verified smart contract. <a href="https://www.tronscan.org" target="_blank"> >> Link HERE</a>  Code is the only law out there.</span></p>
+				<p><span id="contact_3">Everytime a king is crowned, a new game of Trons begins. To start a new game of
+						Trons, one player just needs to buy land in the new kingdom. All winnings are available to
+						withdraw and will stay in the contract until the owner withdraws them. Your lands in the
+						previous game of Trons won't count in the new one.</span></p>
+				<p><span id="contact_4">All earnings are locked in the contract with your betting address; do not lose
+						access to your address; it is the only way the contract can identify you.</span></p>
+				<p><span id="contact_5">If no king has been chosen and the kingdom's treasure reaches 19 999 999 600,
+						the last player to sit on the Tron will win. Treasure can't go over 20B Trx. </span></p>
+				<p><span id="contact_6">If your attempt to claim the Tron doesn't work, there is no guaranteed return: 
+						your tax earnings depend on how much players buy lands after you.</span></p>
+					</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12 text-center">
+					<a class="text-uppercase more-about mt-4" href="http://www.about.gameoftrons.org" id="btn_more">more about the game</a>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- About the Game Section End -->
 
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="assets/js/jquery-min.js"></script>
-    <script src="assets/js/popper.min.js"></script>
-    <script src="assets/js/bootstrap.min.js"></script>
-    <script src="assets/js/vegas.min.js"></script>
-    <script src="assets/js/jquery.countdown.min.js"></script>
-    <script src="assets/js/menu.js"></script>
-    <script src="assets/js/classie.js"></script>
-    <script src="assets/js/scrolling-nav.js"></script>
-    <script src="assets/js/jquery.nav.js"></script>
-    <script src="assets/js/jquery.easing.min.js"></script>
-    <script src="assets/js/wow.js"></script>
-    <script src="assets/js/jquery.slicknav.js"></script>
-    <script src="assets/js/main.js"></script>
-    <script src="assets/js/form-validator.min.js"></script>
-    <script src="assets/js/contact-form-script.min.js"></script>
-    <script src="assets/js/map.js"></script>
-    <script type="text/javascript" src="//maps.googleapis.com/maps/api/js?key=AIzaSyCsa2Mi2HqyEcEnM1urFSIGEpvualYjwwM">
-    </script>
-      
-  </body>
+	<footer class="footer-area">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="footer-text text-center">
+						<ul class="social-icon">
+							<li><a class="instagram" href="https://bitcointalk.org/index.php?topic=5251769"
+									target="_blank"><i class="fab fa-btc"></i></a></li>
+							<li><a class="instagram"
+									href="https://tronscan.org/#/contract/TVLdijjw8aryn2sF7KqNS4KtUnKHAGnaGZ/code"
+									target="_blank"><span><i class="fas fa-poll-h"></i></span></a></li>
+							<li><a class="instagram" href="https://dappradar.com/tron/650/maddof-s-game"
+									target="_blank"><span><i class="fas fa-sort-amount-up"></i></span></a></li>
+							<li><a class="instagram" href="http://www.about.gameoftrons.org" target="_blank"><i
+										class="fas fa-info-circle"></i></a></li>
+							<li><a class="instagram" href="https://t.me/gameoftrons" target="_blank"><i
+									class="fab fa-telegram-plane"></i></a></li>
+							<li><a class="instagram" href="https://twitter.com/GameOfTronsdapp" target="_blank"><i
+									class="fab fa-twitter"></i></a></li>
+						</ul>
+						<p>Copyright <a href="https://www.blockgambit.com" target="_blank">Blockgambit©</a> 2020 </p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</footer>
+	<!-- Modal -->
+	<div id="lightbox" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+		aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-body">
+					<button type="button" class="close close-modal-ic" data-dismiss="modal"
+						aria-hidden="true">&times;</button>
+					<img src="" class="img-fluid" id="img01" alt="" />
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="level-img" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="level-img"
+		aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-body text-center">
+					<button type="button" class="close close-modal-ic" data-dismiss="modal"
+						aria-hidden="true">&times;</button>
+					<img src="" class="img-fluid" id="img-level-img" alt="" />
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Go to Top Link -->
+	<a href="#" class="back-to-top">
+		<i class="lni-chevron-up"></i>
+	</a>
+
+	<!-- Preloader -->
+	<div id="preloader">
+		<div class="loader" id="loader-1"></div>
+	</div>
+	<!-- End Preloader -->
+
+	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+	<script src="assets/js/jquery-2.2.4.min.js"></script>	
+	<script src="assets/js/popper.min.js"></script>
+	<script src="assets/js/bootstrap.min.js"></script>
+	<script src="assets/js/jquery.countdown.min.js"></script>
+	<script src="assets/js/slick.min.js"></script>
+	<script src="assets/js/main.js"></script>
+	<script src="./main.js"></script>
+
+
+</body>
+
 </html>
