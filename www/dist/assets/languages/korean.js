@@ -1,4 +1,4 @@
-lang_en = {
+lang_korean = {
   lang : " Language ",
   lang_eng : "English ",
   lang_sc : " 简体 ",

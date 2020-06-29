@@ -113,8 +113,7 @@ $(document).bind('click', function(e) {
       var $this=jQuery(this).html(event.strftime(''
       +'<div class="time-entry hours"><span>%H</span></div> '
       +'<div class="time-entry minutes"><span>%M</span></div>'
-      +'<div class="time-entry seconds"><span>%S</span></div>'
-      +'<div class="time-entry milliseconds"><span>55</span></div> '));
+      +'<div class="time-entry seconds"><span>%S</span></div>'));
     });
 
     /* WOW Scroll Spy

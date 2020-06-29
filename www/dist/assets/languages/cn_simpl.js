@@ -1,4 +1,4 @@
-lang_en = {
+lang_cn_simpl = {
   lang : " Language ",
   lang_eng : "English ",
   lang_sc : " 简体 ",
