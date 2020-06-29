@@ -306,6 +306,21 @@ const Index = {
     document.getElementById("know_more").classList.remove('opacity_0');
   },
 
+  buySingleShare: async function() {
+    console.log("buySingleShare");
+
+    if (tronWeb.fullNode.host != 'https://api.trongrid.io' &&
+      tronWeb.solidityNode.host != 'https://api.trongrid.io' &&
+      tronWeb.eventServer.host != 'https://api.trongrid.io') {
+        Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.king);
+        setTimeout(() => {
+          Index.hideError(Index.ErrorView.king);
+        }, 2000);
+    }
+
+
+  },
+
   buyShares: async function() {
     let sharesNumber = document.getElementById("purchaseAmount").value;
     if (sharesNumber < 1) {
@@ -574,8 +589,6 @@ const Index = {
         break;
     }
 
-    console.log("errorText: ", errorText);
-
     switch (_errorView) {
       case this.ErrorView.king:
         document.getElementById("error_view-king_text").textContent = errorText;
@@ -593,13 +606,27 @@ const Index = {
     }
   },
 
-  hideError: function () {
-    // return;
-    document.getElementById("error_view-king_text").textContent = "";
-    document.getElementById("error_view-king").style.display = "none";
+  hideError: function (_viewType) {
 
-    document.getElementById("error_view_text").textContent = "";
-    document.getElementById("error_view").style.display = "none";
+    switch (_viewType) {
+      case this.ErrorView.king:
+        document.getElementById("error_view-king_text").textContent = "";
+        document.getElementById("error_view-king").style.display = "none";
+        break;
+
+      case this.ErrorView.land:
+        document.getElementById("error_view_text").textContent = "";
+        document.getElementById("error_view").style.display = "none";
+        break;
+
+      default:
+        document.getElementById("error_view-king_text").textContent = "";
+        document.getElementById("error_view-king").style.display = "none";
+    
+        document.getElementById("error_view_text").textContent = "";
+        document.getElementById("error_view").style.display = "none";
+        break;
+    }
   },
 
   showSpinner: function(_show, _text) {
