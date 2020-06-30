@@ -330,7 +330,7 @@ const Index = {
       // Index.updateData();
       setTimeout(() => {
         location.reload();
-      }, 3000);
+      }, 5000);
     } catch (error) {
       console.error(error);
       document.getElementById("purchaseAmount").value = "";

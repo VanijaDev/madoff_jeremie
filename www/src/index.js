@@ -2,8 +2,8 @@ import BigNumber from "bignumber.js";
 
 const Index = {
   Config: {
-    "tokenAddress": "TEPKHWEea8AH4YCKmbofWqihH38eoNz4Mo",
-    "gameAddress": "TVLdijjw8aryn2sF7KqNS4KtUnKHAGnaGZ"
+    "tokenAddress": "TPQny8QYj5jXjssYTitxHCTVx2ZnX9shLJ",
+    "gameAddress": "THDbeqgY9AgJicjxTmwMb3Kz6FmKp8eYwB"
   },
 
   ErrorType: {
@@ -51,10 +51,10 @@ const Index = {
     console.log("\n     UPDATE\n");
     // Index.showSpinner(true, " ");
 
-    // Index.updateOwningSharesCount();
-    // Index.updateJackpot();
-    // Index.updateWinner();
+    Index.updateJackpot();
+    Index.updateWinner();
     // Index.updateCountdown();
+    // Index.updateOwningSharesCount();
     // Index.updateCurrentStagePrice();
     // Index.updateCurrentEarnings();
   },
@@ -315,10 +315,12 @@ const Index = {
         Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.king);
         setTimeout(() => {
           Index.hideError(Index.ErrorView.king);
-        }, 2000);
+        }, 5000);
     }
 
-
+    //  calculate TRX amount
+    let txValue = await Index.purchaseValue(1);
+    Index.purchase(txValue);
   },
 
   buyShares: async function() {
@@ -338,11 +340,14 @@ const Index = {
 
     //  calculate TRX amount
     let txValue = await Index.purchaseValue(sharesNumber);
+    Index.purchase(txValue);
+  },
 
+  purchase: async function(_value) {
     try {
       let purchaseTx = await Index.gameInst.purchase(Index.WEBSITE_ADDR).send({
         feeLimit:100000000,
-        callValue: txValue,
+        callValue: _value,
         shouldPollResponse: false
       });
 
@@ -350,7 +355,7 @@ const Index = {
       // Index.updateData();
       setTimeout(() => {
         location.reload();
-      }, 3000);
+      }, 5000);
     } catch (error) {
       console.error(error);
       document.getElementById("purchaseAmount").value = "";
@@ -629,10 +634,10 @@ const Index = {
     }
   },
 
-  showSpinner: function(_show, _text) {
-    document.getElementById("spinner_text").textContent = _text ? _text : "Transaction is being mining…";
-    document.getElementById("spinner_view").style.display = _show ? "block" : "none";
-  },
+  // showSpinner: function(_show, _text) {
+  //   document.getElementById("spinner_text").textContent = _text ? _text : "Transaction is being mining…";
+  //   document.getElementById("spinner_view").style.display = _show ? "block" : "none";
+  // },
 
   showNotifViewJP: function(_show) {
     document.getElementById("notif_view_jp").style.display = _show ? "block" : "none";
@@ -744,8 +749,8 @@ window.onload = function() {
           tronWeb.solidityNode.host != 'https://api.trongrid.io' &&
           tronWeb.eventServer.host != 'https://api.trongrid.io') {
             console.error("wrongNode");
-            Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
-            return;
+            // Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
+            // return;
       }
       // if (tronWeb.fullNode.host == 'https://api.shasta.trongrid.io' &&
       //     tronWeb.solidityNode.host == 'https://api.shasta.trongrid.io' &&
@@ -775,8 +780,8 @@ window.addEventListener('message', function (e) {
         
         Index.currentAccount = (e.data.message.data.address) ? e.data.message.data.address : "";
         if (Index.currentAccount.length == 0) {
-          Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
-          return;
+          // Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
+          // return;
         }
 
         Index.hideError();
@@ -801,13 +806,13 @@ window.addEventListener('message', function (e) {
                 Index.hideError();
           }
           else {
-            Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
-            return;
+            // Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
+            // return;
           }
       } else{
           // console.log("tronLink currently selects the side chain")
-          Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
-          return;
+          // Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
+          // return;
       }
       setTimeout(Index.setup, 500);
   }
