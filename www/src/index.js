@@ -21,6 +21,7 @@ const Index = {
   gameInst: null,
   tokenInst: null,
   languageSource: null,
+  fakeCountdownRunning: false,
 
   LOOP_LIMIT: new BigNumber("50"),
   WEBSITE_ADDR: "TQphDXxumffC81VTaChhNuFuK1efRAYQJ4", //  TODO: change
@@ -53,7 +54,7 @@ const Index = {
 
     Index.updateJackpot();
     Index.updateWinner();
-    // Index.updateCountdown();
+    Index.updateCountdown();
     // Index.updateOwningSharesCount();
     // Index.updateCurrentStagePrice();
     // Index.updateCurrentEarnings();
@@ -85,29 +86,29 @@ const Index = {
     }
   },
 
-  // shawFakeCountdown: function() {
-  //   let nowDate = new Date();
-  //   let winDate = new Date(nowDate.setSeconds(nowDate.getSeconds() + parseInt(600)));
-  //   jQuery('#clock').countdown(winDate);
-  // },
+  shawFakeCountdown: function() {
+    if (this.fakeCountdownRunning) {
+      return;
+    }
+    this.fakeCountdownRunning = true;
+
+    let nowDate = new Date();
+    let winDate = new Date(nowDate.setSeconds(nowDate.getSeconds() + parseInt(600)));
+    this.runCountdown(winDate);
+  },
 
   updateCountdown: async function() {
+    let secLeft = 0;
+
     let blocksLeft = new BigNumber(await Index.blocksUntilStageFinish());
     if (blocksLeft.comparedTo(new BigNumber("0")) == 1) {
       const BLOCK_MINING_TIME = new BigNumber("3");
-      let secLeft = BLOCK_MINING_TIME.multipliedBy(blocksLeft);
-
-      let nowDate = new Date();
-      let winDate = new Date(nowDate.setSeconds(nowDate.getSeconds() + parseInt(secLeft)));
-
-      // jQuery('#clock').countdown(winDate);
-    } else {
-      // jQuery('#clock').countdown('2000/01/01');
+      secLeft = BLOCK_MINING_TIME.multipliedBy(blocksLeft);
     }
 
-    document.getElementById("clock_hours").innerText = this.languageSource.clock_hours;
-    document.getElementById("clock_minutes").innerText = this.languageSource.clock_minutes;
-    document.getElementById("clock_seconds").innerText = this.languageSource.clock_seconds;
+    let nowDate = new Date();
+    let winDate = new Date(nowDate.setSeconds(nowDate.getSeconds() + parseInt(secLeft)));
+    this.runCountdown(winDate);
   },
 
   updateCurrentStagePrice: async function() {
@@ -471,6 +472,16 @@ const Index = {
 
   /** HELPERS */
 
+
+  runCountdown: function(_endDate) {
+    jQuery('#clock').countdown(_endDate,function(event){
+      var $this=jQuery(this).html(event.strftime(''
+      +'<div class="time-entry hours"><span>%H</span></div> '
+      +'<div class="time-entry minutes"><span>%M</span></div>'
+      +'<div class="time-entry seconds"><span>%S</span></div>'));
+    });
+  },
+
   sessionsToCheckForProfitForShares: async function() {
     let participatedSessionsForUserResponse = await Index.gameInst.participatedSessionsForUser().call();
     let participatedSessionsForUser = participatedSessionsForUserResponse.sessions;
@@ -737,20 +748,23 @@ window.onload = function() {
     if (!window.tronWeb) {
       console.error("NO window.tronWeb - onload");
       Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
+      Index.shawFakeCountdown();
     } else {
       console.log("YES window.tronWeb - onload");
 
       if (tronWeb.fullNode.host.includes("127.0.0.1")) {
         console.error("connectTronlink");
         Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
+        Index.shawFakeCountdown();
         return;
       } 
       else if (tronWeb.fullNode.host != 'https://api.trongrid.io' &&
           tronWeb.solidityNode.host != 'https://api.trongrid.io' &&
           tronWeb.eventServer.host != 'https://api.trongrid.io') {
             console.error("wrongNode");
-            // Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
-            // return;
+            Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
+            Index.shawFakeCountdown();
+            return;
       }
       // if (tronWeb.fullNode.host == 'https://api.shasta.trongrid.io' &&
       //     tronWeb.solidityNode.host == 'https://api.shasta.trongrid.io' &&
@@ -780,14 +794,16 @@ window.addEventListener('message', function (e) {
         
         Index.currentAccount = (e.data.message.data.address) ? e.data.message.data.address : "";
         if (Index.currentAccount.length == 0) {
-          // Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
-          // return;
+          Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
+          Index.shawFakeCountdown();
+          return;
         }
 
         Index.hideError();
     } 
     else {
       Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
+      Index.shawFakeCountdown();
       return;
     }
     setTimeout(Index.setup, 500);
@@ -806,13 +822,15 @@ window.addEventListener('message', function (e) {
                 Index.hideError();
           }
           else {
-            // Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
-            // return;
+            Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
+            Index.shawFakeCountdown();
+            return;
           }
       } else{
           // console.log("tronLink currently selects the side chain")
-          // Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
-          // return;
+          Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
+          Index.shawFakeCountdown();
+          return;
       }
       setTimeout(Index.setup, 500);
   }
