@@ -40,7 +40,7 @@ lang_en = {
   currentstatus2 : " -  Price to buy a land : ",
   unit1 : " Trx ",
   error_view : " Unlock your Tronlink to access the game \n www.tronlink.org ",
-  spinner_view : " Mining transaction… ",
+  spinner_text : " Mining transaction… ",
   buy_btn2 : " BUY NEW LANDS ",
   how_it_works : " To sit on the Tron and claim your right to the kingdom: Expand the kingdom by adding new land to it. \n\n When the countdown ends : the suitor sitting on the Tron at that time will becomeking and win 80% of the kingdom's treasure. The other 20% of the treasure will be split between all existing land owners in the kingdom. \n\n If someone else expands the kingdom before you can become king. You will become a land owner and he’ll be the one to sit on the Tron. And so on until a new king rises.\n\n ach land you own in the kingdom gives you the right to claim a part of each new suitor's contribution.\n\n A 50% tax on each new purchased land is split equally between all existing land owners.\n\n As a land owner you can withdraw your tax earnings whenever you want, even if no king has been chosen yet.\n Your lands will always remain yours and you will keep getting tax earnings until a new king is crowned.\n\n You can buy multiple lands at once to become a huge land owner and make money with tax earnings on the back of future suitor. ",
   levels : " Each time the kingdom's treasure reaches a certain size, the Tron changes it's value. \n The countdown reduces butthe land price increases. ",

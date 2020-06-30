@@ -10,6 +10,7 @@ const Index = {
     connectTronlink: 0,
     wrongNode: 1,
     noInst: 2,
+    mining: 3
   },
 
   ErrorView: {
@@ -31,9 +32,6 @@ const Index = {
 
     //  test addr
     Index.currentAccount =  window.tronWeb.defaultAddress.base58;
-    // if (!Index.currentAccount) {
-    //   Index.shawFakeCountdown();
-    // }
 
     //  Instances
     try {
@@ -137,7 +135,7 @@ const Index = {
     let purchasedSharesProfit = await Index.profitForPurchasedShares();
     document.getElementById("current_earnings_amount").textContent = tronWeb.fromSun((new BigNumber(jp)).plus(new BigNumber(jpForShares)).plus(new BigNumber(purchasedSharesProfit)).toString());
 
-    Index.showSpinner(false);
+    Index.showSpinner(false, this.ErrorView.land);
   },
 
   jackpotAmountForCurrentAccount: async function() {
@@ -313,11 +311,16 @@ const Index = {
     if (tronWeb.fullNode.host != 'https://api.trongrid.io' &&
       tronWeb.solidityNode.host != 'https://api.trongrid.io' &&
       tronWeb.eventServer.host != 'https://api.trongrid.io') {
-        Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.king);
-        setTimeout(() => {
-          Index.hideError(Index.ErrorView.king);
-        }, 5000);
+        // Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.king);
+        // setTimeout(() => {
+        //   Index.hideError(Index.ErrorView.king);
+        // }, 5000);
     }
+
+    Index.showSpinner(true, this.ErrorView.king);
+    setTimeout(() => {
+      Index.showSpinner(false, this.ErrorView.king);
+    }, 5000);
 
     //  calculate TRX amount
     let txValue = await Index.purchaseValue(1);
@@ -334,9 +337,9 @@ const Index = {
       return;
     }
 
-    Index.showSpinner(true, Index.languageSource.spinner_text);
+    Index.showSpinner(true, this.ErrorView.king);
     setTimeout(() => {
-      Index.showSpinner(false);
+      Index.showSpinner(false, this.ErrorView.king);
     }, 5000);
 
     //  calculate TRX amount
@@ -375,7 +378,7 @@ const Index = {
   },
 
   withdrawjackpotForSharesInSessionClicked: async function() {
-    Index.showSpinner(true, Index.languageSource.spinner_text);
+    Index.showSpinner(true, this.ErrorView.land);
 
     let participatedSessionsForUser = (await Index.gameInst.participatedSessionsForUser().call()).sessions;
     let length = participatedSessionsForUser.length;
@@ -396,19 +399,19 @@ const Index = {
     let promptResult = prompt(("Session ids with pending jackpot: " + sessions + ". Which one to withdraw?"));
     let sessionIdx;
     if (promptResult == null || promptResult == "") {
-      Index.showSpinner(false);
+      Index.showSpinner(false, this.ErrorView.land);
       return;
     } else {
       sessionIdx = parseInt(promptResult);
       if (!Number.isInteger(sessionIdx)) {
-        Index.showSpinner(false);
+        Index.showSpinner(false, this.ErrorView.land);
         alert("Wrong session id selected.");
         return;
       }
     }
 
     setTimeout(() => {
-      Index.showSpinner(false);
+      Index.showSpinner(false, this.ErrorView.land);
     }, 5000);
     try {
       let withdrawJackpotforSharesTx = await Index.gameInst.withdrawjackpotForSharesInSession(sessionIdx).send({
@@ -436,7 +439,7 @@ const Index = {
       return;
     }
 
-    Index.showSpinner(true, Index.languageSource.spinner_text);
+    Index.showSpinner(true, this.ErrorView.land);
 
     for (let i = 0; i < sessionsLength; i++) {
       const sessionId = sessionsToCheckForProfitForShares[i];
@@ -467,7 +470,7 @@ const Index = {
       }
     }   
     alert("No profit for purchased shares");
-    Index.showSpinner(false);
+    Index.showSpinner(false, this.ErrorView.land);
   },
 
   /** HELPERS */
@@ -499,7 +502,7 @@ const Index = {
   withdrawSharesProfitForPurchaseInSession: async function(_purchaseId, _sessionId) {
     if (confirm("Profit for purchased shares withdrawal. Multiple withdrawals may be required to withdraw total profit.")) {
       setTimeout(() => {
-        Index.showSpinner(false);
+        Index.showSpinner(false, this.ErrorView.land);
       }, 5000);
       try {
         let withdrawProfitForSharesTx = await Index.gameInst.withdrawProfitForPurchaseInSession(_purchaseId.toString(), _sessionId.toString(), Index.LOOP_LIMIT.toString()).send({
@@ -514,14 +517,14 @@ const Index = {
           alert("Error: " + error.message);
       }
     } else {
-      Index.showSpinner(false);
+      Index.showSpinner(false, this.ErrorView.land);
     }
   },
 
   withdrawJackpot: async function() {
-    Index.showSpinner(true, Index.languageSource.spinner_text);
+    Index.showSpinner(true, this.ErrorView.land);
     setTimeout(() => {
-      Index.showSpinner(false);
+      Index.showSpinner(false, this.ErrorView.land);
     }, 5000);
 
     try {
@@ -600,6 +603,10 @@ const Index = {
         errorText = Index.languageSource.error_noInst;
         break;
 
+      case this.ErrorType.mining:
+        errorText = Index.languageSource.spinner_text;
+        break;
+
       default:
         throw("showError - wrong _errorType");
         break;
@@ -623,7 +630,6 @@ const Index = {
   },
 
   hideError: function (_viewType) {
-
     switch (_viewType) {
       case this.ErrorView.king:
         document.getElementById("error_view-king_text").textContent = "";
@@ -645,10 +651,13 @@ const Index = {
     }
   },
 
-  // showSpinner: function(_show, _text) {
-  //   document.getElementById("spinner_text").textContent = _text ? _text : "Transaction is being mining…";
-  //   document.getElementById("spinner_view").style.display = _show ? "block" : "none";
-  // },
+  showSpinner: function(_show, _viewType) {
+    if (_show) {
+      this.showError(this.ErrorType.mining, _viewType);
+    } else {
+      this.hideError(_viewType);
+    }
+  },
 
   showNotifViewJP: function(_show) {
     document.getElementById("notif_view_jp").style.display = _show ? "block" : "none";
@@ -747,24 +756,24 @@ window.onload = function() {
   setTimeout(function() {
     if (!window.tronWeb) {
       console.error("NO window.tronWeb - onload");
-      Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
-      Index.shawFakeCountdown();
+      // Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
+      // Index.shawFakeCountdown();
     } else {
       console.log("YES window.tronWeb - onload");
 
       if (tronWeb.fullNode.host.includes("127.0.0.1")) {
         console.error("connectTronlink");
-        Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
-        Index.shawFakeCountdown();
+        // Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
+        // Index.shawFakeCountdown();
         return;
       } 
       else if (tronWeb.fullNode.host != 'https://api.trongrid.io' &&
           tronWeb.solidityNode.host != 'https://api.trongrid.io' &&
           tronWeb.eventServer.host != 'https://api.trongrid.io') {
             console.error("wrongNode");
-            Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
-            Index.shawFakeCountdown();
-            return;
+            // Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
+            // Index.shawFakeCountdown();
+            // return;
       }
       // if (tronWeb.fullNode.host == 'https://api.shasta.trongrid.io' &&
       //     tronWeb.solidityNode.host == 'https://api.shasta.trongrid.io' &&
@@ -794,17 +803,17 @@ window.addEventListener('message', function (e) {
         
         Index.currentAccount = (e.data.message.data.address) ? e.data.message.data.address : "";
         if (Index.currentAccount.length == 0) {
-          Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
-          Index.shawFakeCountdown();
-          return;
+          // Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
+          // Index.shawFakeCountdown();
+          // return;
         }
 
         Index.hideError();
     } 
     else {
-      Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
-      Index.shawFakeCountdown();
-      return;
+      // Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
+      // Index.shawFakeCountdown();
+      // return;
     }
     setTimeout(Index.setup, 500);
   }
@@ -822,15 +831,15 @@ window.addEventListener('message', function (e) {
                 Index.hideError();
           }
           else {
-            Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
-            Index.shawFakeCountdown();
-            return;
+            // Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
+            // Index.shawFakeCountdown();
+            // return;
           }
       } else{
           // console.log("tronLink currently selects the side chain")
-          Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
-          Index.shawFakeCountdown();
-          return;
+          // Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
+          // Index.shawFakeCountdown();
+          // return;
       }
       setTimeout(Index.setup, 500);
   }
