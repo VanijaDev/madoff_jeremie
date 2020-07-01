@@ -495,7 +495,9 @@ const Index = {
   },
 
   withdrawSharesProfitForPurchaseInSession: async function(_purchaseId, _sessionId) {
-    if (confirm("Profit for purchased shares withdrawal. Multiple withdrawals may be required to withdraw total profit.")) {
+    let loopLimit = prompt("Multiple withdrawals may be required to withdraw total profit. What is your loop limit?");
+
+    if (res && parseInt(res) > 0) {
       setTimeout(() => {
         Index.showSpinner(false, this.ErrorView.land);
       }, 5000);
