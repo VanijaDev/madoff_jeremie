@@ -317,11 +317,6 @@ const Index = {
         // }, 5000);
     }
 
-    Index.showSpinner(true, this.ErrorView.king);
-    setTimeout(() => {
-      Index.showSpinner(false, this.ErrorView.king);
-    }, 5000);
-
     //  calculate TRX amount
     let txValue = await Index.purchaseValue(1);
     Index.purchase(txValue);
@@ -337,11 +332,6 @@ const Index = {
       return;
     }
 
-    Index.showSpinner(true, this.ErrorView.king);
-    setTimeout(() => {
-      Index.showSpinner(false, this.ErrorView.king);
-    }, 5000);
-
     //  calculate TRX amount
     let txValue = await Index.purchaseValue(sharesNumber);
     Index.purchase(txValue);
@@ -354,6 +344,11 @@ const Index = {
         callValue: _value,
         shouldPollResponse: false
       });
+
+      Index.showSpinner(true, this.ErrorView.king);
+      setTimeout(() => {
+        Index.showSpinner(false, this.ErrorView.king);
+      }, 5000);
 
       document.getElementById("purchaseAmount").value = "";
       // Index.updateData();
