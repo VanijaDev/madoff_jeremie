@@ -55,7 +55,7 @@ const Index = {
     Index.updateCountdown();
     Index.updateOwningSharesCount();
     // Index.updateCurrentStagePrice();
-    // Index.updateCurrentEarnings();
+    Index.updateCurrentEarnings();
   },
 
   updateOwningSharesCount: async function() {
@@ -125,15 +125,15 @@ const Index = {
   updateCurrentEarnings: async function() {
     //  JP
     let jp = await Index.jackpotAmountForCurrentAccount();
-    document.getElementById("jp").textContent = "If you are the winner withdraw the jackpot here: " + tronWeb.fromSun(jp) + " TRX";
+    document.getElementById("jackpot_amount").textContent = tronWeb.fromSun(jp);
 
     //  JP for shares
     let jpForShares = await Index.jackpotForSharesForCurrentAccount();
-    document.getElementById("jp_for_shares").textContent = "Withdraw your part of the 20% from the jackpot here: " + tronWeb.fromSun(jpForShares) + " TRX";
+    document.getElementById("jp_for_shares").textContent = tronWeb.fromSun(jpForShares);
 
     //  purchased shares
     let purchasedSharesProfit = await Index.profitForPurchasedShares();
-    document.getElementById("current_earnings_amount").textContent = tronWeb.fromSun((new BigNumber(jp)).plus(new BigNumber(jpForShares)).plus(new BigNumber(purchasedSharesProfit)).toString());
+    document.getElementById("purchased_shares_profit").textContent = tronWeb.fromSun(purchasedSharesProfit);
 
     Index.showSpinner(false, this.ErrorView.land);
   },
