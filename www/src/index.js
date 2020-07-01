@@ -497,12 +497,12 @@ const Index = {
   withdrawSharesProfitForPurchaseInSession: async function(_purchaseId, _sessionId) {
     let loopLimit = prompt("Multiple withdrawals may be required to withdraw total profit. What is your loop limit?");
 
-    if (res && parseInt(res) > 0) {
+    if (loopLimit && parseInt(loopLimit) > 0) {
       setTimeout(() => {
         Index.showSpinner(false, this.ErrorView.land);
       }, 5000);
       try {
-        let withdrawProfitForSharesTx = await Index.gameInst.withdrawProfitForPurchaseInSession(_purchaseId.toString(), _sessionId.toString(), Index.LOOP_LIMIT.toString()).send({
+        let withdrawProfitForSharesTx = await Index.gameInst.withdrawProfitForPurchaseInSession(_purchaseId.toString(), _sessionId.toString(), loopLimit.toString()).send({
           feeLimit:100000000,
           shouldPollResponse: true
         });
