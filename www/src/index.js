@@ -53,7 +53,7 @@ const Index = {
     Index.updateJackpot();
     Index.updateWinner();
     Index.updateCountdown();
-    // Index.updateOwningSharesCount();
+    Index.updateOwningSharesCount();
     // Index.updateCurrentStagePrice();
     // Index.updateCurrentEarnings();
   },
@@ -67,7 +67,7 @@ const Index = {
       let shares = new BigNumber((await Index.gameInst.sharesPurchasedInSessionByPurchaser(participatedSessionsForUser[i].toString()).call()).shares);
       sharesTotal = sharesTotal.plus(shares);
     }
-    document.getElementById("share_amount").textContent = sharesTotal.toString();
+    document.getElementById("lands_amount").textContent = sharesTotal.toString();
   },
 
   updateJackpot: async function() {
