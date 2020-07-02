@@ -54,7 +54,7 @@ const Index = {
     Index.updateWinner();
     Index.updateCountdown();
     Index.updateOwningSharesCount();
-    // Index.updateCurrentStagePrice();
+    Index.updateCurrentStagePrice();
     Index.updateCurrentEarnings();
   },
 
@@ -113,13 +113,85 @@ const Index = {
     let ongoingStage = new BigNumber("0");
 
     if (!(await Index.isStageExpired())) {
-      ongoingStage = new BigNumber(await Index.gameInst.ongoingStage().call());
+      ongoingStage = parseInt(new BigNumber(await Index.gameInst.ongoingStage().call()));
     }
 
-    document.getElementById("current_stage").textContent = ongoingStage.toString();
+    let stageName = this.nameForStage(ongoingStage)
+    document.getElementById("cur_level").textContent = stageName;
 
     let sharePriceForStage = new BigNumber(await Index.gameInst.sharePriceForStage(ongoingStage.toString()).call());
-    document.getElementById("current_share_price").textContent = tronWeb.fromSun(sharePriceForStage.toString());
+    document.getElementById("cur_price").textContent = tronWeb.fromSun(sharePriceForStage.toString());
+  },
+
+  nameForStage: function (_stage) {
+    console.log("nameForStage: ", _stage);
+    let name = "";
+    console.log("name: ", name);
+
+    switch (_stage) {
+      case 0:
+        name = Index.languageSource.paper_tron;
+        break;
+
+      case 1:
+        name = Index.languageSource.wooden_tron;
+        break;
+
+      case 2:
+        name = Index.languageSource.plastic_tron;
+        break;
+
+      case 3:
+        name = Index.languageSource.concrete_tron;
+        break;
+
+      case 4:
+        name = Index.languageSource.steel_tron;
+        break;
+
+      case 5:
+        name = Index.languageSource.copper_tron;
+        break;
+
+      case 6:
+        name = Index.languageSource.titanium_tron;
+        break;
+
+      case 7:
+        name = Index.languageSource.bronze_tron;
+        break;
+
+      case 8:
+        name = Index.languageSource.silver_tron;
+        break;
+
+      case 9:
+        name = Index.languageSource.golden_tron;
+        break;
+
+      case 10:
+        name = Index.languageSource.platinum_tron;
+        break;
+
+      case 11:
+        name = Index.languageSource.iron_tron;
+        break;
+
+      case 12:
+        name = Index.languageSource.paper_tron;
+        break;
+
+      case 13:
+        name = Index.languageSource.justin_tron;
+        break;
+    
+      default:
+        name = "error";
+        break;
+    }
+
+    console.log("name: ", name);
+    return name;
   },
 
   updateCurrentEarnings: async function() {
@@ -311,10 +383,11 @@ const Index = {
     if (tronWeb.fullNode.host != 'https://api.trongrid.io' &&
       tronWeb.solidityNode.host != 'https://api.trongrid.io' &&
       tronWeb.eventServer.host != 'https://api.trongrid.io') {
-        // Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.king);
-        // setTimeout(() => {
-        //   Index.hideError(Index.ErrorView.king);
-        // }, 5000);
+        Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.king);
+        setTimeout(() => {
+          Index.hideError(Index.ErrorView.king);
+        }, 5000);
+        return;
     }
 
     //  calculate TRX amount
@@ -495,26 +568,26 @@ const Index = {
   },
 
   withdrawSharesProfitForPurchaseInSession: async function(_purchaseId, _sessionId) {
-    let loopLimit = prompt("Multiple withdrawals may be required to withdraw total profit. What is your loop limit?");
+    let loopLimit = prompt("By default loop limit is 50 for withdraw. Here you can chose a bigger looplimit to withdraw more with one transaction. Be carefull if looplimit is too high transaction could fail. If transaction fail nothing will happen on the contract your funds will stay on it.", 50);
 
-    if (loopLimit && parseInt(loopLimit) > 0) {
-      setTimeout(() => {
-        Index.showSpinner(false, this.ErrorView.land);
-      }, 5000);
-      try {
-        let withdrawProfitForSharesTx = await Index.gameInst.withdrawProfitForPurchaseInSession(_purchaseId.toString(), _sessionId.toString(), loopLimit.toString()).send({
-          feeLimit:100000000,
-          shouldPollResponse: true
-        });
-  
-        // console.log("withdrawSharesProfitForPurchaseInSession: ", withdrawProfitForSharesTx);
-        Index.updateData();
-      } catch (error) {
-          console.error(error);
-          alert("Error: " + error.message);
-      }
-    } else {
+    if (loopLimit.length == 0 || parseInt(loopLimit) <= 0) {
+      loopLimit = 50;
+    }
+      
+    setTimeout(() => {
       Index.showSpinner(false, this.ErrorView.land);
+    }, 5000);
+    try {
+      let withdrawProfitForSharesTx = await Index.gameInst.withdrawProfitForPurchaseInSession(_purchaseId.toString(), _sessionId.toString(), loopLimit.toString()).send({
+        feeLimit:100000000,
+        shouldPollResponse: true
+      });
+
+      // console.log("withdrawSharesProfitForPurchaseInSession: ", withdrawProfitForSharesTx);
+      Index.updateData();
+    } catch (error) {
+        console.error(error);
+        alert("Error: " + error.message);
     }
   },
 
@@ -694,7 +767,6 @@ const Index = {
   },
 
   updateLanguages: (_languageSource) => {
-    //  TODO: Jeremie set ids for elements and uncomment below
     // document.getElementById("menu_1").innerText = _languageSource.menu_1;
     // document.getElementById("menu_2").innerText = _languageSource.menu_2;
     // document.getElementById("menu_3").innerText = _languageSource.menu_3;
@@ -703,13 +775,13 @@ const Index = {
     // document.getElementById("m_menu_2").innerText = _languageSource.m_menu_2;
     // document.getElementById("m_menu_3").innerText = _languageSource.m_menu_3;
     // document.getElementById("m_menu_4").innerText = _languageSource.m_menu_4;
-    // document.getElementById("main_title").innerText = _languageSource.main_title;
-    // document.getElementById("intro_sentence").innerText = _languageSource.intro_sentence;
-    // document.getElementById("currentjkstatus").innerText = _languageSource.currentjkstatus;
-    // document.getElementById("will_win_in").innerHTML = _languageSource.will_win_in;
+    document.getElementById("main_title").innerText = _languageSource.main_title;
+    document.getElementById("intro_sentence").innerText = _languageSource.intro_sentence;
+    document.getElementById("currentjkstatus").innerText = _languageSource.currentjkstatus;
+    document.getElementById("will_win_in").innerHTML = _languageSource.will_win_in;
     // document.getElementById("current_stage_txt").innerText = _languageSource.current_stage_txt;
     // document.getElementById("current_share_price_txt").innerText = _languageSource.current_share_price_txt;
-    // document.getElementById("error_view_text").innerText = _languageSource.error_view_text;
+    document.getElementById("error_view_text").innerText = _languageSource.error_view_text;
     // document.getElementById("spinner_text").innerText = _languageSource.spinner_text;
     // document.getElementById("buy_share_btn").innerText = _languageSource.buy_share_btn;
     // document.getElementById("my_wallet_intro").innerText = _languageSource.my_wallet_intro;
@@ -718,7 +790,7 @@ const Index = {
     // document.getElementById("more_options_btn").innerText = _languageSource.more_options_btn;
     // document.getElementById("withdraw_explain").innerText = _languageSource.withdraw_explain;
     // document.getElementById("withdraw_explain_btn").innerText = _languageSource.withdraw_explain_btn;
-    // document.getElementById("jp_for_shares").innerText = _languageSource.jp_for_shares;
+    document.getElementById("jp_for_shares").innerText = _languageSource.jp_for_shares;
     // document.getElementById("jp_for_shares_btn").innerText = _languageSource.jp_for_shares_btn;
     // document.getElementById("jp").innerText = _languageSource.jp;
     // document.getElementById("jp_btn").innerText = _languageSource.jp_btn;
@@ -733,17 +805,17 @@ const Index = {
     // document.getElementById("title_5").innerText = _languageSource.title_5;
     // document.getElementById("p_4").innerText = _languageSource.p_4;
     // document.getElementById("form_submit_3").innerText = _languageSource.form_submit_3;
-    // document.getElementById("white").innerText = _languageSource.white;
-    // document.getElementById("how_to_play_1").innerText = _languageSource.how_to_play_1;
-    // document.getElementById("how_to_play_2").innerText = _languageSource.how_to_play_2;
-    // document.getElementById("how_to_play_3").innerText = _languageSource.how_to_play_3;
-    // document.getElementById("how_to_play_4").innerText = _languageSource.how_to_play_4;
-    // document.getElementById("how_to_play_5").innerText = _languageSource.how_to_play_5;
-    // document.getElementById("contact_1").innerText = _languageSource.contact_1;
-    // document.getElementById("contact_2").innerText = _languageSource.contact_2;
-    // document.getElementById("contact_3").innerText = _languageSource.contact_3;
-    // document.getElementById("contact_4").innerText = _languageSource.contact_4;
-    // document.getElementById("contact_5").innerText = _languageSource.contact_5;
+    document.getElementById("white").innerText = _languageSource.white;
+    document.getElementById("how_to_play_1").innerText = _languageSource.how_to_play_1;
+    document.getElementById("how_to_play_2").innerText = _languageSource.how_to_play_2;
+    document.getElementById("how_to_play_3").innerText = _languageSource.how_to_play_3;
+    document.getElementById("how_to_play_4").innerText = _languageSource.how_to_play_4;
+    document.getElementById("how_to_play_5").innerText = _languageSource.how_to_play_5;
+    document.getElementById("contact_1").innerText = _languageSource.contact_1;
+    document.getElementById("contact_2").innerText = _languageSource.contact_2;
+    document.getElementById("contact_3").innerText = _languageSource.contact_3;
+    document.getElementById("contact_4").innerText = _languageSource.contact_4;
+    document.getElementById("contact_5").innerText = _languageSource.contact_5;
   }
 }
 
@@ -762,7 +834,7 @@ window.onload = function() {
         console.error("connectTronlink");
         // Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
         // Index.shawFakeCountdown();
-        return;
+        // return;
       } 
       else if (tronWeb.fullNode.host != 'https://api.trongrid.io' &&
           tronWeb.solidityNode.host != 'https://api.trongrid.io' &&
