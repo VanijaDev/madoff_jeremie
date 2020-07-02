@@ -14,10 +14,10 @@ contract MadoffContract is CountdownSessionManager, BernardEscrow {
   uint8 public ongoingStage;
   uint8 public maxStageNumber = 13;
 
-  uint16[14] public blocksForStage =                    [21600,   18000,    14400,    10800,    7200,     3600,      1200,      600,       300,       100,       20,        10,         7,          4];
-  uint32[14] public sharesForStageToPurchaseOriginal =  [2500,    5000,     3125,     12500,    10000,    62500,     62500,     400000,    390625,    2000000,   562500,    10000000,   12500000,   25000000];
-  uint32[14] public sharesForStageToPurchase =          [2500,    5000,     3125,     12500,    10000,    62500,     62500,     400000,    390625,    2000000,   562500,    10000000,   12500000,   25000000];
-  uint256[14] public sharePriceForStage =               [10 trx,  20 trx,   40 trx,   80 trx,   125 trx,  160 trx,   200 trx,   250 trx,   320 trx,   500 trx,   800 trx,   1000 trx,   1000 trx,   1000 trx];
+  uint16[14] public blocksForStage =                    [21600,   18000,    14400,    10800,    7200,     3600,      1200,      600,       300,       100,       20,         10,         7,          4];
+  uint32[14] public sharesForStageToPurchaseOriginal =  [2500,    5000,     3125,     12500,    10000,    62500,     62500,     400000,    390625,    2000000,   1562500,    10000000,   12500000,   25000000];
+  uint32[14] public sharesForStageToPurchase =          [2500,    5000,     3125,     12500,    10000,    62500,     62500,     400000,    390625,    2000000,   1562500,    10000000,   12500000,   25000000];
+  uint256[14] public sharePriceForStage =               [10 trx,  20 trx,   40 trx,   80 trx,   125 trx,  160 trx,   200 trx,   250 trx,   320 trx,   500 trx,   800 trx,    1000 trx,   1000 trx,   1000 trx];
   
   uint256 public latestPurchaseBlock;
   uint256 public ongoingJackpot;
