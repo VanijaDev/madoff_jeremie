@@ -124,9 +124,7 @@ const Index = {
   },
 
   nameForStage: function (_stage) {
-    console.log("nameForStage: ", _stage);
     let name = "";
-    console.log("name: ", name);
 
     switch (_stage) {
       case 0:
@@ -189,8 +187,6 @@ const Index = {
         name = "error";
         break;
     }
-
-    console.log("name: ", name);
     return name;
   },
 
@@ -347,20 +343,16 @@ const Index = {
 
     switch (_langId) {
       case 1:
-        console.log("setLanguage Index.languageSource: Korean");
         Index.languageSource = lang_korean;
         break;
       case 2:
-        console.log("setLanguage Index.languageSource: 简体  >> Simplified CN");
         Index.languageSource = lang_cn_simpl;
         break;
       case 3:
-        console.log("setLanguage Index.languageSource: 繁体  >> trad CN");
         Index.languageSource = lang_cn_trad;
         break;
     
       default:
-        console.log("setLanguage Index.languageSource: English");
         break;
     }
 
@@ -378,7 +370,7 @@ const Index = {
   },
 
   buySingleShare: async function() {
-    console.log("buySingleShare");
+    // console.log("buySingleShare");
 
     if (tronWeb.fullNode.host != 'https://api.trongrid.io' &&
       tronWeb.solidityNode.host != 'https://api.trongrid.io' &&
@@ -825,24 +817,24 @@ window.onload = function() {
   setTimeout(function() {
     if (!window.tronWeb) {
       console.error("NO window.tronWeb - onload");
-      // Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
-      // Index.shawFakeCountdown();
+      Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
+      Index.shawFakeCountdown();
     } else {
       console.log("YES window.tronWeb - onload");
 
       if (tronWeb.fullNode.host.includes("127.0.0.1")) {
         console.error("connectTronlink");
-        // Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
-        // Index.shawFakeCountdown();
-        // return;
+        Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
+        Index.shawFakeCountdown();
+        return;
       } 
       else if (tronWeb.fullNode.host != 'https://api.trongrid.io' &&
           tronWeb.solidityNode.host != 'https://api.trongrid.io' &&
           tronWeb.eventServer.host != 'https://api.trongrid.io') {
             console.error("wrongNode");
-            // Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
-            // Index.shawFakeCountdown();
-            // return;
+            Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
+            Index.shawFakeCountdown();
+            return;
       }
       // if (tronWeb.fullNode.host == 'https://api.shasta.trongrid.io' &&
       //     tronWeb.solidityNode.host == 'https://api.shasta.trongrid.io' &&
@@ -872,17 +864,17 @@ window.addEventListener('message', function (e) {
         
         Index.currentAccount = (e.data.message.data.address) ? e.data.message.data.address : "";
         if (Index.currentAccount.length == 0) {
-          // Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
-          // Index.shawFakeCountdown();
-          // return;
+          Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
+          Index.shawFakeCountdown();
+          return;
         }
 
         Index.hideError();
     } 
     else {
-      // Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
-      // Index.shawFakeCountdown();
-      // return;
+      Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
+      Index.shawFakeCountdown();
+      return;
     }
     setTimeout(Index.setup, 500);
   }
@@ -900,15 +892,15 @@ window.addEventListener('message', function (e) {
                 Index.hideError();
           }
           else {
-            // Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
-            // Index.shawFakeCountdown();
-            // return;
+            Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
+            Index.shawFakeCountdown();
+            return;
           }
       } else{
           // console.log("tronLink currently selects the side chain")
-          // Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
-          // Index.shawFakeCountdown();
-          // return;
+          Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
+          Index.shawFakeCountdown();
+          return;
       }
       setTimeout(Index.setup, 500);
   }
