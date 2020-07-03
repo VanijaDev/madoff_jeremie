@@ -2,8 +2,8 @@ import BigNumber from "bignumber.js";
 
 const Index = {
   Config: {
-    "tokenAddress": "TPQny8QYj5jXjssYTitxHCTVx2ZnX9shLJ",
-    "gameAddress": "THDbeqgY9AgJicjxTmwMb3Kz6FmKp8eYwB"
+    "tokenAddress": "TYk2trxq9CMYo2pJ9Yspe5XuyTT1cZRQ6u",
+    "gameAddress": "TCrdnkniaUoDGxzveSbWczzyWpAYdsdaup"
   },
 
   ErrorType: {
