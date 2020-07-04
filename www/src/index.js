@@ -110,7 +110,7 @@ const Index = {
   },
 
   updateCurrentStagePrice: async function() {
-    let ongoingStage = new BigNumber("0");
+    let ongoingStage = 0;
 
     if (!(await Index.isStageExpired())) {
       ongoingStage = parseInt(new BigNumber(await Index.gameInst.ongoingStage().call()));
