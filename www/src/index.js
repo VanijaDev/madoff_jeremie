@@ -343,12 +343,9 @@ const Index = {
 
     switch (_langId) {
       case 1:
-        Index.languageSource = lang_korean;
-        break;
-      case 2:
         Index.languageSource = lang_cn_simpl;
         break;
-      case 3:
+      case 2:
         Index.languageSource = lang_cn_trad;
         break;
     
@@ -767,6 +764,8 @@ const Index = {
     // document.getElementById("m_menu_2").innerText = _languageSource.m_menu_2;
     // document.getElementById("m_menu_3").innerText = _languageSource.m_menu_3;
     // document.getElementById("m_menu_4").innerText = _languageSource.m_menu_4;
+    document.getElementById("lands").innerText = _languageSource.lands;
+    document.getElementById("moreland").innerText = _languageSource.moreland;
     document.getElementById("main_title").innerText = _languageSource.main_title;
     document.getElementById("intro_sentence").innerText = _languageSource.intro_sentence;
     // document.getElementById("currentjkstatus").innerText = _languageSource.currentjkstatus;
