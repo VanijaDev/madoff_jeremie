@@ -19,7 +19,7 @@ lang_en = {
   withdraw1 : " withdraw ",
   withdrawopt2 : " Withdraw your part of the 20% from treasure here : ", 
   withdraw2 : " withdraw ",
-  withdrawopt2 : " If you are the winner withdraw the jackpot here : ", 
+  withdrawopt3 : " If you are the winner withdraw the jackpot here : ", 
   withdraw3 : " withdraw ",
   moreland : " Get More Lands : ",
   currentstatus : " Current tron : ",
