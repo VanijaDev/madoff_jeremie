@@ -1740,4 +1740,7 @@ margin-bottom: 40px;
   margin: auto !important;
 }
 
+::-webkit-scrollbar { 
+  display: none; 
+}
 
