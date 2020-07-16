@@ -25,7 +25,7 @@ const Index = {
   fakeCountdownRunning: false,
 
   LOOP_LIMIT: new BigNumber("50"),
-  WEBSITE_ADDR: "TQphDXxumffC81VTaChhNuFuK1efRAYQJ4", //  TODO: change
+  WEBSITE_ADDR: "TNkUwF5pT36Z7gKq95nxZDW2WoffXP8skq",
 
   setup: async function() {
     console.log("\n     SETUP\n");
