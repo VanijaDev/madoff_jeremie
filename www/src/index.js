@@ -27,11 +27,11 @@ const Index = {
   LOOP_LIMIT: new BigNumber("50"),
   WEBSITE_ADDR: "TNkUwF5pT36Z7gKq95nxZDW2WoffXP8skq",
 
-  setup: async function() {
+  setup: async function () {
     console.log("\n     SETUP\n");
 
     //  test addr
-    Index.currentAccount =  window.tronWeb.defaultAddress.base58;
+    Index.currentAccount = window.tronWeb.defaultAddress.base58;
 
     //  Instances
     try {
@@ -46,36 +46,44 @@ const Index = {
     Index.updateData();
   },
 
-  updateData: function() {
+  updateData: function () {
     console.log("\n     UPDATE\n");
     // Index.showSpinner(true, " ");
 
-    Index.updateJackpot();
-    Index.updateWinner();
-    Index.updateCountdown();
-    Index.updateOwningSharesCount();
-    Index.updateCurrentStagePrice();
-    Index.updateCurrentEarnings();
+    setTimeout(function () {
+      Index.updateCountdown();
+    }, 500);
+    setTimeout(function () {
+      Index.updateJackpot();
+      Index.updateWinner();
+    }, 1000);
+    setTimeout(function () {
+      Index.updateOwningSharesCount();
+    }, 1500);
+    setTimeout(function () {
+      Index.updateCurrentStagePrice();
+      Index.updateCurrentEarnings();
+    }, 2000);
   },
 
-  updateOwningSharesCount: async function() {
+  updateOwningSharesCount: async function () {
     let participatedSessionsForUserResponse = await Index.gameInst.participatedSessionsForUser().call();
     let participatedSessionsForUser = participatedSessionsForUserResponse.sessions;
 
     let sharesTotal = new BigNumber("0");
-    for (let i = 0; i < participatedSessionsForUser.length; i ++) {
+    for (let i = 0; i < participatedSessionsForUser.length; i++) {
       let shares = new BigNumber((await Index.gameInst.sharesPurchasedInSessionByPurchaser(participatedSessionsForUser[i].toString()).call()).shares);
       sharesTotal = sharesTotal.plus(shares);
     }
     document.getElementById("lands_amount").textContent = sharesTotal.toString();
   },
 
-  updateJackpot: async function() {
+  updateJackpot: async function () {
     let jp = await Index.gameInst.ongoingJackpot().call();
     document.getElementById("currentJackpot").textContent = tronWeb.fromSun(jp);
   },
 
-  updateWinner: async function() {
+  updateWinner: async function () {
     let winner = await Index.gameInst.ongoingWinner().call();
     if (winner.localeCompare("410000000000000000000000000000000000000000") == 0) {
       document.getElementById("currentWinner").textContent = "0x0";
@@ -84,7 +92,7 @@ const Index = {
     }
   },
 
-  shawFakeCountdown: function() {
+  shawFakeCountdown: function () {
     if (this.fakeCountdownRunning) {
       return;
     }
@@ -95,7 +103,7 @@ const Index = {
     this.runCountdown(winDate);
   },
 
-  updateCountdown: async function() {
+  updateCountdown: async function () {
     let secLeft = 0;
 
     let blocksLeft = new BigNumber(await Index.blocksUntilStageFinish());
@@ -109,7 +117,7 @@ const Index = {
     this.runCountdown(winDate);
   },
 
-  updateCurrentStagePrice: async function() {
+  updateCurrentStagePrice: async function () {
     let ongoingStage = 0;
 
     if (!(await Index.isStageExpired())) {
@@ -182,7 +190,7 @@ const Index = {
       case 13:
         name = Index.languageSource.justin_tron;
         break;
-    
+
       default:
         name = "error";
         break;
@@ -190,7 +198,7 @@ const Index = {
     return name;
   },
 
-  updateCurrentEarnings: async function() {
+  updateCurrentEarnings: async function () {
     //  JP
     let jp = await Index.jackpotAmountForCurrentAccount();
     document.getElementById("jackpot_amount").textContent = tronWeb.fromSun(jp);
@@ -206,7 +214,7 @@ const Index = {
     Index.showSpinner(false, this.ErrorView.land);
   },
 
-  jackpotAmountForCurrentAccount: async function() {
+  jackpotAmountForCurrentAccount: async function () {
     let totalAmount = new BigNumber("0");
 
     //  previous jpts
@@ -218,7 +226,7 @@ const Index = {
     return totalAmount;
   },
 
-  jackpotForSharesForCurrentAccount: async function() {
+  jackpotForSharesForCurrentAccount: async function () {
     let totalAmount = new BigNumber("0");
 
     let participatedSessionsForUserResponse = await Index.gameInst.participatedSessionsForUser().call();
@@ -226,7 +234,7 @@ const Index = {
 
     let length = participatedSessionsForUser.length;
     let ongoingSessionIdx = await Index.gameInst.ongoingSessionIdx().call();
-    if (new BigNumber(participatedSessionsForUser[length-1]).comparedTo(new BigNumber(ongoingSessionIdx)) == 0) {
+    if (new BigNumber(participatedSessionsForUser[length - 1]).comparedTo(new BigNumber(ongoingSessionIdx)) == 0) {
       participatedSessionsForUser.pop();
       length = participatedSessionsForUser.length;
     }
@@ -247,7 +255,7 @@ const Index = {
     return totalAmount;
   },
 
-  profitForPurchasedShares: async function() {
+  profitForPurchasedShares: async function () {
     let totalAmount = new BigNumber("0");
 
     let participatedSessionsForUserResponse = await Index.gameInst.participatedSessionsForUser().call();
@@ -255,7 +263,7 @@ const Index = {
 
     let length = participatedSessionsForUser.length;
     let ongoingSessionIdx = await Index.gameInst.ongoingSessionIdx().call();
-    
+
     // //  remove ongoing session
     // if (new BigNumber(participatedSessionsForUser[length-1]).comparedTo(new BigNumber(ongoingSessionIdx)) == 0) {
     //   participatedSessionsForUser.pop();
@@ -271,7 +279,7 @@ const Index = {
     return totalAmount;
   },
 
-  profitInSession: async function(_sessionId) {
+  profitInSession: async function (_sessionId) {
     let totalAmount = new BigNumber("0");
 
     let purchasesInSession = (await Index.gameInst.purchasesInSessionForUser(_sessionId).call()).purchases;
@@ -285,7 +293,7 @@ const Index = {
     return totalAmount;
   },
 
-  profitForPurchaseInSession: async function(_purchaseId, _sessionId) {
+  profitForPurchaseInSession: async function (_purchaseId, _sessionId) {
     let totalAmount = new BigNumber("0");
 
     let purchaseCountInSession = new BigNumber((await Index.gameInst.purchaseCountInSession(_sessionId).call()).purchases);
@@ -297,7 +305,7 @@ const Index = {
 
     let withdrawnOnPurchase = new BigNumber((await Index.gameInst.purchaseProfitInSessionWithdrawnOnPurchaseForUser(_purchaseId, _sessionId).call()).purchase);
     let fromPurchase = new BigNumber(_purchaseId).plus(new BigNumber("1"));
-    
+
     if (withdrawnOnPurchase.comparedTo(new BigNumber("0")) > 0) {
       //  alredy withdrawn on profit in past
 
@@ -308,14 +316,14 @@ const Index = {
 
       fromPurchase = withdrawnOnPurchase.plus(new BigNumber("1"));
     }
-    
+
     let purchaseCountWithProfit = purchaseCountInSession.minus(fromPurchase);
     let toPurchase = (purchaseCountWithProfit.comparedTo(Index.LOOP_LIMIT) == 1) ? fromPurchase.plus(Index.LOOP_LIMIT) : fromPurchase.plus(purchaseCountWithProfit).minus(new BigNumber("1"));
 
     let fetch = true;
     do {
       //  loop trough purchases
-    let localFetch = true;
+      let localFetch = true;
       do {
         //  loop until toPurchase < lastPurchaseIdx
 
@@ -325,7 +333,7 @@ const Index = {
 
         const profit = (await Index.gameInst.profitForPurchaseInSession(_purchaseId.toString(), _sessionId.toString(), fromPurchase.toString(), toPurchase.toString()).call()).profit;
         totalAmount = totalAmount.plus(new BigNumber(profit));
-  
+
         fromPurchase = toPurchase.plus(new BigNumber("1"));
         if (toPurchase.comparedTo(lastPurchaseIdx) < 0) {
           toPurchase = (fromPurchase.plus(Index.LOOP_LIMIT).comparedTo(lastPurchaseIdx) <= 0) ? fromPurchase.plus(Index.LOOP_LIMIT) : lastPurchaseIdx;
@@ -338,7 +346,7 @@ const Index = {
     return totalAmount;
   },
 
-  setLanguage: function(_langId) {
+  setLanguage: function (_langId) {
     Index.languageSource = lang_en;
 
     switch (_langId) {
@@ -351,7 +359,7 @@ const Index = {
       case 3:
         Index.languageSource = lang_cn_trad;
         break;
-    
+
       default:
         break;
     }
@@ -369,17 +377,17 @@ const Index = {
     document.getElementById("know_more").classList.remove('opacity_0');
   },
 
-  buySingleShare: async function() {
+  buySingleShare: async function () {
     // console.log("buySingleShare");
 
     if (tronWeb.fullNode.host != 'https://api.trongrid.io' &&
       tronWeb.solidityNode.host != 'https://api.trongrid.io' &&
       tronWeb.eventServer.host != 'https://api.trongrid.io') {
-        Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.king);
-        setTimeout(() => {
-          Index.hideError(Index.ErrorView.king);
-        }, 5000);
-        return;
+      Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.king);
+      setTimeout(() => {
+        Index.hideError(Index.ErrorView.king);
+      }, 5000);
+      return;
     }
 
     //  calculate TRX amount
@@ -387,7 +395,7 @@ const Index = {
     Index.purchase(txValue);
   },
 
-  buyShares: async function() {
+  buyShares: async function () {
     let sharesNumber = document.getElementById("purchaseAmount").value;
     if (sharesNumber < 1) {
       alert("Please enter valid shares number. Minimum 1 share to buy.");
@@ -402,10 +410,10 @@ const Index = {
     Index.purchase(txValue);
   },
 
-  purchase: async function(_value) {
+  purchase: async function (_value) {
     try {
       let purchaseTx = await Index.gameInst.purchase(Index.WEBSITE_ADDR).send({
-        feeLimit:100000000,
+        feeLimit: 100000000,
         callValue: _value,
         shouldPollResponse: false
       });
@@ -427,7 +435,7 @@ const Index = {
     }
   },
 
-  withdrawJackpotClicked: async function() {
+  withdrawJackpotClicked: async function () {
     //  withdraw previous jpts
     let jackpotForAddr = await Index.gameInst.jackpotForAddr(Index.currentAccount).call();
     if ((new BigNumber(jackpotForAddr)).comparedTo(new BigNumber("0")) > 0) {
@@ -437,13 +445,13 @@ const Index = {
     alert('Sorry, no jackpot for you.');
   },
 
-  withdrawjackpotForSharesInSessionClicked: async function() {
+  withdrawjackpotForSharesInSessionClicked: async function () {
     Index.showSpinner(true, this.ErrorView.land);
 
     let participatedSessionsForUser = (await Index.gameInst.participatedSessionsForUser().call()).sessions;
     let length = participatedSessionsForUser.length;
     let ongoingSessionIdx = await Index.gameInst.ongoingSessionIdx().call();
-    if (new BigNumber(participatedSessionsForUser[length-1]).comparedTo(new BigNumber(ongoingSessionIdx)) == 0) {
+    if (new BigNumber(participatedSessionsForUser[length - 1]).comparedTo(new BigNumber(ongoingSessionIdx)) == 0) {
       participatedSessionsForUser.pop();
     }
     let sessions = [];
@@ -453,7 +461,7 @@ const Index = {
         sessions.push(sessionId.toString());
       }
     }
-    
+
     length = participatedSessionsForUser.length;
 
     let promptResult = prompt(("Session ids with pending jackpot: " + sessions + ". Which one to withdraw?"));
@@ -475,23 +483,23 @@ const Index = {
     }, 5000);
     try {
       let withdrawJackpotforSharesTx = await Index.gameInst.withdrawjackpotForSharesInSession(sessionIdx).send({
-        feeLimit:100000000,
+        feeLimit: 100000000,
         shouldPollResponse: true
       });
 
       // console.log("withdrawJackpotforSharesTx: ", withdrawJackpotforSharesTx);
       Index.updateData();
     } catch (error) {
-        console.error(error);
-        alert("Error: " + error.message);
+      console.error(error);
+      alert("Error: " + error.message);
     }
   },
 
   /**
    * Withdraw implemented by single purchase
    */
-  withdrawSharesProfitClicked: async function() {
-    let sessionsToCheckForProfitForShares = await Index.sessionsToCheckForProfitForShares();    
+  withdrawSharesProfitClicked: async function () {
+    let sessionsToCheckForProfitForShares = await Index.sessionsToCheckForProfitForShares();
     let sessionsLength = sessionsToCheckForProfitForShares.length;
 
     if (sessionsLength == 0) {
@@ -505,13 +513,13 @@ const Index = {
       const sessionId = sessionsToCheckForProfitForShares[i];
 
       let purchaseCountInSession = new BigNumber((await Index.gameInst.purchaseCountInSession(sessionId).call()).purchases);
-      
+
       let lastPurchaseIdx = purchaseCountInSession.minus(new BigNumber("1"));
-      
+
       let userPurchasesInSession = (await Index.gameInst.purchasesInSessionForUser(sessionId).call()).purchases;
       let userPurchasesInSessionLength = userPurchasesInSession.length;
 
-      for (let j = 0; j < userPurchasesInSessionLength; j ++) {
+      for (let j = 0; j < userPurchasesInSessionLength; j++) {
         let purchaseId = new BigNumber(userPurchasesInSession[j]);
 
         if (purchaseId.comparedTo(lastPurchaseIdx) == 0) {
@@ -520,15 +528,14 @@ const Index = {
 
         let withdrawnOnPurchase = new BigNumber((await Index.gameInst.purchaseProfitInSessionWithdrawnOnPurchaseForUser(purchaseId.toString(), sessionId.toString()).call()).purchase);
 
-        if (withdrawnOnPurchase.comparedTo(lastPurchaseIdx) == 0) {
-        } else if (withdrawnOnPurchase.comparedTo(lastPurchaseIdx) > 0) {
-          throw("withdrawSharesProfitClicked - withdrawnOnPurchase:", withdrawnOnPurchase);
+        if (withdrawnOnPurchase.comparedTo(lastPurchaseIdx) == 0) {} else if (withdrawnOnPurchase.comparedTo(lastPurchaseIdx) > 0) {
+          throw ("withdrawSharesProfitClicked - withdrawnOnPurchase:", withdrawnOnPurchase);
         } else {
           await Index.withdrawSharesProfitForPurchaseInSession(purchaseId, sessionId);
           return;
         }
       }
-    }   
+    }
     alert("No profit for purchased shares");
     Index.showSpinner(false, this.ErrorView.land);
   },
@@ -536,22 +543,22 @@ const Index = {
   /** HELPERS */
 
 
-  runCountdown: function(_endDate) {
-    jQuery('#clock').countdown(_endDate,function(event){
-      var $this=jQuery(this).html(event.strftime(''
-      +'<div class="time-entry hours"><span>%H</span></div> '
-      +'<div class="time-entry minutes"><span>%M</span></div>'
-      +'<div class="time-entry seconds"><span>%S</span></div>'));
+  runCountdown: function (_endDate) {
+    jQuery('#clock').countdown(_endDate, function (event) {
+      var $this = jQuery(this).html(event.strftime('' +
+        '<div class="time-entry hours"><span>%H</span></div> ' +
+        '<div class="time-entry minutes"><span>%M</span></div>' +
+        '<div class="time-entry seconds"><span>%S</span></div>'));
     });
   },
 
-  sessionsToCheckForProfitForShares: async function() {
+  sessionsToCheckForProfitForShares: async function () {
     let participatedSessionsForUserResponse = await Index.gameInst.participatedSessionsForUser().call();
     let participatedSessionsForUser = participatedSessionsForUserResponse.sessions;
 
     let length = participatedSessionsForUser.length;
     let ongoingSessionIdx = await Index.gameInst.ongoingSessionIdx().call();
-    
+
     // //  remove ongoing session
     // if (new BigNumber(participatedSessionsForUser[length-1]).comparedTo(new BigNumber(ongoingSessionIdx)) == 0) {
     //   participatedSessionsForUser.pop();
@@ -559,31 +566,31 @@ const Index = {
     return participatedSessionsForUser.reverse();
   },
 
-  withdrawSharesProfitForPurchaseInSession: async function(_purchaseId, _sessionId) {
+  withdrawSharesProfitForPurchaseInSession: async function (_purchaseId, _sessionId) {
     let loopLimit = prompt("By default loop limit is 50 for withdraw. Here you can chose a bigger looplimit to withdraw more with one transaction. Be carefull if looplimit is too high transaction could fail. If transaction fail nothing will happen on the contract your funds will stay on it.", 50);
 
     if (loopLimit.length == 0 || parseInt(loopLimit) <= 0) {
       loopLimit = 50;
     }
-      
+
     setTimeout(() => {
       Index.showSpinner(false, this.ErrorView.land);
     }, 5000);
     try {
       let withdrawProfitForSharesTx = await Index.gameInst.withdrawProfitForPurchaseInSession(_purchaseId.toString(), _sessionId.toString(), loopLimit.toString()).send({
-        feeLimit:100000000,
+        feeLimit: 100000000,
         shouldPollResponse: true
       });
 
       // console.log("withdrawSharesProfitForPurchaseInSession: ", withdrawProfitForSharesTx);
       Index.updateData();
     } catch (error) {
-        console.error(error);
-        alert("Error: " + error.message);
+      console.error(error);
+      alert("Error: " + error.message);
     }
   },
 
-  withdrawJackpot: async function() {
+  withdrawJackpot: async function () {
     Index.showSpinner(true, this.ErrorView.land);
     setTimeout(() => {
       Index.showSpinner(false, this.ErrorView.land);
@@ -591,28 +598,28 @@ const Index = {
 
     try {
       let withdrawJackpotTx = await Index.gameInst.withdrawJackpot().send({
-        feeLimit:100000000,
+        feeLimit: 100000000,
         shouldPollResponse: true
       });
 
       // console.log("withdrawJackpotTx: ", withdrawJackpotTx);
       Index.updateData();
     } catch (error) {
-        console.error(error);
-        alert("Error: " + error.message);
+      console.error(error);
+      alert("Error: " + error.message);
     }
   },
 
-  blocksUntilStageFinish: async function() {
+  blocksUntilStageFinish: async function () {
     let ongoingStage = new BigNumber(await Index.gameInst.ongoingStage().call());
     // console.log("ongoingStage: ", ongoingStage.toString());
-    
+
     let blocksForStage = new BigNumber(await Index.gameInst.blocksForStage(ongoingStage.toString()).call());
     // console.log("blocksForStage: ", blocksForStage.toString());
-    
+
     let latestPurchaseBlock = new BigNumber(await Index.gameInst.latestPurchaseBlock().call());
     // console.log("latestPurchaseBlock: ", latestPurchaseBlock.toString());
-    
+
     let winningBlock = latestPurchaseBlock.plus(blocksForStage);
     // console.log("winningBlock: ", winningBlock.toString());
 
@@ -625,16 +632,16 @@ const Index = {
     return blocksLeft;
   },
 
-  isStageExpired: async function() {
+  isStageExpired: async function () {
     let ongoingStage = new BigNumber(await Index.gameInst.ongoingStage().call());
     // console.log("ongoingStage: ", ongoingStage.toString());
-    
+
     let blocksForStage = new BigNumber(await Index.gameInst.blocksForStage(ongoingStage.toString()).call());
     // console.log("blocksForStage: ", blocksForStage.toString());
-    
+
     let latestPurchaseBlock = new BigNumber(await Index.gameInst.latestPurchaseBlock().call());
     // console.log("latestPurchaseBlock: ", latestPurchaseBlock.toString());
-    
+
     let winningBlock = latestPurchaseBlock.plus(blocksForStage);
     // console.log("winningBlock: ", winningBlock.toString());
 
@@ -670,7 +677,7 @@ const Index = {
         break;
 
       default:
-        throw("showError - wrong _errorType");
+        throw ("showError - wrong _errorType");
         break;
     }
 
@@ -686,7 +693,7 @@ const Index = {
         break;
 
       default:
-        throw("showError - wrong _errorView");
+        throw ("showError - wrong _errorView");
         break;
     }
   },
@@ -706,14 +713,14 @@ const Index = {
       default:
         document.getElementById("error_view-king_text").textContent = "";
         document.getElementById("error_view-king").style.display = "none";
-    
+
         document.getElementById("error_view_text").textContent = "";
         document.getElementById("error_view").style.display = "none";
         break;
     }
   },
 
-  showSpinner: function(_show, _viewType) {
+  showSpinner: function (_show, _viewType) {
     if (_show) {
       this.showError(this.ErrorType.mining, _viewType);
     } else {
@@ -721,11 +728,11 @@ const Index = {
     }
   },
 
-  showNotifViewJP: function(_show) {
+  showNotifViewJP: function (_show) {
     document.getElementById("notif_view_jp").style.display = _show ? "block" : "none";
   },
 
-  purchaseValue: async function(_sharesNumber) {
+  purchaseValue: async function (_sharesNumber) {
     let useDefaults = false;
     let ongoingStage = await Index.gameInst.ongoingStage().call();
 
@@ -753,7 +760,7 @@ const Index = {
     return resultValueBN;
   },
 
-  sharesPrice: async function(_sharesNumber, _stage) {
+  sharesPrice: async function (_sharesNumber, _stage) {
     let sharePriceForStage = await Index.gameInst.sharePriceForStage(_stage).call();
     return new BigNumber(_sharesNumber.toString()).multipliedBy(sharePriceForStage);
   },
@@ -811,10 +818,10 @@ const Index = {
   }
 }
 
-window.onload = function() {
+window.onload = function () {
   Index.setLanguage(0);
 
-  setTimeout(function() {
+  setTimeout(function () {
     if (!window.tronWeb) {
       console.error("NO window.tronWeb - onload");
       Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
@@ -827,14 +834,13 @@ window.onload = function() {
         Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
         Index.shawFakeCountdown();
         return;
-      } 
-      else if (tronWeb.fullNode.host != 'https://api.trongrid.io' &&
-          tronWeb.solidityNode.host != 'https://api.trongrid.io' &&
-          tronWeb.eventServer.host != 'https://api.trongrid.io') {
-            console.error("wrongNode");
-            Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
-            Index.shawFakeCountdown();
-            return;
+      } else if (tronWeb.fullNode.host != 'https://api.trongrid.io' &&
+        tronWeb.solidityNode.host != 'https://api.trongrid.io' &&
+        tronWeb.eventServer.host != 'https://api.trongrid.io') {
+        console.error("wrongNode");
+        Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
+        Index.shawFakeCountdown();
+        return;
       }
       // if (tronWeb.fullNode.host == 'https://api.shasta.trongrid.io' &&
       //     tronWeb.solidityNode.host == 'https://api.shasta.trongrid.io' &&
@@ -859,19 +865,18 @@ window.addEventListener('message', function (e) {
     }
 
     if (tronWeb.fullNode.host == 'https://api.trongrid.io' &&
-        tronWeb.solidityNode.host == 'https://api.trongrid.io' &&
-        tronWeb.eventServer.host == 'https://api.trongrid.io') {
-        
-        Index.currentAccount = (e.data.message.data.address) ? e.data.message.data.address : "";
-        if (Index.currentAccount.length == 0) {
-          Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
-          Index.shawFakeCountdown();
-          return;
-        }
+      tronWeb.solidityNode.host == 'https://api.trongrid.io' &&
+      tronWeb.eventServer.host == 'https://api.trongrid.io') {
 
-        Index.hideError();
-    } 
-    else {
+      Index.currentAccount = (e.data.message.data.address) ? e.data.message.data.address : "";
+      if (Index.currentAccount.length == 0) {
+        Index.showError(Index.ErrorType.connectTronlink, Index.ErrorView.land);
+        Index.shawFakeCountdown();
+        return;
+      }
+
+      Index.hideError();
+    } else {
       Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
       Index.shawFakeCountdown();
       return;
@@ -881,28 +886,27 @@ window.addEventListener('message', function (e) {
 
   if (e.data.message && e.data.message.action == "setNode") {
     console.log("message - setNode");
-      // console.log("setNode event e", e)
-      // console.log("setNode event", e.data.message)
-      if (e.data.message.data.node.chain == '_') {
-          // console.log("tronLink currently selects the main chain")
+    // console.log("setNode event e", e)
+    // console.log("setNode event", e.data.message)
+    if (e.data.message.data.node.chain == '_') {
+      // console.log("tronLink currently selects the main chain")
 
-          if (e.data.message.data.node.fullNode == 'https://api.trongrid.io' &&
-              e.data.message.data.node.solidityNode == 'https://api.trongrid.io' &&
-              e.data.message.data.node.eventServer == 'https://api.trongrid.io') {
-                Index.hideError();
-          }
-          else {
-            Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
-            Index.shawFakeCountdown();
-            return;
-          }
-      } else{
-          // console.log("tronLink currently selects the side chain")
-          Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
-          Index.shawFakeCountdown();
-          return;
+      if (e.data.message.data.node.fullNode == 'https://api.trongrid.io' &&
+        e.data.message.data.node.solidityNode == 'https://api.trongrid.io' &&
+        e.data.message.data.node.eventServer == 'https://api.trongrid.io') {
+        Index.hideError();
+      } else {
+        Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
+        Index.shawFakeCountdown();
+        return;
       }
-      setTimeout(Index.setup, 500);
+    } else {
+      // console.log("tronLink currently selects the side chain")
+      Index.showError(Index.ErrorType.wrongNode, Index.ErrorView.land);
+      Index.shawFakeCountdown();
+      return;
+    }
+    setTimeout(Index.setup, 500);
   }
 })
 
